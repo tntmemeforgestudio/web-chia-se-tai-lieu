@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Tạo thư mục lưu file nếu chưa có
 const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -24,6 +24,11 @@ app.use(express.urlencoded({ extended: true }));
 const dbFile = path.join(__dirname, 'db.json');
 if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, JSON.stringify([]));
 
+// Thêm dòng này để fix lỗi Cannot GET /
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get('/posts', (req, res) => {
     const posts = JSON.parse(fs.readFileSync(dbFile));
     res.json(posts);
@@ -41,5 +46,5 @@ app.post('/post', upload.single('media'), (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Web đang chạy tại: http://localhost:${PORT}`);
+    console.log(`Web đang chạy tại port: ${PORT}`);
 });
