@@ -24,9 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 const dbFile = path.join(__dirname, 'db.json');
 if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, JSON.stringify([]));
 
-// Thêm dòng này để fix lỗi Cannot GET /
+// Trỏ đúng vào file index.html nằm trong thư mục public
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/posts', (req, res) => {
