@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Góc Tài Liệu Nhóm</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 30px auto; padding: 0 15px; }
+        textarea { width: 100%; height: 80px; padding: 8px; box-sizing: border-box; }
+        .post { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 5px; background: #fafafa; }
+        img { max-width: 100%; margin-top: 10px; display: block; border-radius: 4px; }
+        .file-link { display: inline-block; margin-top: 8px; padding: 6px 12px; background: #007bff; color: #fff; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h2>Kho Tài Liệu & Ảnh Của Nhóm</h2>
+    <form action="/post" method="POST" enctype="multipart/form-data">
+        <textarea name="content" placeholder="Nhập nội dung, link hoặc ghi chú..." required></textarea><br><br>
+        <input type="file" name="media"><br><br>
+        <button type="submit">Đăng bài lên</button>
+    </form>
+    <hr>
+    <div id="feed">Đang tải dữ liệu...</div>
+
+    <script>
+        fetch('/posts').then(res => res.json()).then(posts => {
+            const feed = document.getElementById('feed');
+            if(posts.length === 0) {
+                feed.innerHTML = '<p>Chưa có bài đăng nào cả.</p>';
+                return;
+            }
+            feed.innerHTML = posts.map(p => `
+                <div class="post">
+                    <small style="color: #666;">${p.time}</small>
+                    <p style="white-space: pre-wrap; margin-top: 8px;">${p.content}</p>${p.mediaUrl ? `
+                        ${p.mediaUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? 
+                            `<img src="${p.mediaUrl}">` : 
+                            `<a class="file-link" href="${p.mediaUrl}" target="_blank">📥 Tải file đính kèm</a>`
+                        }
+                    ` : ''}
+                </div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>
