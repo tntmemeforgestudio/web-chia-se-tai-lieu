@@ -19,8 +19,12 @@ if (!MONGO_URI) {
         .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
 }
 
-// 2. Tự động nhận diện cấu hình từ biến CLOUDINARY_URL trên Render
-cloudinary.config();
+// 2. Cấu hình Cloudinary đọc trực tiếp từ biến môi trường Render (Chính xác tuyệt đối)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // 3. Cấu hình Multer Storage tự động phân loại tệp tin tải lên Cloudinary
 const storage = new CloudinaryStorage({
