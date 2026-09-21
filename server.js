@@ -19,7 +19,7 @@ if (!MONGO_URI) {
         .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
 }
 
-// 2. Cấu hình trực tiếp chính xác tuyệt đối với khóa mới của Cloudinary
+// 2. Cấu hình trực tiếp chính xác tuyệt đối theo đúng thông số trên Cloudinary của bro
 cloudinary.config({
   cloud_name: 'ufpn14eq',
   api_key: '524937465313367',
