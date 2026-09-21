@@ -5,140 +5,541 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Góc Chia Sẻ Tài Liệu v2.0</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #f4f6f8; color: #333; padding-bottom: 90px; }
-        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        h1 { font-size: 1.2rem; font-weight: bold; }
-        
-        .container { max-width: 600px; margin: 20px auto; padding: 0 10px; }
-        
-        /* Card Bài Đăng */
-        .post-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
-        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .post-time { font-size: 0.8rem; color: #777; }
-        .delete-btn { background: transparent; border: none; color: #cc0000; cursor: pointer; font-size: 0.85rem; font-weight: bold; opacity: 0.7; }
-        .delete-btn:hover { opacity: 1; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        .post-content { font-size: 1rem; margin-bottom: 10px; line-height: 1.4; word-break: break-word; }
-        .post-media img { width: 100%; border-radius: 8px; margin-top: 8px; max-height: 400px; object-fit: contain; background: #000; cursor: zoom-in; }
-        .post-media video { width: 100%; border-radius: 8px; margin-top: 8px; max-height: 400px; background: #000; }
-        .post-file { display: inline-block; margin-top: 8px; padding: 8px 12px; background: #eef2f5; border-radius: 6px; text-decoration: none; color: #0066cc; font-size: 0.9rem; font-weight: 500; }
-        
-        /* Thanh Nút Like / Dislike */
-        .post-actions { display: flex; gap: 10px; margin-top: 12px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
-        .action-btn { background: #f0f2f5; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
-        .action-btn.active { background: #000 !important; color: #fff !important; }
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            padding-bottom: 80px;
+        }
 
-        /* Floating Action Buttons (Góc dưới bên phải) */
-        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 999; }
-        .fab-btn { width: 56px; height: 56px; border-radius: 50%; background: #000; color: #fff; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
-        .fab-settings { background: #555; width: 48px; height: 48px; font-size: 20px; margin-left: 8px; }
+        header {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-        /* Tag Phiên Bản (Góc dưới bên trái) */
-        .version-tag { position: fixed; bottom: 15px; left: 15px; font-size: 0.75rem; color: #888; background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 6px; pointer-events: none; z-index: 99; font-weight: bold; border: 1px solid #ddd; }
+        header h1 {
+            font-size: 22px;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
 
-        /* Popup Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: #fff; width: 90%; max-width: 450px; border-radius: 12px; padding: 20px; position: relative; }
-        .close-btn { position: absolute; top: 12px; right: 15px; font-size: 22px; cursor: pointer; color: #888; }
-        
-        textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; resize: none; margin-bottom: 10px; font-size: 0.95rem; }
-        input[type="file"], select { width: 100%; margin-bottom: 15px; padding: 8px; }
-        .btn-submit { width: 100%; background: #000; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .container {
+            max-width: 800px;
+            margin: 25px auto;
+            padding: 0 15px;
+        }
 
-        /* Lightbox phóng to ảnh */
-        .lightbox-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
-        .lightbox-modal img { max-width: 95%; max-height: 90%; border-radius: 8px; }
+        /* Thanh thông báo Đang xử lý (Processing Toast) */
+        #toast-banner {
+            display: none;
+            position: fixed;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
 
-        /* Notification Toast */
-        #toast { display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; z-index: 1001; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* Khung bài đăng */
+        .post-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eaeaea;
+            transition: transform 0.2s ease;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .post-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #d32f2f;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #ffcdd2;
+        }
+
+        /* GIỮ NGUYÊN DẤU XUỐNG DÒNG VÀ ĐOẠN VĂN */
+        .post-text {
+            white-space: pre-wrap !important;
+            word-break: break-word;
+            line-height: 1.6;
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .post-media {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 450px;
+            display: flex;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+
+        .post-media img {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+            cursor: zoom-in;
+            border-radius: 8px;
+        }
+
+        .post-media video {
+            width: 100%;
+            max-height: 450px;
+            border-radius: 8px;
+        }
+
+        .post-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            background: #f1f3f5;
+            color: #1c7ed6;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .post-file:hover {
+            background: #e7f5ff;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #333;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        /* Nút Like / Dislike trạng thái Màu Đen */
+        .btn-action.active-black {
+            background: #000000 !important;
+            color: #ffffff !important;
+            border-color: #000000 !important;
+        }
+
+        /* Nút nổi Floating UI (+ và ⚙️) */
+        .fab-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 900;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #000;
+            color: #fff;
+            border: none;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .fab:hover {
+            transform: scale(1.08);
+            background: #222;
+        }
+
+        /* Tag Version 2.0 góc dưới bên trái */
+        .version-tag {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.08);
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 800;
+        }
+
+        /* Modal Bảng popup */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalUp 0.25s ease;
+        }
+
+        @keyframes modalUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: #1a1a1a;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #222;
+        }
+
+        /* Lightbox Xem Ảnh Phóng To */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 id="txt-header">Góc Chia Sẻ Tài Liệu</h1>
+        <h1 id="app-title">Góc Chia Sẻ Tài Liệu</h1>
     </header>
 
-    <div id="toast"></div>
-
     <div class="container" id="posts-container">
-        <!-- Bài đăng nạp tự động vào đây -->
+        <!-- Danh sách bài đăng sẽ được tải vào đây -->
     </div>
 
-    <!-- Tag hiển thị phiên bản ở góc dưới bên trái -->
+    <!-- Processing Toast -->
+    <div id="toast-banner">
+        <span id="toast-text">⏳ Đang xử lý... Bạn vẫn có thể lướt xem bài đăng.</span>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab" onclick="openModal('settings-modal')" title="Cài đặt ngôn ngữ">⚙️</button>
+        <button class="fab" onclick="openModal('post-modal')" title="Đăng bài mới">+</button>
+    </div>
+
+    <!-- Version Tag -->
     <div class="version-tag">Version 2.0</div>
 
-    <!-- Nút Nổi ở góc dưới bên phải -->
-    <div class="fab-container">
-        <button class="fab-btn fab-settings" onclick="openModal('settings-modal')">⚙️</button>
-        <button class="fab-btn" onclick="openModal('post-modal')">+</button>
-    </div>
-
     <!-- Modal Đăng bài -->
-    <div class="modal" id="post-modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('post-modal')">&times;</span>
-            <h3 id="txt-modal-post-title" style="margin-bottom:15px;">Đăng bài mới</h3>
+    <div class="modal-overlay" id="post-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="lbl-new-post">Tạo Bài Đăng Mới</h3>
+                <button class="modal-close" onclick="closeModal('post-modal')">✕</button>
+            </div>
             <form id="post-form">
-                <textarea id="txt-input-content" name="content" placeholder="Viết lời nhắn..."></textarea>
-                <input type="file" name="media" id="media-input">
-                <button type="submit" class="btn-submit" id="btn-submit-post">Đăng bài</button>
+                <div class="form-group">
+                    <label id="lbl-content">Nội dung / Lời nhắn</label>
+                    <textarea name="content" id="post-input" placeholder="Viết thông báo hoặc lời nhắn..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label id="lbl-file">Đính kèm Tệp / Ảnh / Video (Tối đa 100MB)</label>
+                    <input type="file" name="media" id="file-input">
+                </div>
+                <button type="submit" class="btn-submit" id="btn-post">Đăng Bài</button>
             </form>
         </div>
     </div>
 
     <!-- Modal Cài đặt Ngôn ngữ -->
-    <div class="modal" id="settings-modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('settings-modal')">&times;</span>
-            <h3 id="txt-modal-lang-title" style="margin-bottom:15px;">Cài đặt Ngôn ngữ</h3>
-            <select id="lang-select">
-                <option value="vi">Tiếng Việt</option>
-                <option value="en">English (US)</option>
-                <option value="ja">日本語 (Tiếng Nhật)</option>
-                <option value="zh_CN">中文-简体 (Tiếng Trung Giản Thể)</option>
-                <option value="zh_TW">中文-繁體 (Tiếng Trung / Đài Loan)</option>
-                <option value="ru">Русский (Tiếng Nga)</option>
-                <option value="fr">Français (Tiếng Pháp)</option>
-            </select>
-            <button class="btn-submit" onclick="applyLanguage()" id="btn-apply-lang">Áp dụng</button>
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="lbl-lang-settings">Cài Đặt Ngôn Ngữ</h3>
+                <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label id="lbl-select-lang">Chọn Ngôn Ngữ Display</label>
+                <select id="lang-select">
+                    <option value="vi">🇻🇳 Tiếng Việt</option>
+                    <option value="en">🇺🇸 English (US)</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                    <option value="zh_CN">🇨🇳 中文 (简体)</option>
+                    <option value="zh_TW">🇭🇰 中文 (繁體)</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="fr">🇫🇷 Français</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="applyLanguage()" id="btn-apply-lang">Áp Dụng</button>
         </div>
     </div>
 
-    <!-- Modal Lightbox -->
-    <div class="lightbox-modal" id="lightbox" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="Zoom">
+    <!-- Lightbox Zoom -->
+    <div id="lightbox" onclick="this.style.display='none'">
+        <img id="lightbox-img" src="" alt="Zoom Image">
     </div>
 
     <script>
+        // Từ điển 7 ngôn ngữ (i18n)
         const i18n = {
-            vi: { header: "Góc Chia Sẻ Tài Liệu", postTitle: "Đăng bài mới", placeholder: "Viết lời nhắn...", submit: "Đăng bài", langTitle: "Cài đặt Ngôn ngữ", apply: "Áp dụng", processing: "⏳ Đang xử lý... Bạn vẫn có thể lướt xem bài đăng.", like: "Thích", dislike: "Không thích", file: "📁 Tải file về", delete: "🗑️ Xóa", confirmDelete: "Bạn có chắc muốn xóa bài này?" },
-            en: { header: "Document Sharing", postTitle: "Create Post", placeholder: "Write something...", submit: "Post", langTitle: "Language Settings", apply: "Apply", processing: "⏳ Processing... You can keep browsing.", like: "Like", dislike: "Dislike", file: "📁 Download file", delete: "🗑️ Delete", confirmDelete: "Are you sure to delete this post?" },
-            ja: { header: "ドキュメント共有", postTitle: "新規投稿", placeholder: "メッセージを入力...", submit: "投稿する", langTitle: "言語設定", apply: "適用", processing: "⏳ 処理中... 閲覧を続けられます。", like: "いいね", dislike: "よくないね", file: "📁 ファイルをダウンロード", delete: "🗑️ 削除", confirmDelete: "本当に削除しますか？" },
-            zh_CN: { header: "文档分享", postTitle: "发布新帖", placeholder: "写点什么...", submit: "发布", langTitle: "语言设置", apply: "应用", processing: "⏳ 处理中... 您可以继续浏览。", like: "赞", dislike: "踩", file: "📁 下载文件", delete: "🗑️ 删除", confirmDelete: "确定要删除此贴吗？" },
-            zh_TW: { header: "文件分享", postTitle: "發布新帖", placeholder: "寫點什麼...", submit: "發布", langTitle: "語言設定", apply: "套用", processing: "⏳ 處理中... 您可以繼續瀏覽。", like: "讚", dislike: "不讚", file: "📁 下載檔案", delete: "🗑️ 刪除", confirmDelete: "確定要刪除此貼嗎？" },
-            ru: { header: "Обмен документами", postTitle: "Новый пост", placeholder: "Напишите что-нибудь...", submit: "Опубликовать", langTitle: "Языковые настройки", apply: "Применить", processing: "⏳ Обработка...", like: "Нравится", dislike: "Не нравится", file: "📁 Скачать файл", delete: "🗑️ Удалить", confirmDelete: "Удалить этот пост?" },
-            fr: { header: "Partage de documents", postTitle: "Nouveau post", placeholder: "Écrivez quelque chose...", submit: "Publier", langTitle: "Paramètres de langue", apply: "Appliquer", processing: "⏳ Traitement...", like: "J'aime", dislike: "Je n'aime pas", file: "📁 Télécharger", delete: "🗑️ Supprimer", confirmDelete: "Supprimer ce post ?" }
+            vi: {
+                title: "Góc Chia Sẻ Tài Liệu",
+                newPost: "Tạo Bài Đăng Mới",
+                contentLbl: "Nội dung / Lời nhắn",
+                fileLbl: "Đính kèm Tệp / Ảnh / Video (Tối đa 100MB)",
+                postBtn: "Đăng Bài",
+                langSettings: "Cài Đặt Ngôn Ngữ",
+                selectLang: "Chọn Ngôn Ngữ Display",
+                applyBtn: "Áp Dụng",
+                processing: "⏳ Đang xử lý... Bạn vẫn có thể lướt xem bài đăng.",
+                deleteBtn: "🗑️ Xóa",
+                downloadBtn: "📥 Tải tệp xuống",
+                placeholder: "Viết thông báo hoặc lời nhắn..."
+            },
+            en: {
+                title: "Document Sharing Hub",
+                newPost: "Create New Post",
+                contentLbl: "Content / Message",
+                fileLbl: "Attach File / Image / Video (Max 100MB)",
+                postBtn: "Publish Post",
+                langSettings: "Language Settings",
+                selectLang: "Select Display Language",
+                applyBtn: "Apply",
+                processing: "⏳ Processing... You can still scroll & view posts.",
+                deleteBtn: "🗑️ Delete",
+                downloadBtn: "📥 Download file",
+                placeholder: "Write announcement or note..."
+            },
+            ja: {
+                title: "ドキュメント共有ハブ",
+                newPost: "新規投稿を作成",
+                contentLbl: "内容・メッセージ",
+                fileLbl: "ファイル/画像/動画を添付 (最大100MB)",
+                postBtn: "投稿する",
+                langSettings: "言語設定",
+                selectLang: "表示言語を選択",
+                applyBtn: "適用",
+                processing: "⏳ 処理中... 投稿を閲覧できます。",
+                deleteBtn: "🗑️ 削除",
+                downloadBtn: "📥 ファイルをダウンロード",
+                placeholder: "お知らせやメモを入力..."
+            },
+            zh_CN: {
+                title: "文档共享中心",
+                newPost: "发布新帖子",
+                contentLbl: "内容 / 留言",
+                fileLbl: "附加文件 / 图片 / 视频 (最大 100MB)",
+                postBtn: "发布",
+                langSettings: "语言设置",
+                selectLang: "选择显示语言",
+                applyBtn: "应用",
+                processing: "⏳ 处理中... 您仍可浏览帖子。",
+                deleteBtn: "🗑️ 删除",
+                downloadBtn: "📥 下载文件",
+                placeholder: "编写公告或留言..."
+            },
+            zh_TW: {
+                title: "文檔共享中心",
+                newPost: "發佈新貼文",
+                contentLbl: "內容 / 留言",
+                fileLbl: "附加檔案 / 圖片 / 影片 (最大 100MB)",
+                postBtn: "發佈",
+                langSettings: "語言設定",
+                selectLang: "選擇顯示語言",
+                applyBtn: "套用",
+                processing: "⏳ 處理中... 您仍可瀏覽貼文。",
+                deleteBtn: "🗑️ 刪除",
+                downloadBtn: "📥 下載檔案",
+                placeholder: "編寫公告或留言..."
+            },
+            ru: {
+                title: "Центр обмена документами",
+                newPost: "Создать новый пост",
+                contentLbl: "Содержимое / Сообщение",
+                fileLbl: "Прикрепить файл / Фото / Видео (до 100 МБ)",
+                postBtn: "Опубликовать",
+                langSettings: "Настройки языка",
+                selectLang: "Выберите язык",
+                applyBtn: "Применить",
+                processing: "⏳ Обработка... Вы можете продолжать просмотр.",
+                deleteBtn: "🗑️ Удалить",
+                downloadBtn: "📥 Скачать файл",
+                placeholder: "Напишите объявление..."
+            },
+            fr: {
+                title: "Hub de Partage de Documents",
+                newPost: "Créer une publication",
+                contentLbl: "Contenu / Message",
+                fileLbl: "Joindre un fichier / Image / Vidéo (Max 100 Mo)",
+                postBtn: "Publier",
+                langSettings: "Paramètres de langue",
+                selectLang: "Sélectionnez la langue",
+                applyBtn: "Appliquer",
+                processing: "⏳ Traitement... Vous pouvez continuer à naviguer.",
+                deleteBtn: "🗑️ Supprimer",
+                downloadBtn: "📥 Télécharger le fichier",
+                placeholder: "Rédiger une annonce..."
+            }
         };
 
         let currentLang = localStorage.getItem('app_lang') || 'vi';
 
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        function openLightbox(src) {
-            document.getElementById('lightbox-img').src = src;
-            document.getElementById('lightbox').style.display = 'flex';
+        function updateUI() {
+            const t = i18n[currentLang] || i18n.vi;
+            document.getElementById('app-title').innerText = t.title;
+            document.getElementById('lbl-new-post').innerText = t.newPost;
+            document.getElementById('lbl-content').innerText = t.contentLbl;
+            document.getElementById('lbl-file').innerText = t.fileLbl;
+            document.getElementById('btn-post').innerText = t.postBtn;
+            document.getElementById('lbl-lang-settings').innerText = t.langSettings;
+            document.getElementById('lbl-select-lang').innerText = t.selectLang;
+            document.getElementById('btn-apply-lang').innerText = t.applyBtn;
+            document.getElementById('toast-text').innerText = t.processing;
+            document.getElementById('post-input').placeholder = t.placeholder;
+            document.getElementById('lang-select').value = currentLang;
         }
-        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.display = 'block';
-        }
-        function hideToast() { document.getElementById('toast').style.display = 'none'; }
 
         function applyLanguage() {
             currentLang = document.getElementById('lang-select').value;
@@ -148,92 +549,76 @@
             loadPosts();
         }
 
-        function updateUI() {
-            const t = i18n[currentLang] || i18n.vi;
-            document.getElementById('txt-header').innerText = t.header;
-            document.getElementById('txt-modal-post-title').innerText = t.postTitle;
-            document.getElementById('txt-input-content').placeholder = t.placeholder;
-            document.getElementById('btn-submit-post').innerText = t.submit;
-            document.getElementById('txt-modal-lang-title').innerText = t.langTitle;
-            document.getElementById('btn-apply-lang').innerText = t.apply;
-            document.getElementById('lang-select').value = currentLang;
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function showToast(text) {
+            if (text) document.getElementById('toast-text').innerText = text;
+            document.getElementById('toast-banner').style.display = 'block';
         }
 
+        function hideToast() {
+            document.getElementById('toast-banner').style.display = 'none';
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        // Tải danh sách bài viết
         async function loadPosts() {
             try {
                 const res = await fetch('/posts');
                 const posts = await res.json();
                 const container = document.getElementById('posts-container');
-                
-                const newHtmlString = JSON.stringify(posts);
-                if (container.dataset.lastData === newHtmlString) return;
-                container.dataset.lastData = newHtmlString;
-
-                container.innerHTML = '';
                 const t = i18n[currentLang] || i18n.vi;
 
-                posts.forEach(post => {
+                container.innerHTML = posts.map(post => {
                     const localTime = new Date(post.createdAt).toLocaleString(currentLang.replace('_', '-'), {
-                        dateStyle: 'medium', timeStyle: 'short'
+                        hour: '2-digit', minute: '2-digit', year: 'numeric', month: 'short', day: 'numeric'
                     });
 
                     let mediaHtml = '';
                     if (post.mediaUrl) {
                         if (post.mediaType === 'image') {
-                            mediaHtml = `<div class="post-media"><img src="${post.mediaUrl}" loading="lazy" onclick="openLightbox('${post.mediaUrl}')" alt="Media"></div>`;
+                            mediaHtml = `<div class="post-media"><img src="${post.mediaUrl}" loading="lazy" onclick="openLightbox('${post.mediaUrl}')" alt="Attachment"></div>`;
                         } else if (post.mediaType === 'video') {
                             mediaHtml = `<div class="post-media"><video src="${post.mediaUrl}" controls preload="metadata"></video></div>`;
                         } else {
-                            mediaHtml = `<a href="${post.mediaUrl}" class="post-file" download>${t.file}</a>`;
+                            mediaHtml = `<a href="${post.mediaUrl}" class="post-file" download>${t.downloadBtn} (${post.mediaUrl.split('-').pop()})</a>`;
                         }
                     }
 
-                    const card = document.createElement('div');
-                    card.className = 'post-card';
-                    card.innerHTML = `
-                        <div class="post-header">
-                            <span class="post-time">🕒 ${localTime}</span>
-                            <button class="delete-btn" onclick="deletePost('${post._id}')">${t.delete}</button>
-                        </div>
-                        <div class="post-content">${post.content || ''}</div>
-                        ${mediaHtml}
-                        <div class="post-actions">
-                            <button class="action-btn" id="like-btn-${post._id}" onclick="toggleLike('${post._id}', 'like')">
-                                👍 <span>${t.like}</span> (<b id="like-count-${post._id}">${post.likes || 0}</b>)
-                            </button>
-                            <button class="action-btn" id="dislike-btn-${post._id}" onclick="toggleLike('${post._id}', 'dislike')">
-                                👎 <span>${t.dislike}</span> (<b id="dislike-count-${post._id}">${post.dislikes || 0}</b>)
-                            </button>
+                    return `
+                        <div class="post-card" id="post-${post._id}">
+                            <div class="post-header">
+                                <div class="post-time">🕒 ${localTime}</div>
+                                <button class="btn-delete" onclick="deletePost('${post._id}')">${t.deleteBtn}</button>
+                            </div>
+                            ${post.content ? `<div class="post-text">${escapeHtml(post.content)}</div>` : ''}
+                            ${mediaHtml}
+                            <div class="post-actions">
+                                <button class="btn-action" id="like-${post._id}" onclick="reactPost('${post._id}', 'like')">
+                                    👍 <span id="like-count-${post._id}">${post.likes || 0}</span>
+                                </button>
+                                <button class="btn-action" id="dislike-${post._id}" onclick="reactPost('${post._id}', 'dislike')">
+                                    👎 <span id="dislike-count-${post._id}">${post.dislikes || 0}</span>
+                                </button>
+                            </div>
                         </div>
                     `;
-                    container.appendChild(card);
-                });
-            } catch (err) { console.error('Lỗi nạp bài đăng', err); }
-        }
-
-        async function deletePost(id) {
-            const t = i18n[currentLang] || i18n.vi;
-            if (confirm(t.confirmDelete)) {
-                try {
-                    await fetch(`/posts/${id}`, { method: 'DELETE' });
-                    loadPosts();
-                } catch (err) { alert('Không thể xóa bài!'); }
+                }).join('');
+            } catch (err) {
+                console.error("Lỗi nạp bài đăng:", err);
             }
         }
 
-        async function toggleLike(id, type) {
-            try {
-                const btn = document.getElementById(`${type}-btn-${id}`);
-                btn.classList.toggle('active');
-
-                const res = await fetch(`/posts/${id}/${type}`, { method: 'POST' });
-                const data = await res.json();
-                
-                document.getElementById(`like-count-${id}`).innerText = data.likes;
-                document.getElementById(`dislike-count-${id}`).innerText = data.dislikes;
-            } catch (err) { console.error('Lỗi nút like', err); }
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
+        // Đăng bài bằng AJAX
         document.getElementById('post-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -245,24 +630,56 @@
             try {
                 const res = await fetch('/post', { method: 'POST', body: formData });
                 const result = await res.json();
-                
-                if (result.success) {
+
+                if (res.ok && result.success) {
                     document.getElementById('post-form').reset();
                     hideToast();
                     loadPosts();
                 } else {
-                    alert(result.error || 'Lỗi khi đăng bài');
+                    alert(result.error || 'Có lỗi xảy ra!');
                     hideToast();
                 }
             } catch (err) {
-                alert('File quá lớn hoặc có lỗi hệ thống!');
+                alert('Không thể kết nối đến máy chủ!');
                 hideToast();
             }
         });
 
+        // Tương tác Like / Dislike (Đổi nền Đen)
+        async function reactPost(id, type) {
+            try {
+                const btn = document.getElementById(`${type}-${id}`);
+                btn.classList.toggle('active-black');
+
+                const res = await fetch(`/posts/${id}/${type}`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data) {
+                    document.getElementById(`like-count-${id}`).innerText = data.likes;
+                    document.getElementById(`dislike-count-${id}`).innerText = data.dislikes;
+                }
+            } catch (err) {
+                console.error("Lỗi thả cảm xúc:", err);
+            }
+        }
+
+        // Xóa bài viết
+        async function deletePost(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa bài đăng này?')) return;
+            try {
+                const res = await fetch(`/posts/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadPosts();
+                }
+            } catch (err) {
+                alert('Không thể xóa bài viết!');
+            }
+        }
+
+        // Khởi tạo giao diện & Tự động làm mới mỗi 5 giây
         updateUI();
         loadPosts();
-        setInterval(loadPosts, 5000); 
+        setInterval(loadPosts, 5000);
     </script>
 </body>
 </html>
