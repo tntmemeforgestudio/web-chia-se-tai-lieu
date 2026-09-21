@@ -19,7 +19,7 @@ if (!MONGO_URI) {
         .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
 }
 
-// 2. Cấu hình Cloudinary đọc trực tiếp từ biến môi trường Render (Chính xác tuyệt đối)
+// 2. Cấu hình Cloudinary đọc trực tiếp từ biến môi trường trên Render
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
