@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const path = path = require('path');
+const path = require('path'); // Đã sửa lỗi trùng tên biến ở đây
 const fs = require('fs');
 const mongoose = require('mongoose');
 
@@ -19,7 +19,7 @@ const postSchema = new mongoose.Schema({
     mediaType: String, // 'image', 'video', 'file'
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now } // UTC chuẩn quốc tế
+    createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
 
@@ -53,7 +53,7 @@ app.get('/posts', async (req, res) => {
     }
 });
 
-// Đăng bài mới (Bất đồng bộ - AJAX)
+// Đăng bài mới (AJAX)
 app.post('/post', upload.single('media'), async (req, res) => {
     try {
         const { content } = req.body;
