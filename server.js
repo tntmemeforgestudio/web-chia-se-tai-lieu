@@ -19,11 +19,11 @@ if (!MONGO_URI) {
         .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
 }
 
-// 2. Cấu hình trực tiếp chính xác tuyệt đối (Bỏ qua lỗi biến môi trường trên Render)
+// 2. Cấu hình trực tiếp chính xác tuyệt đối với khóa mới của Cloudinary
 cloudinary.config({
   cloud_name: 'ufpn14eq',
-  api_key: '916935642289156',
-  api_secret: '-w2c-UVmxySLzBLahIhv6vbZuTk' // <-- Thay mã API Secret thật của bro vào đây nhé
+  api_key: '524937465313367',
+  api_secret: 'JdNCLlYCR1cfpMH-TOugpjOQWRQ'
 });
 
 // 3. Cấu hình Multer Storage tự động phân loại tệp tin tải lên Cloudinary
@@ -53,7 +53,7 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 } // Giới hạn tệp tối đa 100MB
 });
 
-// 4. Schema bài viết
+// 4. Định nghĩa Schema Bài viết
 const postSchema = new mongoose.Schema({
     author: { type: String, default: 'Ẩn danh' },
     content: String,
@@ -65,26 +65,31 @@ const postSchema = new mongoose.Schema({
 });
 const Post = mongoose.model('Post', postSchema);
 
+// Middlewares
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 5. API Lấy bài viết
+// 5. API Lấy danh sách bài viết
 app.get('/posts', async (req, res) => {
     try {
         const posts = await Post.find().sort({ createdAt: -1 });
         res.json(posts);
     } catch (err) {
+        console.error('❌ Lỗi lấy danh sách bài viết:', err);
         res.status(500).json({ error: 'Lỗi lấy bài viết' });
     }
 });
 
-// 6. API Đăng bài mới
+// 6. API Đăng bài mới (Tải tệp lên Cloudinary và lưu URL vào MongoDB)
 app.post('/post', (req, res) => {
     upload.single('media')(req, res, async (err) => {
         if (err) {
             console.error('❌ LỖI TẢI TỆP LÊN CLOUDINARY CHI TIẾT:', err);
-            return res.status(400).json({ error: 'Lỗi tải tệp tin lên Cloudinary!', details: err.message || err });
+            return res.status(400).json({ 
+                error: 'Lỗi tải tệp tin lên Cloudinary!', 
+                details: err.message || err 
+            });
         }
 
         try {
@@ -93,7 +98,7 @@ app.post('/post', (req, res) => {
             let mediaType = null;
 
             if (req.file) {
-                mediaUrl = req.file.path;
+                mediaUrl = req.file.path; // Đường dẫn URL từ Cloudinary
                 const mime = req.file.mimetype || '';
                 if (mime.startsWith('image/')) mediaType = 'image';
                 else if (mime.startsWith('video/')) mediaType = 'video';
@@ -114,21 +119,43 @@ app.post('/post', (req, res) => {
             await newPost.save();
             res.json({ success: true, post: newPost });
         } catch (dbErr) {
-            console.error('❌ LỖI LƯU CSDL MONGODB:', dbErr);
+            console.error('❌ LỖI LƯU CSDL MONGODB CHI TIẾT:', dbErr);
             res.status(500).json({ error: 'Lỗi lưu dữ liệu bài viết!' });
         }
     });
 });
 
+// 7. API Xóa bài viết
 app.delete('/posts/:id', async (req, res) => {
     try {
         await Post.findByIdAndDelete(req.params.id);
         res.json({ success: true });
     } catch (err) {
+        console.error('❌ Lỗi xóa bài viết:', err);
         res.status(500).json({ error: 'Không thể xóa bài viết.' });
     }
 });
 
+// 8. API Tương tác Like & Dislike
+app.post('/posts/:id/like', async (req, res) => {
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } }, { new: true });
+        res.json({ likes: post.likes, dislikes: post.dislikes });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi lượt thích' });
+    }
+});
+
+app.post('/posts/:id/dislike', async (req, res) => {
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.id, { $inc: { dislikes: 1 } }, { new: true });
+        res.json({ likes: post.likes, dislikes: post.dislikes });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi lượt không thích' });
+    }
+});
+
+// Khởi động Máy chủ
 app.listen(PORT, () => {
-    console.log(`🚀 Máy chủ đang chạy tại port: ${PORT}`);
+    console.log(`🚀 Máy chủ đang lắng nghe tại cổng: ${PORT}`);
 });
