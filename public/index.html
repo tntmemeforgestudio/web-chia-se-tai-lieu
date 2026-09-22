@@ -13,11 +13,8 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
-        /* Chống auto-zoom trên thiết bị di động iOS/Android */
         @media (max-width: 640px) {
-            input, textarea, select {
-                font-size: 16px !important;
-            }
+            input, textarea, select { font-size: 16px !important; }
         }
         .goog-te-gadget-simple {
             border: 1px solid #e5e7eb !important;
@@ -31,13 +28,11 @@
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between relative pb-14 antialiased selection:bg-blue-100">
 
-    <!-- Thông báo Toast (Tối ưu Mobile) -->
-    <div id="toast" class="fixed top-3 left-3 right-3 sm:left-auto sm:right-4 sm:max-w-sm bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-2xl z-50 hidden flex items-center gap-3 text-xs sm:text-sm font-medium animate-bounce border border-gray-800">
+    <div id="toast" class="fixed top-3 left-3 right-3 sm:left-auto sm:right-4 sm:max-w-sm bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-2xl z-50 hidden flex items-center gap-3 text-xs sm:text-sm font-medium border border-gray-800">
         <i data-lucide="info" class="w-4 h-4 shrink-0 text-blue-400"></i>
         <span id="toast-text" class="truncate">Đang xử lý...</span>
     </div>
 
-    <!-- Header tối ưu di động -->
     <header class="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40 px-3 sm:px-6 py-2.5 sm:py-3.5 shadow-sm flex items-center justify-between">
         <div class="flex items-center space-x-2.5 min-w-0">
             <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
@@ -60,7 +55,6 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="max-w-xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6 flex-grow space-y-3.5">
         <div class="flex justify-between items-center px-1">
             <h2 class="font-bold text-gray-800 text-xs sm:text-sm tracking-wide uppercase" id="txt-feed-title">Dòng thời gian</h2>
@@ -72,15 +66,13 @@
         <div id="postsContainer" class="space-y-3 sm:space-y-4">
             <div class="bg-white p-8 rounded-2xl text-center text-gray-500 border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2.5">
                 <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-blue-600"></i>
-                <span class="text-xs sm:text-sm font-medium text-gray-600" id="txt-loading">Đang tải bài viết...</span>
+                <span class="text-xs sm:text-sm font-medium text-gray-600" id="txt-loading">Đang kết nối Server... (Có thể mất vài giây)</span>
             </div>
         </div>
     </main>
 
-    <!-- Modal Đăng Bài: Dạng Bottom Sheet trên Mobile -->
     <div id="postModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl relative border border-gray-100 max-h-[92vh] overflow-y-auto">
-            <!-- Thanh gạt cảm ứng điện thoại -->
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 sm:hidden"></div>
             
             <button onclick="toggleModal('postModal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full bg-gray-100 sm:bg-transparent">
@@ -116,7 +108,6 @@
         </div>
     </div>
 
-    <!-- Modal Cài Đặt Ngôn Ngữ -->
     <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-sm w-full p-4 sm:p-6 shadow-2xl relative border border-gray-100">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 sm:hidden"></div>
@@ -151,7 +142,6 @@
         </div>
     </div>
 
-    <!-- Modal Xác Nhận Xóa Bài Viết -->
     <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl relative border border-gray-100 text-center space-y-4">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
@@ -168,7 +158,6 @@
         </div>
     </div>
 
-    <!-- Nhãn phiên bản v2.0.2 -->
     <div class="fixed bottom-3 left-3 bg-white/90 backdrop-blur border border-gray-200 text-gray-700 text-[11px] px-3 py-1 rounded-full shadow-sm z-30 flex items-center gap-1.5 font-medium select-none">
         <span class="w-2 h-2 rounded-full bg-blue-500"></span>
         <span>v2.0.2</span>
@@ -184,7 +173,6 @@
     <script>
         let deleteTargetId = null;
 
-        // Quản lý Token Định Danh Thiết Bị Chống Xóa Nhầm
         function getDeviceToken() {
             let token = localStorage.getItem('user_device_token');
             if (!token) {
@@ -229,38 +217,24 @@
             }
         }
 
-        const i18n = {
-            vi: { title: "Góc Chia Sẻ Tài Liệu", createBtn: "Đăng bài", feedTitle: "Dòng thời gian", loading: "Đang tải bài viết...", postTitle: "Đăng bài mới", author: "Tên tác giả", content: "Nội dung bài viết", submit: "Đăng bài", settings: "Cài đặt hệ thống", lang: "Ngôn ngữ Phổ biến", noPost: "Chưa có bài viết nào." },
-            en: { title: "Document Sharing Corner", createBtn: "Post", feedTitle: "Timeline", loading: "Loading posts...", postTitle: "Create New Post", author: "Author Name", content: "Post Content", submit: "Publish Post", settings: "Settings", lang: "Popular Languages", noPost: "No posts yet." }
-        };
-
-        function changeLanguage(lang) {
-            const t = i18n[lang] || i18n['en'];
-            document.getElementById('txt-title').innerText = t.title;
-            document.getElementById('btn-txt-create').innerText = t.createBtn;
-            document.getElementById('txt-feed-title').innerText = t.feedTitle;
-            document.getElementById('txt-loading').innerText = t.loading;
-            document.getElementById('txt-modal-post-title').innerText = t.postTitle;
-            document.getElementById('lbl-author').innerText = t.author;
-            document.getElementById('lbl-content').innerText = t.content;
-            document.getElementById('btn-submit').innerText = t.submit;
-            document.getElementById('txt-settings-title').innerText = t.settings;
-            document.getElementById('lbl-language').innerText = t.lang;
-        }
-
-        // Tải danh sách bài viết
+        // Tải danh sách bài viết với cơ chế chống treo
         async function fetchPosts() {
+            const container = document.getElementById('postsContainer');
+            
+            // Đặt thời gian chờ Fetch tối đa 15 giây
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             try {
-                const res = await fetch('/api/posts');
+                const res = await fetch('/api/posts', { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
                 const posts = await res.json();
-                const container = document.getElementById('postsContainer');
                 const likedPosts = getLikedPosts();
-                const myPosts = getMyCreatedPosts(); // Danh sách bài viết chính chủ
+                const myPosts = getMyCreatedPosts();
                 
                 if (!posts || posts.length === 0) {
-                    const lang = document.getElementById('langSelect').value;
-                    const t = i18n[lang] || i18n['vi'];
-                    container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-xs sm:text-sm">${t.noPost}</div>`;
+                    container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-xs sm:text-sm">Chưa có bài viết nào.</div>`;
                     return;
                 }
 
@@ -270,7 +244,7 @@
                     });
 
                     const isLiked = likedPosts.includes(p._id);
-                    const isMyPost = myPosts.includes(p._id); // Chỉ hiện nút Xóa nếu chính thiết bị này đăng
+                    const isMyPost = myPosts.includes(p._id);
 
                     const likeStyle = isLiked 
                         ? 'bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm' 
@@ -282,7 +256,6 @@
                         </span>
                     ` : '';
 
-                    // NÚT XÓA CHỈ HIỆN KHI CHÍNH BẠN ĐĂNG BÀI
                     const deleteButtonHTML = isMyPost ? `
                         <button onclick="promptDeletePost('${p._id}')" title="Xóa bài viết của bạn" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition active:scale-95">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -336,9 +309,14 @@
                     </div>
                 `}).join('');
 
-                lucide.createIcons();
+                if (window.lucide) lucide.createIcons();
             } catch(e) {
-                console.log("Đang kết nối...");
+                container.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl text-center border border-red-200 shadow-sm space-y-3">
+                        <p class="text-xs sm:text-sm text-red-600 font-medium">Server đang khởi động từ trạng thái ngủ đông trên Render. Vui lòng thử lại sau 30-60 giây.</p>
+                        <button onclick="fetchPosts()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">Thử tải lại</button>
+                    </div>
+                `;
             }
         }
 
@@ -348,7 +326,6 @@
                 showToast("Bạn đã thích bài viết này rồi!");
                 return;
             }
-
             setLikedPost(id);
             await fetch(`/api/posts/${id}/like`, { method: 'POST' });
             fetchPosts();
@@ -359,13 +336,12 @@
             fetchPosts();
         }
 
-        // Đăng bài viết
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const author = document.getElementById('author').value;
             const content = document.getElementById('content').value;
             const fileInput = document.getElementById('fileInput');
-            const authorToken = getDeviceToken(); // Mã định danh thiết bị
+            const authorToken = getDeviceToken();
             
             let mediaUrl = '';
             let mediaName = '';
@@ -413,7 +389,6 @@
             toggleModal('deleteConfirmModal');
         }
 
-        // Xóa bài viết với kiểm tra Token an toàn ở Server
         document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
             if (deleteTargetId) {
                 toggleModal('deleteConfirmModal');
@@ -421,9 +396,7 @@
 
                 const res = await fetch(`/api/posts/${deleteTargetId}`, { 
                     method: 'DELETE',
-                    headers: {
-                        'x-author-token': getDeviceToken() // Gửi mã định danh thiết bị lên Server kiểm tra
-                    }
+                    headers: { 'x-author-token': getDeviceToken() }
                 });
 
                 if (!res.ok) {
@@ -439,7 +412,7 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
             fetchPosts();
         });
     </script>
