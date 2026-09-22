@@ -53,7 +53,7 @@
         </div>
     </header>
 
-    <!-- Main Content (max-w-4xl rộng rãi) -->
+    <!-- Main Content -->
     <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow space-y-4">
         <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <div>
@@ -86,7 +86,8 @@
             <form id="uploadForm" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Tên tác giả</label>
-                    <input type="text" id="author" name="author" placeholder="Nhập tên của bạn (có thể dùng lệnh ẩn)..." required
+                    <!-- Đã đổi lại placeholder sạch sẽ hoàn toàn -->
+                    <input type="text" id="author" name="author" placeholder="Nhập tên của bạn..." required
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
                 </div>
 
@@ -210,7 +211,6 @@
                     const isLiked = likedPosts.includes(p._id);
                     const isMyPost = !p.authorToken || p.authorToken === currentDeviceToken;
 
-                    // Nếu có lệnh ẩn (isAdmin = true), hiển thị tích xanh (verified badge) ngay cạnh tên tác giả
                     const adminBadgeHTML = p.isAdmin ? `
                         <span class="text-blue-600 bg-blue-50 p-0.5 rounded-full inline-flex items-center justify-center" title="Tác giả xác thực">
                             <i data-lucide="badge-check" class="w-4 h-4 fill-blue-600 text-white"></i>
