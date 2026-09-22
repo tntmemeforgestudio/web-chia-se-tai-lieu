@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chia Sẻ Tài Liệu - Phiên bản 2.0</title>
+    <title>Chia Sẻ Tài Liệu - v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+    <style> 
         body { font-family: 'Inter', sans-serif; }
         .goog-te-gadget-simple {
             border: 1px solid #e5e7eb !important;
             padding: 6px 10px !important;
             border-radius: 8px !important;
-            font-size: 12px !important;
+            font-size: 13px !important;
             width: 100% !important;
         }
         .goog-te-gadget-icon { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between">
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between relative">
 
-    <!-- Header v2.0 -->
+    <!-- Nhãn v2.0 nhỏ gọn ở góc màn hình -->
+    <div class="fixed bottom-3 right-3 bg-white/90 border border-gray-200 text-gray-500 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm z-30 pointer-events-none select-none flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <span>v2.0 Stable</span>
+    </div>
+
+    <!-- Header -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-40 px-6 py-3.5 shadow-sm flex items-center justify-between">
         <div class="flex items-center space-x-3">
             <div class="w-9 h-9 bg-blue-600 text-white rounded-lg flex items-center justify-center shadow-sm">
@@ -30,9 +36,8 @@
             <h1 class="font-bold text-lg text-gray-900 tracking-tight" id="txt-title">Chia Sẻ Tài Liệu</h1>
         </div>
         
-        <!-- Nút bấm chức năng (SVG Vector) -->
         <div class="flex items-center space-x-2.5">
-            <button onclick="toggleModal('postModal')" title="Tạo bài mới"
+            <button onclick="toggleModal('postModal')" title="Đăng bài mới"
                 class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm text-sm transition">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span class="hidden sm:inline" id="btn-txt-create">Tạo bài mới</span>
@@ -45,7 +50,7 @@
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Content -->
     <main class="max-w-2xl mx-auto w-full px-4 py-6 flex-grow space-y-4">
         <div class="flex justify-between items-center border-b pb-3">
             <h2 class="font-bold text-gray-800 text-base" id="txt-feed-title">Dòng thời gian & Bài viết</h2>
@@ -57,7 +62,7 @@
         <div id="postsContainer" class="space-y-4">
             <div class="bg-white p-8 rounded-xl text-center text-gray-500 border border-gray-200 shadow-sm flex flex-col items-center gap-2">
                 <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-blue-600"></i>
-                <span class="text-sm font-medium" id="txt-loading">Đang tải bài viết...</span>
+                <span class="text-sm font-medium" id="txt-loading">Đang tải danh sách bài viết...</span>
             </div>
         </div>
     </main>
@@ -65,41 +70,35 @@
     <!-- Modal Đăng Bài -->
     <div id="postModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl relative border border-gray-100">
-            <button onclick="toggleModal('postModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1">
+            <button onclick="toggleModal('postModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition p-1">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <h3 class="font-bold text-lg mb-4 text-gray-900 flex items-center gap-2" id="txt-modal-post-title">
                 <i data-lucide="square-pen" class="w-5 h-5 text-blue-600"></i> Đăng bài mới
             </h3>
             
-            <form id="uploadForm" onsubmit="handlePostSubmit(event)" class="space-y-4">
+            <form id="uploadForm" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1" id="lbl-author">Tên tác giả</label>
-                    <input type="text" id="author" required placeholder="Nhập tên của bạn..."
+                    <input type="text" id="author" name="author" required placeholder="Nhập tên của bạn..."
                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1" id="lbl-content">Nội dung bài viết</label>
-                    <textarea id="content" rows="3" required placeholder="Nội dung cần chia sẻ..."
+                    <textarea id="content" name="content" rows="3" required placeholder="Nội dung cần chia sẻ..."
                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1" id="lbl-file">Link tệp / Đính kèm</label>
-                    <input type="text" id="mediaUrl" placeholder="https://drive.google.com/... hoặc link ảnh/video"
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <button type="submit" id="btn-submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-sm">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-sm" id="btn-submit">
                     <i data-lucide="send" class="w-4 h-4"></i> Đăng bài
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Cài Đặt Ngôn Ngữ -->
+    <!-- Modal Cài Đặt -->
     <div id="settingsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-xl relative border border-gray-100">
-            <button onclick="toggleModal('settingsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1">
+            <button onclick="toggleModal('settingsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition p-1">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <h3 class="font-bold text-lg mb-4 text-gray-900 flex items-center gap-2" id="txt-settings-title">
@@ -108,36 +107,36 @@
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-2" id="lbl-language">Ngôn ngữ giao diện</label>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-2" id="lbl-language">Ngôn ngữ Phổ biến</label>
                     <select id="langSelect" onchange="changeLanguage(this.value)" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500 font-medium">
-                        <option value="vi">Tiếng Việt</option>
-                        <option value="en">English</option>
-                        <option value="zh">中文 (Chinese)</option>
-                        <option value="ja">日本語 (Japanese)</option>
-                        <option value="ko">한국어 (Korean)</option>
-                        <option value="es">Español</option>
-                        <option value="fr">Français</option>
-                        <option value="de">Deutsch</option>
-                        <option value="ru">Русский</option>
-                        <option value="ar">العربية</option>
+                        <option value="vi">Tiếng Việt (Vietnamese)</option>
+                        <option value="en">English (Tiếng Anh)</option>
+                        <option value="zh">中文 (Tiếng Trung)</option>
+                        <option value="ja">日本語 (Tiếng Nhật)</option>
+                        <option value="ko">한국어 (Tiếng Hàn)</option>
+                        <option value="es">Español (Tiếng Tây Ban Nha)</option>
+                        <option value="fr">Français (Tiếng Pháp)</option>
+                        <option value="de">Deutsch (Tiếng Đức)</option>
+                        <option value="ru">Русский (Tiếng Nga)</option>
+                        <option value="ar">العربية (Tiếng Ả Rập)</option>
                     </select>
                 </div>
 
                 <div class="border-t border-gray-100 pt-3">
-                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Dịch tự động / Translate</label>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Tất cả ngôn ngữ khác</label>
                     <div id="google_translate_element"></div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-3 text-xs text-gray-400 space-y-1">
+                    <p>Phiên bản: <span class="font-semibold text-gray-600">v2.0 Stable</span></p>
+                    <p>Database: <span class="font-semibold text-gray-600">MongoDB Atlas (512MB Free)</span></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- NẮM DÒNG CHỮ PHIÊN BẢN 2.0 NHỎ GỌN NƠI GÓC DƯỚI (UNOBTRUSIVE) -->
-    <div class="fixed bottom-3 right-3 z-30 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-500 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5 select-none pointer-events-none">
-        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Phiên bản 2.0
-    </div>
-
     <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400">
-        Hệ thống lưu trữ tài liệu v2.0 • MongoDB 512MB
+        Chia Sẻ Tài Liệu v2.0 • Đa Ngôn Ngữ • Giao diện chuẩn Vector
     </footer>
 
     <script type="text/javascript">
@@ -153,11 +152,8 @@
         }
 
         const i18n = {
-            vi: { title: "Chia Sẻ Tài Liệu", createBtn: "Tạo bài mới", feedTitle: "Dòng thời gian & Bài viết", loading: "Đang tải bài viết...", postTitle: "Đăng bài mới", author: "Tên tác giả", content: "Nội dung bài viết", file: "Link tệp / Đính kèm", submit: "Đăng bài", settings: "Cài đặt hệ thống", lang: "Ngôn ngữ giao diện", noPost: "Chưa có bài viết nào." },
-            en: { title: "File Sharing", createBtn: "New Post", feedTitle: "Timeline & Posts", loading: "Loading posts...", postTitle: "Create New Post", author: "Author Name", content: "Post Content", file: "Attachment Link", submit: "Publish Post", settings: "System Settings", lang: "Interface Language", noPost: "No posts found." },
-            zh: { title: "文件共享", createBtn: "发布新帖", feedTitle: "时间线与文章", loading: "加载中...", postTitle: "创建新帖子", author: "作者姓名", content: "帖子内容", file: "附件链接", submit: "发布", settings: "系统设置", lang: "界面语言", noPost: "暂无帖子。" },
-            ja: { title: "ファイル共有", createBtn: "新規投稿", feedTitle: "タイムラインと投稿", loading: "読み込み中...", postTitle: "新規投稿作成", author: "投稿者名", content: "投稿内容", file: "添付リンク", submit: "投稿する", settings: "システム設定", lang: "表示言語", noPost: "まだ投稿はありません。" },
-            ko: { title: "파일 공유", createBtn: "새 게시물", feedTitle: "타임라인 및 게시물", loading: "로딩 중...", postTitle: "새 게시물 작성", author: "작성자 이름", content: "게시물 내용", file: "첨부 링크", submit: "게시하기", settings: "시스템 설정", lang: "인터페이스 언어", noPost: "게시물이 없습니다." }
+            vi: { title: "Chia Sẻ Tài Liệu", createBtn: "Tạo bài mới", feedTitle: "Dòng thời gian & Bài viết", loading: "Đang tải danh sách...", postTitle: "Đăng bài mới", author: "Tên tác giả", content: "Nội dung bài viết", submit: "Đăng bài", settings: "Cài đặt hệ thống", lang: "Ngôn ngữ Phổ biến", noPost: "Chưa có bài viết nào. Bấm nút Tạo bài mới ở trên!" },
+            en: { title: "File Sharing", createBtn: "New Post", feedTitle: "Timeline & Posts", loading: "Loading posts...", postTitle: "Create New Post", author: "Author Name", content: "Post Content", submit: "Publish Post", settings: "System Settings", lang: "Popular Languages", noPost: "No posts yet. Click New Post above!" }
         };
 
         function changeLanguage(lang) {
@@ -169,7 +165,6 @@
             document.getElementById('txt-modal-post-title').innerText = t.postTitle;
             document.getElementById('lbl-author').innerText = t.author;
             document.getElementById('lbl-content').innerText = t.content;
-            document.getElementById('lbl-file').innerText = t.file;
             document.getElementById('btn-submit').innerText = t.submit;
             document.getElementById('txt-settings-title').innerText = t.settings;
             document.getElementById('lbl-language').innerText = t.lang;
@@ -192,25 +187,17 @@
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                <div class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs uppercase">
+                                <div class="w-7 h-7 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold text-xs uppercase">
                                     ${(p.author || 'A').charAt(0)}
                                 </div>
                                 ${p.author || 'Ẩn danh'}
                             </div>
-                            <button onclick="deletePost('${p._id}')" title="Xóa" class="text-gray-400 hover:text-red-600 transition p-1 rounded hover:bg-red-50">
+                            <button onclick="deletePost('${p._id}')" title="Xóa bài viết" class="text-gray-400 hover:text-red-600 transition p-1 rounded hover:bg-red-50">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
 
                         <p class="text-gray-700 text-sm leading-relaxed">${p.content}</p>
-
-                        ${p.mediaUrl ? `
-                            <div class="pt-1">
-                                <a href="${p.mediaUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-blue-600 font-medium hover:underline bg-blue-50 px-2.5 py-1.5 rounded-md border border-blue-100">
-                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở tệp đính kèm
-                                </a>
-                            </div>
-                        ` : ''}
 
                         <div class="flex items-center gap-3 pt-2 border-t border-gray-100 text-xs text-gray-500">
                             <button onclick="likePost('${p._id}')" class="flex items-center gap-1.5 hover:text-blue-600 transition px-2 py-1 rounded hover:bg-gray-100">
@@ -231,21 +218,30 @@
             }
         }
 
-        async function handlePostSubmit(e) {
+        // Xử lý gửi bài viết
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const author = document.getElementById('author').value;
             const content = document.getElementById('content').value;
-            const mediaUrl = document.getElementById('mediaUrl').value;
 
             await fetch('/api/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ author, content, mediaUrl })
+                body: JSON.stringify({ author, content })
             });
 
-            document.getElementById('uploadForm').reset();
+            document.getElementById('author').value = '';
+            document.getElementById('content').value = '';
             toggleModal('postModal');
             fetchPosts();
+        });
+
+        // Xử lý Xóa, Like, Dislike
+        async function deletePost(id) {
+            if (confirm("Bạn có chắc muốn xóa bài viết này?")) {
+                await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+                fetchPosts();
+            }
         }
 
         async function likePost(id) {
@@ -256,13 +252,6 @@
         async function dislikePost(id) {
             await fetch(`/api/posts/${id}/dislike`, { method: 'POST' });
             fetchPosts();
-        }
-
-        async function deletePost(id) {
-            if (confirm("Bạn có chắc muốn xóa bài viết này?")) {
-                await fetch(`/api/posts/${id}`, { method: 'DELETE' });
-                fetchPosts();
-            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
