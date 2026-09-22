@@ -16,14 +16,6 @@
         @media (max-width: 640px) {
             input, textarea, select { font-size: 16px !important; }
         }
-        .goog-te-gadget-simple {
-            border: 1px solid #e5e7eb !important;
-            padding: 8px 12px !important;
-            border-radius: 10px !important;
-            font-size: 14px !important;
-            width: 100% !important;
-        }
-        .goog-te-gadget-icon { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between relative pb-14 antialiased selection:bg-blue-100">
@@ -38,14 +30,14 @@
             <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
                 <i data-lucide="folder-git-2" class="w-5 h-5"></i>
             </div>
-            <h1 class="font-bold text-sm sm:text-lg text-gray-900 tracking-tight truncate" id="txt-title">Góc Chia Sẻ Tài Liệu</h1>
+            <h1 class="font-bold text-sm sm:text-lg text-gray-900 tracking-tight truncate">Góc Chia Sẻ Tài Liệu</h1>
         </div>
         
         <div class="flex items-center space-x-2 shrink-0">
             <button onclick="toggleModal('postModal')" title="Đăng bài mới"
                 class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-blue-500/20 text-xs sm:text-sm transition">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                <span id="btn-txt-create" class="hidden xs:inline">Đăng bài</span>
+                <span class="hidden xs:inline">Đăng bài</span>
             </button>
 
             <button onclick="toggleModal('settingsModal')" title="Cài đặt"
@@ -57,20 +49,21 @@
 
     <main class="max-w-xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6 flex-grow space-y-3.5">
         <div class="flex justify-between items-center px-1">
-            <h2 class="font-bold text-gray-800 text-xs sm:text-sm tracking-wide uppercase" id="txt-feed-title">Dòng thời gian</h2>
+            <h2 class="font-bold text-gray-800 text-xs sm:text-sm tracking-wide uppercase">Dòng thời gian</h2>
             <span class="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 512MB Free
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live System
             </span>
         </div>
 
         <div id="postsContainer" class="space-y-3 sm:space-y-4">
             <div class="bg-white p-8 rounded-2xl text-center text-gray-500 border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-2.5">
                 <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-blue-600"></i>
-                <span class="text-xs sm:text-sm font-medium text-gray-600" id="txt-loading">Đang kết nối Server... (Có thể mất vài giây)</span>
+                <span class="text-xs sm:text-sm font-medium text-gray-600">Đang tải bài viết...</span>
             </div>
         </div>
     </main>
 
+    <!-- Modal Đăng Bài -->
     <div id="postModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl relative border border-gray-100 max-h-[92vh] overflow-y-auto">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 sm:hidden"></div>
@@ -78,19 +71,19 @@
             <button onclick="toggleModal('postModal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full bg-gray-100 sm:bg-transparent">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-            <h3 class="font-bold text-base sm:text-lg mb-4 text-gray-900 flex items-center gap-2" id="txt-modal-post-title">
+            <h3 class="font-bold text-base sm:text-lg mb-4 text-gray-900 flex items-center gap-2">
                 <i data-lucide="square-pen" class="w-5 h-5 text-blue-600"></i> Đăng bài mới
             </h3>
             
             <form id="uploadForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1" id="lbl-author">Tên tác giả</label>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Tên tác giả</label>
                     <input type="text" id="author" name="author" placeholder="Nhập tên của bạn..."
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1" id="lbl-content">Nội dung bài viết</label>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Nội dung bài viết</label>
                     <textarea id="content" name="content" rows="4" required placeholder="Nội dung cần chia sẻ..."
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50 resize-y"></textarea>
                 </div>
@@ -98,50 +91,37 @@
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Tệp đính kèm (Ảnh/Tài liệu/Video)</label>
                     <input type="file" id="fileInput" class="w-full border border-gray-300 rounded-xl p-2 text-xs bg-gray-50 text-gray-600 outline-none file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                    <p class="text-[11px] text-gray-500 mt-1 font-medium">📌 Giới hạn tải lên tối đa 100MB.</p>
+                    <p class="text-[11px] text-gray-500 mt-1 font-medium">📌 Giới hạn tải lên tối đa 50MB.</p>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md shadow-blue-500/20" id="btn-submit">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md shadow-blue-500/20">
                     <i data-lucide="send" class="w-4 h-4"></i> Đăng bài
                 </button>
             </form>
         </div>
     </div>
 
+    <!-- Modal Cài đặt & Ngôn ngữ -->
     <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-sm w-full p-4 sm:p-6 shadow-2xl relative border border-gray-100">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 sm:hidden"></div>
             <button onclick="toggleModal('settingsModal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full bg-gray-100 sm:bg-transparent">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-            <h3 class="font-bold text-base sm:text-lg mb-4 text-gray-900 flex items-center gap-2" id="txt-settings-title">
+            <h3 class="font-bold text-base sm:text-lg mb-4 text-gray-900 flex items-center gap-2">
                 <i data-lucide="sliders" class="w-5 h-5 text-gray-700"></i> Cài đặt hệ thống
             </h3>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1.5" id="lbl-language">Ngôn ngữ Phổ biến</label>
-                    <select id="langSelect" onchange="changeLanguage(this.value)" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500 font-medium">
-                        <option value="vi">🇻🇳 Tiếng Việt (Vietnamese)</option>
-                        <option value="en">🇺🇸 English (Tiếng Anh)</option>
-                        <option value="zh">🇨🇳 中文 (Tiếng Trung)</option>
-                        <option value="ja">🇯🇵 日本語 (Tiếng Nhật)</option>
-                        <option value="ko">🇰🇷 한국어 (Tiếng Hàn)</option>
-                        <option value="fr">🇫🇷 Français (Tiếng Pháp)</option>
-                        <option value="de">🇩🇪 Deutsch (Tiếng Đức)</option>
-                        <option value="es">🇪🇸 Español (Tiếng Tây Ban Nha)</option>
-                        <option value="ru">🇷🇺 Русский (Tiếng Nga)</option>
-                    </select>
-                </div>
-
-                <div class="border-t border-gray-100 pt-3">
-                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Tất cả ngôn ngữ khác</label>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1.5">Công cụ dịch ngôn ngữ</label>
                     <div id="google_translate_element"></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Xác nhận xóa -->
     <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl relative border border-gray-100 text-center space-y-4">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
@@ -156,11 +136,6 @@
                 <button id="btnConfirmDelete" class="w-1/2 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-semibold transition shadow-md shadow-red-500/20">Xóa bài</button>
             </div>
         </div>
-    </div>
-
-    <div class="fixed bottom-3 left-3 bg-white/90 backdrop-blur border border-gray-200 text-gray-700 text-[11px] px-3 py-1 rounded-full shadow-sm z-30 flex items-center gap-1.5 font-medium select-none">
-        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-        <span>v2.0.2</span>
     </div>
 
     <script type="text/javascript">
@@ -217,24 +192,19 @@
             }
         }
 
-        // Tải danh sách bài viết với cơ chế chống treo
+        // Tải danh sách bài viết từ Backend API
         async function fetchPosts() {
             const container = document.getElementById('postsContainer');
-            
-            // Đặt thời gian chờ Fetch tối đa 15 giây
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-
             try {
-                const res = await fetch('/api/posts', { signal: controller.signal });
-                clearTimeout(timeoutId);
+                const res = await fetch('/api/posts');
+                if (!res.ok) throw new Error("Lỗi kết nối máy chủ");
                 
                 const posts = await res.json();
                 const likedPosts = getLikedPosts();
                 const myPosts = getMyCreatedPosts();
                 
                 if (!posts || posts.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-xs sm:text-sm">Chưa có bài viết nào.</div>`;
+                    container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-xs sm:text-sm">Chưa có bài viết nào. Hãy là người đầu tiên đăng bài!</div>`;
                     return;
                 }
 
@@ -249,12 +219,6 @@
                     const likeStyle = isLiked 
                         ? 'bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm' 
                         : 'text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg';
-
-                    const publisherBadge = p.isPublisher ? `
-                        <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm ml-1" title="Tác giả chính thức">
-                            <i data-lucide="crown" class="w-3 h-3"></i> Nhà Xuất Bản
-                        </span>
-                    ` : '';
 
                     const deleteButtonHTML = isMyPost ? `
                         <button onclick="promptDeletePost('${p._id}')" title="Xóa bài viết của bạn" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition active:scale-95">
@@ -277,18 +241,14 @@
                     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="font-bold text-gray-900 text-xs sm:text-sm flex items-center gap-2.5 min-w-0">
-                                <div class="w-8 h-8 ${p.isPublisher ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-blue-100 text-blue-700'} rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                                <div class="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">
                                     ${(p.author || 'A').charAt(0)}
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-1 truncate">
-                                        <span class="truncate">${p.author || 'Ẩn danh'}</span>
-                                        ${publisherBadge}
-                                    </div>
+                                    <div class="text-xs sm:text-sm font-semibold text-gray-900 truncate">${p.author || 'Ẩn danh'}</div>
                                     <div class="text-[10px] sm:text-[11px] text-gray-400 font-normal">${dateStr}</div>
                                 </div>
                             </div>
-
                             ${deleteButtonHTML}
                         </div>
 
@@ -313,7 +273,7 @@
             } catch(e) {
                 container.innerHTML = `
                     <div class="bg-white p-6 rounded-2xl text-center border border-red-200 shadow-sm space-y-3">
-                        <p class="text-xs sm:text-sm text-red-600 font-medium">Server đang khởi động từ trạng thái ngủ đông trên Render. Vui lòng thử lại sau 30-60 giây.</p>
+                        <p class="text-xs sm:text-sm text-red-600 font-medium">Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc cơ sở dữ liệu.</p>
                         <button onclick="fetchPosts()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">Thử tải lại</button>
                     </div>
                 `;
@@ -348,8 +308,8 @@
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                if (file.size > 100 * 1024 * 1024) {
-                    alert("Tệp quá lớn! Vui lòng chọn tệp dung lượng dưới 100MB.");
+                if (file.size > 50 * 1024 * 1024) {
+                    alert("Tệp quá lớn! Vui lòng chọn tệp dung lượng dưới 50MB.");
                     return;
                 }
                 mediaName = file.name;
