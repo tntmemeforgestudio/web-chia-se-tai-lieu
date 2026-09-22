@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chia Sẻ Tài Liệu - Phiên bản 2.0.1</title>
+    <title>Chia Sẻ Tài Liệu - Phiên bản 2.0.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,10 +21,10 @@
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between relative pb-10">
 
-    <!-- Thông báo trạng thái -->
+    <!-- Thông báo Toast -->
     <div id="toast" class="fixed top-4 right-4 bg-blue-600 text-white px-4 py-2.5 rounded-lg shadow-lg z-50 hidden flex items-center gap-2 text-sm font-medium animate-bounce">
-        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
-        <span id="toast-text">Đang xử lý bài viết...</span>
+        <i data-lucide="info" class="w-4 h-4"></i>
+        <span id="toast-text">Đang xử lý...</span>
     </div>
 
     <!-- Header chính -->
@@ -67,7 +67,7 @@
         </div>
     </main>
 
-    <!-- Modal Đăng Bài (Có chọn tệp + Dòng thông báo 100MB) -->
+    <!-- Modal Đăng Bài -->
     <div id="postModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl relative border border-gray-100">
             <button onclick="toggleModal('postModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition p-1">
@@ -90,7 +90,6 @@
                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
                 </div>
 
-                <!-- Mục gửi tệp đính kèm kèm dòng chữ 100MB -->
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Gửi tệp đính kèm (Ảnh/Tài liệu/Video)</label>
                     <input type="file" id="fileInput" class="w-full border border-gray-300 rounded-lg p-2 text-xs bg-gray-50 text-gray-600 outline-none file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
@@ -146,7 +145,7 @@
             </div>
             <div>
                 <h4 class="font-bold text-gray-900 text-base">Xác nhận xóa bài?</h4>
-                <p class="text-xs text-gray-500 mt-1">Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.</p>
+                <p class="text-xs text-gray-500 mt-1">Bạn có chắc chắn muốn xóa bài viết này không?</p>
             </div>
             <div class="flex items-center gap-2 pt-2">
                 <button onclick="toggleModal('deleteConfirmModal')" class="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-xs font-semibold transition">Hủy</button>
@@ -155,10 +154,10 @@
         </div>
     </div>
 
-    <!-- Nhãn v2.0.1 NẰM BÊN TRÁI GÓC DƯỚI MÀN HÌNH -->
+    <!-- Nhãn v2.0.2 nằm ở góc dưới BÊN TRÁI màn hình -->
     <div class="fixed bottom-3 left-3 bg-white border border-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm z-30 flex items-center gap-1.5 select-none font-medium">
         <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-        <span>v2.0.1</span>
+        <span>v2.0.2</span>
     </div>
 
     <script type="text/javascript">
@@ -182,8 +181,25 @@
             setTimeout(() => toast.classList.add('hidden'), 3500);
         }
 
+        // Đọc danh sách bài viết đã bấm Like từ LocalStorage
+        function getLikedPosts() {
+            try {
+                return JSON.parse(localStorage.getItem('user_liked_posts') || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function setLikedPost(id) {
+            const liked = getLikedPosts();
+            if (!liked.includes(id)) {
+                liked.push(id);
+                localStorage.setItem('user_liked_posts', JSON.stringify(liked));
+            }
+        }
+
         const i18n = {
-            vi: { title: "Chia Sẻ Tài Liệu", createBtn: "Tạo bài mới", feedTitle: "Dòng thời gian & Bài viết", loading: "Đang tải bài viết...", postTitle: "Đăng bài mới", author: "Tên tác giả", content: "Nội dung bài viết", submit: "Đăng bài", settings: "Cài đặt hệ thống", lang: "Ngôn ngữ Phổ biến", noPost: "Chưa có bài viết nào. Bấm nút Tạo bài mới ở trên!" },
+            vi: { title: "Chia Sẻ Tài Liệu", createBtn: "Tạo bài mới", feedTitle: "Dòng thời gian & Bài viết", loading: "Đang tải bài viết...", postTitle: "Đăng bài mới", author: "Tên tác giả", content: "Nội dung bài viết", submit: "Đăng bài", settings: "Cài đặt hệ thống", lang: "Ngôn ngữ Phổ biến", noPost: "Chưa có bài viết nào." },
             en: { title: "File Sharing", createBtn: "New Post", feedTitle: "Timeline & Posts", loading: "Loading posts...", postTitle: "Create New Post", author: "Author Name", content: "Post Content", submit: "Publish Post", settings: "Settings", lang: "Popular Languages", noPost: "No posts yet." }
         };
 
@@ -207,6 +223,7 @@
                 const res = await fetch('/api/posts');
                 const posts = await res.json();
                 const container = document.getElementById('postsContainer');
+                const likedPosts = getLikedPosts();
                 
                 if (!posts || posts.length === 0) {
                     const lang = document.getElementById('langSelect').value;
@@ -219,6 +236,21 @@
                     const dateStr = new Date(p.createdAt).toLocaleString('vi-VN', {
                         hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
                     });
+
+                    // Kiểm tra xem bài này người dùng đã Like chưa
+                    const isLiked = likedPosts.includes(p._id);
+
+                    // Kiểu giao diện nút Like (Tô đậm/xanh nổi bật nếu đã Like)
+                    const likeStyle = isLiked 
+                        ? 'bg-blue-600 text-white font-bold px-3 py-1 rounded-md shadow-sm' 
+                        : 'text-gray-500 hover:text-blue-600 hover:bg-gray-100 px-2 py-1 rounded';
+
+                    // Hiển thị huy hiệu Nhà Xuất Bản nếu isPublisher = true
+                    const publisherBadge = p.isPublisher ? `
+                        <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm ml-1" title="Tác giả chính thức của Website">
+                            <i data-lucide="crown" class="w-3 h-3"></i> Nhà Xuất Bản
+                        </span>
+                    ` : '';
 
                     let mediaHTML = '';
                     if (p.mediaUrl) {
@@ -235,31 +267,33 @@
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="font-bold text-gray-900 text-sm flex items-center gap-2.5">
-                                <div class="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs uppercase">
+                                <div class="w-8 h-8 ${p.isPublisher ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-blue-100 text-blue-700'} rounded-full flex items-center justify-center font-bold text-xs uppercase">
                                     ${(p.author || 'A').charAt(0)}
                                 </div>
                                 <div>
-                                    <div class="text-sm font-semibold text-gray-900">${p.author || 'Ẩn danh'}</div>
+                                    <div class="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                                        <span>${p.author || 'Ẩn danh'}</span>
+                                        ${publisherBadge}
+                                    </div>
                                     <div class="text-[11px] text-gray-400 font-normal">${dateStr}</div>
                                 </div>
                             </div>
-                            <!-- Nút xóa bài viết -->
+
                             <button onclick="promptDeletePost('${p._id}')" title="Xóa bài viết" class="text-gray-400 hover:text-red-600 transition p-1.5 rounded-lg hover:bg-red-50">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
 
-                        <!-- Giữ đúng định dạng xuống dòng với whitespace-pre-wrap -->
                         <div class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap break-words">${p.content}</div>
 
                         ${mediaHTML}
 
-                        <div class="flex items-center gap-4 pt-2 border-t border-gray-100 text-xs text-gray-500">
-                            <button onclick="likePost('${p._id}')" class="flex items-center gap-1.5 hover:text-blue-600 transition px-2 py-1 rounded hover:bg-gray-100">
+                        <div class="flex items-center gap-4 pt-2 border-t border-gray-100 text-xs">
+                            <button onclick="likePost('${p._id}')" class="flex items-center gap-1.5 transition ${likeStyle}">
                                 <i data-lucide="thumbs-up" class="w-4 h-4"></i>
                                 <span>${p.likes || 0}</span>
                             </button>
-                            <button onclick="dislikePost('${p._id}')" class="flex items-center gap-1.5 hover:text-red-600 transition px-2 py-1 rounded hover:bg-gray-100">
+                            <button onclick="dislikePost('${p._id}')" class="flex items-center gap-1.5 text-gray-500 hover:text-red-600 hover:bg-gray-100 px-2 py-1 rounded transition">
                                 <i data-lucide="thumbs-down" class="w-4 h-4"></i>
                                 <span>${p.dislikes || 0}</span>
                             </button>
@@ -273,7 +307,25 @@
             }
         }
 
-        // Đăng bài viết + Kiểm tra giới hạn 100MB
+        // Xử lý Thả Like (Mỗi thiết bị chỉ được 1 lần)
+        async function likePost(id) {
+            const liked = getLikedPosts();
+            if (liked.includes(id)) {
+                showToast("Bạn đã thích bài viết này rồi!");
+                return;
+            }
+
+            setLikedPost(id);
+            await fetch(`/api/posts/${id}/like`, { method: 'POST' });
+            fetchPosts();
+        }
+
+        async function dislikePost(id) {
+            await fetch(`/api/posts/${id}/dislike`, { method: 'POST' });
+            fetchPosts();
+        }
+
+        // Đăng bài viết
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const author = document.getElementById('author').value;
@@ -314,13 +366,11 @@
             fetchPosts();
         });
 
-        // Mở bảng xác nhận xóa
         function promptDeletePost(id) {
             deleteTargetId = id;
             toggleModal('deleteConfirmModal');
         }
 
-        // Thực hiện xóa khi bấm Xóa vĩnh viễn trong modal
         document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
             if (deleteTargetId) {
                 toggleModal('deleteConfirmModal');
@@ -330,16 +380,6 @@
                 fetchPosts();
             }
         });
-
-        async function likePost(id) {
-            await fetch(`/api/posts/${id}/like`, { method: 'POST' });
-            fetchPosts();
-        }
-
-        async function dislikePost(id) {
-            await fetch(`/api/posts/${id}/dislike`, { method: 'POST' });
-            fetchPosts();
-        }
 
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
