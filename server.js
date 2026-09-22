@@ -9,20 +9,20 @@ app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Hàm làm sạch dữ liệu đầu vào chống tấn công XSS & chèn Script độc hại
+// Hàm làm sạch dữ liệu đầu vào chống tấn công XSS
 const sanitize = (text) => {
     if (typeof text !== 'string') return '';
     return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 };
 
-// Kết nối MongoDB Atlas an toàn
+// Kết nối MongoDB Atlas
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://tntmemeforgestudio_db_user:tnt123456@cluster0.dxos2d3.mongodb.net/?appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ DB v2.0.1 kết nối an toàn!'))
+  .then(() => console.log('✅ DB v2.0.2 kết nối an toàn!'))
   .catch(err => console.error('❌ Lỗi kết nối DB:', err.message));
 
-// Schema Bài viết
+// Schema Bài viết (Đã thêm trường isPublisher)
 const PostSchema = new mongoose.Schema({
     author: { type: String, default: 'Ẩn danh' },
     content: { type: String, required: true },
@@ -30,6 +30,7 @@ const PostSchema = new mongoose.Schema({
     mediaName: { type: String, default: '' },
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
+    isPublisher: { type: Boolean, default: false }, // Huy hiệu Nhà xuất bản
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -45,7 +46,7 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Đăng bài viết mới
+// API Đăng bài viết mới (Có kiểm tra mã ẩn #pub)
 app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, mediaUrl, mediaName } = req.body;
@@ -53,11 +54,24 @@ app.post('/api/posts', async (req, res) => {
             return res.status(400).json({ error: "Nội dung bài viết không được để trống!" });
         }
 
+        const SECRET_CODE = "#pub"; // Mật mã ẩn kích hoạt huy hiệu Nhà Xuất Bản
+        let isPublisher = false;
+        let finalAuthor = sanitize(author) || 'Ẩn danh';
+
+        // Kiểm tra nếu tên có chứa lệnh bí mật #pub
+        if (finalAuthor.includes(SECRET_CODE)) {
+            isPublisher = true;
+            // Xóa mã bí mật để người xem KHÔNG thấy lệnh này
+            finalAuthor = finalAuthor.replace(SECRET_CODE, '').trim();
+            if (!finalAuthor) finalAuthor = 'Nhà Xuất Bản';
+        }
+
         const newPost = new Post({
-            author: sanitize(author) || 'Ẩn danh',
+            author: finalAuthor,
             content: sanitize(content),
             mediaUrl: mediaUrl || '',
-            mediaName: sanitize(mediaName) || ''
+            mediaName: sanitize(mediaName) || '',
+            isPublisher: isPublisher
         });
 
         await newPost.save();
@@ -77,7 +91,7 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// API Thả Like / Dislike
+// API Thả Like
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const post = await Post.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } }, { new: true });
@@ -87,6 +101,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
     }
 });
 
+// API Thả Dislike
 app.post('/api/posts/:id/dislike', async (req, res) => {
     try {
         const post = await Post.findByIdAndUpdate(req.params.id, { $inc: { dislikes: 1 } }, { new: true });
@@ -101,4 +116,4 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`🚀 Server v2.0.1 đang chạy tại port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server v2.0.2 đang chạy tại port ${PORT}`));
