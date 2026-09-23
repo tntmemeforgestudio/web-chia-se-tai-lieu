@@ -4,9 +4,9 @@ const path = require('path');
 
 const app = express();
 
-// Tăng giới hạn dung lượng tải file lên 100MB
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ limit: '100mb', extended: true }));
+// Tăng giới hạn dung lượng tải file lên 25MB (An toàn cho bộ nhớ 512MB RAM của Render)
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -29,10 +29,10 @@ const postSchema = new mongoose.Schema({
 });
 const Post = mongoose.model('Post', postSchema);
 
-// API Lấy danh sách bài viết
+// API Lấy danh sách bài viết (Lấy 50 bài mới nhất để tối ưu RAM)
 app.get('/api/posts', async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 });
+        const posts = await Post.find().sort({ createdAt: -1 }).limit(50);
         res.json(posts);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -122,7 +122,12 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// ĐỔI DUY NHẤT ĐOẠN NÀY ĐỂ RENDER NHẬN CỔNG CỦA SERVER
+// Phục vụ giao diện cho tất cả các đường dẫn khác
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Đổ cổng kết nối chuẩn cho Render
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
