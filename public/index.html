@@ -9,24 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style> 
         body { font-family: 'Inter', sans-serif; }
-        .goog-te-combo {
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            background-color: #f9fafb;
-            font-size: 14px;
-            width: 100%;
-            outline: none;
-        }
-        .goog-te-banner-frame, .goog-logo-link { display: none !important; }
-        body { top: 0 !important; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between antialiased">
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between antialiased selection:bg-blue-100 selection:text-blue-600">
 
+    <!-- Toast Thông báo -->
     <div id="toast" class="fixed top-4 right-4 bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-2xl z-50 hidden flex items-center gap-3 text-sm font-medium border border-gray-800">
         <i data-lucide="info" class="w-4 h-4 shrink-0 text-blue-400"></i>
         <span id="toast-text">Đang xử lý...</span>
+    </div>
+
+    <!-- Badge Thông báo phiên bản v2.0.2 góc dưới màn hình -->
+    <div class="fixed bottom-4 left-4 z-30 bg-white/90 backdrop-blur-md border border-gray-200/80 text-gray-700 px-3.5 py-1.5 rounded-full shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white transition cursor-default">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span>Phiên bản v2.0.2</span>
     </div>
 
     <!-- Header -->
@@ -42,11 +38,11 @@
                 </div>
             </div>
             
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2">
                 <button onclick="toggleModal('postModal')" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-blue-500/20 text-sm transition">
                     <i data-lucide="plus" class="w-4 h-4"></i> Đăng bài mới
                 </button>
-                <button onclick="toggleModal('settingsModal')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl transition border border-gray-200">
+                <button onclick="toggleModal('settingsModal')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl transition border border-gray-200" title="Cài đặt">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -75,8 +71,8 @@
 
     <!-- Modal Đăng Bài -->
     <div id="postModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border border-gray-100 max-h-[90vh] overflow-y-auto">
-            <button onclick="toggleModal('postModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full bg-gray-100">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleModal('postModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <h3 class="font-bold text-lg mb-4 text-gray-900 flex items-center gap-2">
@@ -85,20 +81,19 @@
             
             <form id="uploadForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Tên tác giả</label>
-                    <!-- Đã đổi lại placeholder sạch sẽ hoàn toàn -->
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tên tác giả</label>
                     <input type="text" id="author" name="author" placeholder="Nhập tên của bạn..." required
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Nội dung bài viết</label>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nội dung bài viết</label>
                     <textarea id="content" name="content" rows="5" required placeholder="Nhập nội dung cần chia sẻ..."
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 resize-y"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Tệp đính kèm (Ảnh / Tài liệu / Video)</label>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tệp đính kèm (Ảnh / Tài liệu / Video)</label>
                     <input type="file" id="fileInput" class="w-full border border-gray-300 rounded-xl p-2 text-xs bg-gray-50 text-gray-600 outline-none file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
                     <p class="text-xs text-blue-600 mt-1.5 font-semibold">📌 Giới hạn tải lên tối đa: 100MB.</p>
                 </div>
@@ -110,33 +105,51 @@
         </div>
     </div>
 
-    <!-- Modal Cài đặt & Ngôn ngữ -->
+    <!-- Modal Cài Đặt Ngôn Ngữ Chuẩn Web Lớn -->
     <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative border border-gray-100">
-            <button onclick="toggleModal('settingsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full bg-gray-100">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative border border-gray-100">
+            <button onclick="toggleModal('settingsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-            <h3 class="font-bold text-lg mb-4 text-gray-900 flex items-center gap-2">
-                <i data-lucide="sliders" class="w-5 h-5 text-gray-700"></i> Cài đặt hệ thống
-            </h3>
+
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-700">
+                    <i data-lucide="sliders" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-gray-900">Cài đặt hệ thống</h3>
+                    <p class="text-xs text-gray-400">Tùy chỉnh ngôn ngữ hiển thị</p>
+                </div>
+            </div>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-2">Chọn ngôn ngữ hiển thị</label>
-                    <div id="google_translate_element"></div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Chọn ngôn ngữ</label>
+                    <div class="relative">
+                        <select id="languageSelect" onchange="changeAppLanguage(this.value)" class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-xl p-3.5 pr-10 outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition cursor-pointer">
+                            <option value="vi">🇻🇳 Tiếng Việt (Mặc định)</option>
+                            <option value="en">🇺🇸 English</option>
+                            <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                            <option value="ko">🇰🇷 한국어 (Korean)</option>
+                            <option value="zh">🇨🇳 中文 (Chinese)</option>
+                        </select>
+                        <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Xác nhận xóa -->
+    <!-- Modal Xác Nhận Xóa Bài -->
     <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl relative border border-gray-100 text-center space-y-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl relative border border-gray-100 text-center space-y-4">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
                 <i data-lucide="alert-triangle" class="w-6 h-6"></i>
             </div>
             <div>
-                <h4 class="font-bold text-gray-900 text-base">Xác nhận xóa bài viết?</h4>
+                <h4 class="font-bold text-gray-900 text-base">Xóa bài viết này?</h4>
                 <p class="text-xs text-gray-500 mt-1">Hành động này sẽ xóa vĩnh viễn bài đăng khỏi hệ thống.</p>
             </div>
             <div class="flex items-center gap-2 pt-1">
@@ -145,13 +158,6 @@
             </div>
         </div>
     </div>
-
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({ pageLanguage: 'vi', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <script>
         let deleteTargetId = null;
@@ -188,6 +194,18 @@
             }
         }
 
+        function changeAppLanguage(lang) {
+            showToast("Đã cập nhật ngôn ngữ sang: " + lang.toUpperCase());
+            toggleModal('settingsModal');
+        }
+
+        function togglePostMenu(id) {
+            const menu = document.getElementById(`menu-${id}`);
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
         async function fetchPosts() {
             const container = document.getElementById('postsContainer');
             try {
@@ -211,16 +229,11 @@
                     const isLiked = likedPosts.includes(p._id);
                     const isMyPost = !p.authorToken || p.authorToken === currentDeviceToken;
 
-                    const adminBadgeHTML = p.isAdmin ? `
-                        <span class="text-blue-600 bg-blue-50 p-0.5 rounded-full inline-flex items-center justify-center" title="Tác giả xác thực">
-                            <i data-lucide="badge-check" class="w-4 h-4 fill-blue-600 text-white"></i>
+                    // TÍCH VÀNG NHÀ XUẤT BẢN / CREATOR CỦA BẠN
+                    const publisherGoldBadgeHTML = p.isAdmin ? `
+                        <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-200 text-xs font-semibold" title="Nhà xuất bản chính thức">
+                            <i data-lucide="badge-check" class="w-4 h-4 fill-amber-500 text-white"></i>
                         </span>
-                    ` : '';
-
-                    const deleteButtonHTML = isMyPost ? `
-                        <button onclick="promptDeletePost('${p._id}')" title="Xóa bài viết" class="text-gray-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
                     ` : '';
 
                     let mediaHTML = '';
@@ -235,7 +248,7 @@
                     }
 
                     return `
-                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 relative">
                         <div class="flex justify-between items-center">
                             <div class="font-bold text-gray-900 text-sm flex items-center gap-3">
                                 <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm uppercase">
@@ -244,27 +257,43 @@
                                 <div>
                                     <div class="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
                                         <span>${p.author || 'Ẩn danh'}</span>
-                                        ${adminBadgeHTML}
+                                        ${publisherGoldBadgeHTML}
                                     </div>
                                     <div class="text-xs text-gray-400 font-normal">${dateStr}</div>
                                 </div>
                             </div>
-                            ${deleteButtonHTML}
                         </div>
 
                         <div class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap break-words">${p.content}</div>
 
                         ${mediaHTML}
 
-                        <div class="flex items-center gap-3 pt-3 border-t border-gray-100 text-xs">
-                            <button onclick="likePost('${p._id}')" class="flex items-center gap-2 transition ${isLiked ? 'bg-blue-600 text-white font-bold px-3.5 py-2 rounded-xl shadow-sm' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3.5 py-2 rounded-xl'}">
-                                <i data-lucide="thumbs-up" class="w-4 h-4"></i>
-                                <span>${p.likes || 0}</span>
-                            </button>
-                            <button onclick="dislikePost('${p._id}')" class="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 px-3.5 py-2 rounded-xl transition">
-                                <i data-lucide="thumbs-down" class="w-4 h-4"></i>
-                                <span>${p.dislikes || 0}</span>
-                            </button>
+                        <!-- Hàng chức năng phía dưới (Like, Dislike & Nút '...' ở góc dưới bên phải) -->
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
+                            <div class="flex items-center gap-2">
+                                <button onclick="likePost('${p._id}')" class="flex items-center gap-2 transition ${isLiked ? 'bg-blue-600 text-white font-bold px-3.5 py-2 rounded-xl shadow-sm' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-100 px-3.5 py-2 rounded-xl'}">
+                                    <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                                    <span>${p.likes || 0}</span>
+                                </button>
+                                <button onclick="dislikePost('${p._id}')" class="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 px-3.5 py-2 rounded-xl transition">
+                                    <i data-lucide="thumbs-down" class="w-4 h-4"></i>
+                                    <span>${p.dislikes || 0}</span>
+                                </button>
+                            </div>
+
+                            <!-- Nút '...' Xóa bài chỉ dành riêng cho người tạo bài viết -->
+                            ${isMyPost ? `
+                                <div class="relative">
+                                    <button onclick="togglePostMenu('${p._id}')" title="Tùy chọn bài viết" class="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
+                                        <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                                    </button>
+                                    <div id="menu-${p._id}" class="hidden absolute right-0 bottom-full mb-2 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-20">
+                                        <button onclick="promptDeletePost('${p._id}')" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 transition">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i> Xóa bài viết
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `}).join('');
@@ -339,6 +368,8 @@
 
         function promptDeletePost(id) {
             deleteTargetId = id;
+            const menu = document.getElementById(`menu-${id}`);
+            if (menu) menu.classList.add('hidden');
             toggleModal('deleteConfirmModal');
         }
 
