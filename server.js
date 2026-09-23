@@ -4,9 +4,9 @@ const path = require('path');
 
 const app = express();
 
-// Giới hạn payload 10MB để tránh đẩy dữ liệu quá lớn vào RAM
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+// Giới hạn payload 25MB an toàn cho RAM 512MB của Render
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -22,17 +22,16 @@ const postSchema = new mongoose.Schema({
     mediaUrl: String,
     mediaName: String,
     authorToken: String,
-    isAdmin: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false }, // Cờ nhận diện '# vip bro'
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
 
-// API Lấy danh sách bài viết (ĐÃ TỐI ƯU: Bỏ `mediaUrl` nặng khi load danh sách để tránh tràn RAM 512MB)
+// API Lấy danh sách bài viết (Loại bỏ `mediaUrl` nặng để không tràn RAM)
 app.get('/api/posts', async (req, res) => {
     try {
-        // Dùng .select('-mediaUrl') để KHÔNG kéo chuỗi Base64 nặng về RAM
         const posts = await Post.find().select('-mediaUrl').sort({ createdAt: -1 }).limit(50);
         res.json(posts);
     } catch (err) {
@@ -40,18 +39,18 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Lấy dữ liệu file/ảnh riêng biệt khi cần xem
+// API Lấy riêng media/file khi client nhấn xem
 app.get('/api/posts/:id/media', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id).select('mediaUrl mediaName');
-        if (!post) return res.status(404).json({ error: "Không tìm thấy bài viết" });
+        if (!post) return res.status(404).json({ error: "Không tìm thấy tệp" });
         res.json({ mediaUrl: post.mediaUrl, mediaName: post.mediaName });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Đăng bài mới (Giữ nguyên tính năng bí mật '# vip bro')
+// API Đăng bài viết mới (Xử lý lệnh ẩn độc quyền '# vip bro')
 app.post('/api/posts', async (req, res) => {
     try {
         let { author, content, mediaUrl, mediaName, authorToken } = req.body;
@@ -65,22 +64,22 @@ app.post('/api/posts', async (req, res) => {
         const newPost = new Post({
             author: author || 'Ẩn danh',
             content,
-            mediaUrl,
-            mediaName,
-            authorToken,
+            mediaUrl: mediaUrl || '',
+            mediaName: mediaName || '',
+            authorToken: authorToken || '',
             isAdmin
         });
 
         const savedPost = await newPost.save();
-        const responseData = savedPost.toObject();
-        delete responseData.mediaUrl; // Trả về phản hồi nhẹ cho client
-        res.json(responseData);
+        const result = savedPost.toObject();
+        delete result.mediaUrl;
+        res.json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Like
+// API Thả Like
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -96,7 +95,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
     }
 });
 
-// API Dislike
+// API Thả Dislike
 app.post('/api/posts/:id/dislike', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -112,7 +111,7 @@ app.post('/api/posts/:id/dislike', async (req, res) => {
     }
 });
 
-// API Xóa bài
+// API Xóa bài viết
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const authorToken = req.headers['x-author-token'];
@@ -133,6 +132,7 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
+// Phục vụ giao diện
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
