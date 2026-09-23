@@ -1,7 +1,7 @@
 {
   "name": "web-chia-se-tai-lieu",
   "version": "2.1.0",
-  "description": "Góc chia sẻ tài liệu và bài viết",
+  "description": "Góc chia sẻ tài liệu và bài viết - Tối ưu RAM & Đa ngôn ngữ",
   "main": "server.js",
   "scripts": {
     "start": "node --max-old-space-size=400 server.js"
