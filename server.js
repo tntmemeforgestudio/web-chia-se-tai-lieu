@@ -4,9 +4,9 @@ const path = require('path');
 
 const app = express();
 
-// Tăng giới hạn dung lượng tải file lên 25MB (An toàn cho bộ nhớ 512MB RAM của Render)
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ limit: '25mb', extended: true }));
+// Giới hạn payload 10MB để tránh đẩy dữ liệu quá lớn vào RAM
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -22,34 +22,44 @@ const postSchema = new mongoose.Schema({
     mediaUrl: String,
     mediaName: String,
     authorToken: String,
-    isAdmin: { type: Boolean, default: false }, // Cờ nhận diện bài viết có lệnh ẩn (hiện tick vàng + khung vàng)
+    isAdmin: { type: Boolean, default: false },
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
 
-// API Lấy danh sách bài viết (Lấy 50 bài mới nhất để tối ưu RAM)
+// API Lấy danh sách bài viết (ĐÃ TỐI ƯU: Bỏ `mediaUrl` nặng khi load danh sách để tránh tràn RAM 512MB)
 app.get('/api/posts', async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 }).limit(50);
+        // Dùng .select('-mediaUrl') để KHÔNG kéo chuỗi Base64 nặng về RAM
+        const posts = await Post.find().select('-mediaUrl').sort({ createdAt: -1 }).limit(50);
         res.json(posts);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Đăng bài viết mới (Xử lý lệnh ẩn độc quyền '# vip bro' trên Server)
+// API Lấy dữ liệu file/ảnh riêng biệt khi cần xem
+app.get('/api/posts/:id/media', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id).select('mediaUrl mediaName');
+        if (!post) return res.status(404).json({ error: "Không tìm thấy bài viết" });
+        res.json({ mediaUrl: post.mediaUrl, mediaName: post.mediaName });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// API Đăng bài mới (Giữ nguyên tính năng bí mật '# vip bro')
 app.post('/api/posts', async (req, res) => {
     try {
         let { author, content, mediaUrl, mediaName, authorToken } = req.body;
         let isAdmin = false;
 
-        // Xử lý lệnh ẩn bí mật tuyệt đối:
-        // Nếu tên tác giả có chứa cú pháp '# vip bro'
         if (author && author.includes('# vip bro')) {
-            isAdmin = true; // Bật cờ VIP để kích hoạt Tích vàng + Khung vàng
-            author = author.replace(/# vip bro/g, '').trim(); // Lọc bỏ lệnh ẩn, giữ lại tên gốc hiển thị sạch
+            isAdmin = true;
+            author = author.replace(/# vip bro/g, '').trim();
         }
 
         const newPost = new Post({
@@ -62,13 +72,15 @@ app.post('/api/posts', async (req, res) => {
         });
 
         const savedPost = await newPost.save();
-        res.json(savedPost);
+        const responseData = savedPost.toObject();
+        delete responseData.mediaUrl; // Trả về phản hồi nhẹ cho client
+        res.json(responseData);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Thả Like
+// API Like
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -84,7 +96,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
     }
 });
 
-// API Thả Dislike
+// API Dislike
 app.post('/api/posts/:id/dislike', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -100,7 +112,7 @@ app.post('/api/posts/:id/dislike', async (req, res) => {
     }
 });
 
-// API Xóa bài viết (Chỉ người đăng bài trùng token mới được xóa)
+// API Xóa bài
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const authorToken = req.headers['x-author-token'];
@@ -110,7 +122,6 @@ app.delete('/api/posts/:id', async (req, res) => {
             return res.status(404).json({ error: "Không tìm thấy bài viết" });
         }
 
-        // Cho phép xóa nếu trùng token thiết bị hoặc bài viết cũ không có token
         if (post.authorToken && authorToken && post.authorToken !== authorToken) {
             return res.status(403).json({ error: "Bạn không có quyền xóa bài viết này!" });
         }
@@ -122,12 +133,10 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// Phục vụ giao diện cho tất cả các đường dẫn khác
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Đổ cổng kết nối chuẩn cho Render
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
