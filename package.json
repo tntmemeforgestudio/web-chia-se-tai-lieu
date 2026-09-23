@@ -1,10 +1,10 @@
 {
   "name": "web-chia-se-tai-lieu",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Góc chia sẻ tài liệu và bài viết",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --max-old-space-size=400 server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
