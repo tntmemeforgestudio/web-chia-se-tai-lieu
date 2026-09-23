@@ -22,7 +22,7 @@ const postSchema = new mongoose.Schema({
     mediaUrl: String,
     mediaName: String,
     authorToken: String,
-    isAdmin: { type: Boolean, default: false }, // Cờ nhận diện bài viết có lệnh ẩn (hiện tick)
+    isAdmin: { type: Boolean, default: false }, // Cờ nhận diện bài viết có lệnh ẩn (hiện tick vàng + khung vàng)
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
@@ -39,17 +39,17 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Đăng bài viết mới (Xử lý lệnh ẩn ở tên tác giả)
+// API Đăng bài viết mới (Xử lý lệnh ẩn độc quyền '# vip bro' trên Server)
 app.post('/api/posts', async (req, res) => {
     try {
         let { author, content, mediaUrl, mediaName, authorToken } = req.body;
         let isAdmin = false;
 
-        // Xử lý lệnh ẩn: Nếu tên tác giả chứa từ khóa lệnh ẩn (ví dụ: #admin hoặc #vip)
-        // Hệ thống sẽ tách lệnh ra, giữ tên sạch và bật cờ hiển thị tick
-        if (author && (author.includes('#admin') || author.includes('#vip'))) {
-            isAdmin = true;
-            author = author.replace(/#admin|#vip/g, '').trim();
+        // Xử lý lệnh ẩn bí mật tuyệt đối:
+        // Nếu tên tác giả có chứa cú pháp '# vip bro'
+        if (author && author.includes('# vip bro')) {
+            isAdmin = true; // Bật cờ VIP để kích hoạt Tích vàng + Khung vàng
+            author = author.replace(/# vip bro/g, '').trim(); // Lọc bỏ lệnh ẩn, giữ lại tên gốc hiển thị sạch
         }
 
         const newPost = new Post({
@@ -100,7 +100,7 @@ app.post('/api/posts/:id/dislike', async (req, res) => {
     }
 });
 
-// API Xóa bài viết
+// API Xóa bài viết (Chỉ người đăng bài trùng token mới được xóa)
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const authorToken = req.headers['x-author-token'];
