@@ -56,19 +56,20 @@
             border: 1px solid #e5e7eb;
         }
 
-        /* Khung Viền Vàng + Nền Vàng Nhạt (Khác hẳn màu trắng) */
+        /* Khung Viền Vàng + Nền Vàng Nhạt */
         .vip-card {
             background-color: #fffdf0 !important;
             border: 2px solid #f59e0b !important;
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.18) !important;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15) !important;
         }
 
-        /* Tik Vàng Xác Minh (Không còn chữ VIP) */
-        .gold-tick {
+        /* Tik Vàng chuẩn Huy Hiệu Facebook/Twitter (Scalloped Badge) */
+        .gold-tick-fb {
             color: #f59e0b;
-            font-size: 16px;
+            font-size: 17px;
             margin-left: 4px;
-            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.5));
+            vertical-align: middle;
+            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.4));
         }
 
         /* Vòng tròn Avatar chuẩn */
@@ -95,7 +96,7 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
-        /* Fix lỗi tràn chữ ra ngoài khung */
+        /* Tránh lỗi tràn chữ */
         .post-content {
             white-space: pre-wrap;
             font-size: 14px;
@@ -163,7 +164,7 @@
 
     <div class="container main-container py-4">
         
-        <!-- Header Web với Icon Logo dạng tệp -->
+        <!-- Header Web -->
         <div class="app-header d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-3">
                 <div class="logo-box">
@@ -333,12 +334,16 @@
                     const authorName = post.author || 'Ẩn danh';
                     const firstChar = authorName.charAt(0).toUpperCase();
 
-                    // Lớp CSS Avatar bóng nếu là Tik Vàng
                     const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
                     const avatarBg = isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
 
                     const hasLiked = localStorage.getItem(`voted_like_${post._id}`) === 'true';
                     const hasDisliked = localStorage.getItem(`voted_dislike_${post._id}`) === 'true';
+
+                    /* HTML Huy Hiệu Tik Vàng Chuẩn Facebook (fa-patch-check) */
+                    const goldTickIcon = `
+                        <i class="fa-solid fa-patch-check gold-tick-fb" title="Tài khoản xác minh chính chủ"></i>
+                    `;
 
                     return `
                         <div class="post-card ${isVip ? 'vip-card' : ''}">
@@ -350,7 +355,7 @@
                                     <div>
                                         <div class="d-flex align-items-center">
                                             <strong class="text-dark me-1" style="font-size: 15px;">${escapeHtml(authorName)}</strong>
-                                            ${isVip ? '<i class="fa-solid fa-circle-check gold-tick" title="Tài khoản chính chủ"></i>' : ''}
+                                            ${isVip ? goldTickIcon : ''}
                                         </div>
                                         <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt).toLocaleString('vi-VN')}</small>
                                     </div>
