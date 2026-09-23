@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Góc Chia Sẻ Tài Liệu</title>
+    <title data-i18n="siteTitle">Góc Chia Sẻ Tài Liệu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,10 +19,10 @@
         <span id="toast-text">Đang xử lý...</span>
     </div>
 
-    <!-- Badge Thông báo phiên bản v2.0.2 góc dưới màn hình -->
+    <!-- Badge Thông báo phiên bản v2.0.2 -->
     <div class="fixed bottom-4 left-4 z-30 bg-white/90 backdrop-blur-md border border-gray-200/80 text-gray-700 px-3.5 py-1.5 rounded-full shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white transition cursor-default">
         <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        <span>Phiên bản v2.0.2</span>
+        <span data-i18n="version">Phiên bản v2.0.2</span>
     </div>
 
     <!-- Header -->
@@ -33,14 +33,14 @@
                     <i data-lucide="folder-git-2" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg text-gray-900 tracking-tight">Góc Chia Sẻ Tài Liệu</h1>
-                    <p class="text-xs text-gray-500">Hệ thống lưu trữ trực tuyến</p>
+                    <h1 class="font-bold text-lg text-gray-900 tracking-tight" data-i18n="siteTitle">Góc Chia Sẻ Tài Liệu</h1>
+                    <p class="text-xs text-gray-500" data-i18n="siteSub">Hệ thống lưu trữ trực tuyến</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-2">
                 <button onclick="toggleModal('postModal')" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-blue-500/20 text-sm transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Đăng bài mới
+                    <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnNewPost">Đăng bài mới</span>
                 </button>
                 <button onclick="toggleModal('settingsModal')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl transition border border-gray-200" title="Cài đặt">
                     <i data-lucide="settings" class="w-5 h-5"></i>
@@ -53,18 +53,18 @@
     <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow space-y-4">
         <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <div>
-                <h2 class="font-bold text-gray-900 text-base">Dòng thời gian & Tài liệu chia sẻ</h2>
-                <p class="text-xs text-gray-500">Nơi lưu trữ và chia sẻ tài liệu trực tuyến chính thức.</p>
+                <h2 class="font-bold text-gray-900 text-base" data-i18n="timelineTitle">Dòng thời gian & Tài liệu chia sẻ</h2>
+                <p class="text-xs text-gray-500" data-i18n="timelineSub">Nơi lưu trữ và chia sẻ tài liệu trực tuyến chính thức.</p>
             </div>
             <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Hoạt động ổn định
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span data-i18n="statusOk">Hoạt động ổn định</span>
             </span>
         </div>
 
         <div id="postsContainer" class="space-y-4">
             <div class="bg-white p-10 rounded-2xl text-center text-gray-500 border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-3">
                 <i data-lucide="loader-2" class="w-7 h-7 animate-spin text-blue-600"></i>
-                <span class="text-sm font-medium text-gray-600">Đang tải toàn bộ dữ liệu...</span>
+                <span class="text-sm font-medium text-gray-600" data-i18n="loading">Đang tải toàn bộ dữ liệu...</span>
             </div>
         </div>
     </main>
@@ -76,30 +76,30 @@
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <h3 class="font-bold text-lg mb-4 text-gray-900 flex items-center gap-2">
-                <i data-lucide="square-pen" class="w-5 h-5 text-blue-600"></i> Đăng bài viết / Tài liệu mới
+                <i data-lucide="square-pen" class="w-5 h-5 text-blue-600"></i> <span data-i18n="modalPostTitle">Đăng bài viết / Tài liệu mới</span>
             </h3>
             
             <form id="uploadForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tên tác giả</label>
-                    <input type="text" id="author" name="author" placeholder="Nhập tên của bạn..." required
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1" data-i18n="lblAuthor">Tên tác giả</label>
+                    <input type="text" id="author" name="author" required data-i18n-placeholder="phAuthor" placeholder="Nhập tên của bạn..."
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nội dung bài viết</label>
-                    <textarea id="content" name="content" rows="5" required placeholder="Nhập nội dung cần chia sẻ..."
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1" data-i18n="lblContent">Nội dung bài viết</label>
+                    <textarea id="content" name="content" rows="5" required data-i18n-placeholder="phContent" placeholder="Nhập nội dung cần chia sẻ..."
                         class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 resize-y"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tệp đính kèm (Ảnh / Tài liệu / Video)</label>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1" data-i18n="lblFile">Tệp đính kèm (Ảnh / Tài liệu / Video)</label>
                     <input type="file" id="fileInput" class="w-full border border-gray-300 rounded-xl p-2 text-xs bg-gray-50 text-gray-600 outline-none file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                    <p class="text-xs text-blue-600 mt-1.5 font-semibold">📌 Giới hạn tải lên tối đa: 100MB.</p>
+                    <p class="text-xs text-blue-600 mt-1.5 font-semibold" data-i18n="fileNote">📌 Giới hạn tải lên tối đa: 100MB.</p>
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md shadow-blue-500/20">
-                    <i data-lucide="send" class="w-4 h-4"></i> Tiến hành đăng bài
+                    <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="btnSubmit">Tiến hành đăng bài</span>
                 </button>
             </form>
         </div>
@@ -117,21 +117,26 @@
                     <i data-lucide="sliders" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="font-bold text-base text-gray-900">Cài đặt hệ thống</h3>
-                    <p class="text-xs text-gray-400">Tùy chỉnh ngôn ngữ hiển thị</p>
+                    <h3 class="font-bold text-base text-gray-900" data-i18n="modalSetTitle">Cài đặt hệ thống</h3>
+                    <p class="text-xs text-gray-400" data-i18n="modalSetSub">Tùy chỉnh ngôn ngữ hiển thị</p>
                 </div>
             </div>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Chọn ngôn ngữ</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2" data-i18n="lblSelectLang">Chọn ngôn ngữ</label>
                     <div class="relative">
                         <select id="languageSelect" onchange="changeAppLanguage(this.value)" class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-xl p-3.5 pr-10 outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition cursor-pointer">
-                            <option value="vi">🇻🇳 Tiếng Việt (Mặc định)</option>
+                            <option value="vi">🇻🇳 Tiếng Việt</option>
                             <option value="en">🇺🇸 English</option>
                             <option value="ja">🇯🇵 日本語 (Japanese)</option>
                             <option value="ko">🇰🇷 한국어 (Korean)</option>
                             <option value="zh">🇨🇳 中文 (Chinese)</option>
+                            <option value="fr">🇫🇷 Français (French)</option>
+                            <option value="de">🇩🇪 Deutsch (German)</option>
+                            <option value="es">🇪🇸 Español (Spanish)</option>
+                            <option value="ru">🇷🇺 Русский (Russian)</option>
+                            <option value="th">🇹🇭 ไทย (Thai)</option>
                         </select>
                         <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                             <i data-lucide="chevron-down" class="w-4 h-4"></i>
@@ -149,18 +154,463 @@
                 <i data-lucide="alert-triangle" class="w-6 h-6"></i>
             </div>
             <div>
-                <h4 class="font-bold text-gray-900 text-base">Xóa bài viết này?</h4>
-                <p class="text-xs text-gray-500 mt-1">Hành động này sẽ xóa vĩnh viễn bài đăng khỏi hệ thống.</p>
+                <h4 class="font-bold text-gray-900 text-base" data-i18n="modalDelTitle">Xóa bài viết này?</h4>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="modalDelSub">Hành động này sẽ xóa vĩnh viễn bài đăng khỏi hệ thống.</p>
             </div>
             <div class="flex items-center gap-2 pt-1">
-                <button onclick="toggleModal('deleteConfirmModal')" class="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-xs font-semibold transition">Hủy bỏ</button>
-                <button id="btnConfirmDelete" class="w-1/2 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-semibold transition shadow-md shadow-red-500/20">Xóa vĩnh viễn</button>
+                <button onclick="toggleModal('deleteConfirmModal')" class="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-xs font-semibold transition" data-i18n="btnCancel">Hủy bỏ</button>
+                <button id="btnConfirmDelete" class="w-1/2 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-semibold transition shadow-md shadow-red-500/20" data-i18n="btnConfirmDel">Xóa vĩnh viễn</button>
             </div>
         </div>
     </div>
 
     <script>
+        // BỘ TỪ ĐIỂN ĐA NGÔN NGỮ (10 NGÔN NGỮ)
+        const translations = {
+            vi: {
+                siteTitle: "Góc Chia Sẻ Tài Liệu",
+                siteSub: "Hệ thống lưu trữ trực tuyến",
+                version: "Phiên bản v2.0.2",
+                btnNewPost: "Đăng bài mới",
+                timelineTitle: "Dòng thời gian & Tài liệu chia sẻ",
+                timelineSub: "Nơi lưu trữ và chia sẻ tài liệu trực tuyến chính thức.",
+                statusOk: "Hoạt động ổn định",
+                loading: "Đang tải toàn bộ dữ liệu...",
+                noPosts: "Chưa có bài viết nào trên hệ thống. Hãy đăng bài viết đầu tiên!",
+                errorConnect: "Không thể kết nối đến máy chủ. Vui lòng thử lại.",
+                btnRetry: "Thử tải lại",
+                modalPostTitle: "Đăng bài viết / Tài liệu mới",
+                lblAuthor: "Tên tác giả",
+                phAuthor: "Nhập tên của bạn...",
+                lblContent: "Nội dung bài viết",
+                phContent: "Nhập nội dung cần chia sẻ...",
+                lblFile: "Tệp đính kèm (Ảnh / Tài liệu / Video)",
+                fileNote: "📌 Giới hạn tải lên tối đa: 100MB.",
+                btnSubmit: "Tiến hành đăng bài",
+                modalSetTitle: "Cài đặt hệ thống",
+                modalSetSub: "Tùy chỉnh ngôn ngữ hiển thị",
+                lblSelectLang: "Chọn ngôn ngữ",
+                modalDelTitle: "Xóa bài viết này?",
+                modalDelSub: "Hành động này sẽ xóa vĩnh viễn bài đăng khỏi hệ thống.",
+                btnCancel: "Hủy bỏ",
+                btnConfirmDel: "Xóa vĩnh viễn",
+                publisher: "Nhà xuất bản",
+                anonymous: "Ẩn danh",
+                downloadAttachment: "Tải tệp đính kèm",
+                deletePost: "Xóa bài viết",
+                alreadyLiked: "Bạn đã thích bài viết này rồi!",
+                fileTooLarge: "Tệp quá lớn! Vui lòng chọn tệp dung lượng dưới 100MB.",
+                processingFile: "Đang xử lý tệp đính kèm...",
+                submittingPost: "Đang gửi bài viết lên hệ thống...",
+                deletingPost: "Đang xóa bài viết...",
+                deleteSuccess: "Đã xóa bài viết thành công!",
+                deleteFailed: "Không thể xóa bài viết này!",
+                langChanged: "Đã chuyển sang ngôn ngữ: "
+            },
+            en: {
+                siteTitle: "Document Sharing Hub",
+                siteSub: "Online Storage System",
+                version: "Version v2.0.2",
+                btnNewPost: "New Post",
+                timelineTitle: "Timeline & Shared Documents",
+                timelineSub: "Official online document repository and sharing platform.",
+                statusOk: "System Operational",
+                loading: "Loading all data...",
+                noPosts: "No posts yet. Be the first to share something!",
+                errorConnect: "Unable to connect to server. Please try again.",
+                btnRetry: "Retry Loading",
+                modalPostTitle: "Create New Post / Document",
+                lblAuthor: "Author Name",
+                phAuthor: "Enter your name...",
+                lblContent: "Post Content",
+                phContent: "Type your content here...",
+                lblFile: "Attachment (Image / Document / Video)",
+                fileNote: "📌 Maximum upload size limit: 100MB.",
+                btnSubmit: "Publish Post",
+                modalSetTitle: "System Settings",
+                modalSetSub: "Customize display language",
+                lblSelectLang: "Select Language",
+                modalDelTitle: "Delete this post?",
+                modalDelSub: "This action will permanently delete the post from system.",
+                btnCancel: "Cancel",
+                btnConfirmDel: "Delete Permanently",
+                publisher: "Publisher",
+                anonymous: "Anonymous",
+                downloadAttachment: "Download Attachment",
+                deletePost: "Delete Post",
+                alreadyLiked: "You already liked this post!",
+                fileTooLarge: "File too large! Please choose a file under 100MB.",
+                processingFile: "Processing file attachment...",
+                submittingPost: "Publishing post to system...",
+                deletingPost: "Deleting post...",
+                deleteSuccess: "Post deleted successfully!",
+                deleteFailed: "Failed to delete this post!",
+                langChanged: "Language updated to: "
+            },
+            ja: {
+                siteTitle: "ドキュメント共有コーナー",
+                siteSub: "オンラインストレージシステム",
+                version: "バージョン v2.0.2",
+                btnNewPost: "新規投稿",
+                timelineTitle: "タイムラインと共有ファイル",
+                timelineSub: "公式オンラインドキュメント保管・共有プラットフォーム。",
+                statusOk: "正常稼働中",
+                loading: "データを読み込み中...",
+                noPosts: "投稿がありません。最初の記事を投稿しましょう！",
+                errorConnect: "サーバーに接続できません。再試行してください。",
+                btnRetry: "再読み込み",
+                modalPostTitle: "新規投稿 / ドキュメント作成",
+                lblAuthor: "投稿者名",
+                phAuthor: "お名前を入力...",
+                lblContent: "投稿内容",
+                phContent: "共有する内容を入力...",
+                lblFile: "添付ファイル (画像 / 文書 / 動画)",
+                fileNote: "📌 最大アップロードサイズ: 100MB",
+                btnSubmit: "投稿を公開",
+                modalSetTitle: "システム設定",
+                modalSetSub: "表示言語を変更",
+                lblSelectLang: "言語を選択",
+                modalDelTitle: "この投稿を削除しますか？",
+                modalDelSub: "この操作を取り消すことはできません。",
+                btnCancel: "キャンセル",
+                btnConfirmDel: "永久削除",
+                publisher: "出版社",
+                anonymous: "匿名",
+                downloadAttachment: "ファイルをダウンロード",
+                deletePost: "投稿を削除",
+                alreadyLiked: "すでに「いいね」しています！",
+                fileTooLarge: "ファイルが大きすぎます（100MB未満）。",
+                processingFile: "ファイルを処理中...",
+                submittingPost: "投稿を送信中...",
+                deletingPost: "削除中...",
+                deleteSuccess: "削除が完了しました！",
+                deleteFailed: "削除できませんでした。",
+                langChanged: "言語を変更しました: "
+            },
+            ko: {
+                siteTitle: "문서 공유 센터",
+                siteSub: "온라인 저장소 시스템",
+                version: "버전 v2.0.2",
+                btnNewPost: "새 글 작성",
+                timelineTitle: "타임라인 및 공유 문서",
+                timelineSub: "공식 온라인 문서 저장 및 공유 플랫폼.",
+                statusOk: "정상 작동 중",
+                loading: "데이터를 불러오는 중...",
+                noPosts: "게시글이 없습니다. 첫 번째 글을 작성해보세요!",
+                errorConnect: "서버 연결 실패. 다시 시도해 주세요.",
+                btnRetry: "다시 시도",
+                modalPostTitle: "새 글 / 문서 작성",
+                lblAuthor: "작성자 이름",
+                phAuthor: "이름을 입력하세요...",
+                lblContent: "게시글 내용",
+                phContent: "공유할 내용을 입력하세요...",
+                lblFile: "첨부 파일 (이미지 / 문서 / 동영상)",
+                fileNote: "📌 최대 업로드 용량: 100MB.",
+                btnSubmit: "게시글 등록",
+                modalSetTitle: "시스템 설정",
+                modalSetSub: "표시 언어 설정",
+                lblSelectLang: "언어 선택",
+                modalDelTitle: "게시글을 삭제하시겠습니까?",
+                modalDelSub: "이 작업은 영구적으로 삭제되며 복구할 수 없습니다.",
+                btnCancel: "취소",
+                btnConfirmDel: "영구 삭제",
+                publisher: "게시자",
+                anonymous: "익명",
+                downloadAttachment: "첨부파일 다운로드",
+                deletePost: "게시글 삭제",
+                alreadyLiked: "이미 좋아요를 누르셨습니다!",
+                fileTooLarge: "파일 용량이 너무 큽니다 (100MB 이하).",
+                processingFile: "파일 처리 중...",
+                submittingPost: "게시글 업로드 중...",
+                deletingPost: "게시글 삭제 중...",
+                deleteSuccess: "성공적으로 삭제되었습니다!",
+                deleteFailed: "삭제에 실패했습니다!",
+                langChanged: "언어가 변경되었습니다: "
+            },
+            zh: {
+                siteTitle: "文档分享中心",
+                siteSub: "在线云存储系统",
+                version: "版本 v2.0.2",
+                btnNewPost: "发布新帖",
+                timelineTitle: "时间线与共享文档",
+                timelineSub: "官方在线文档存储与分享平台。",
+                statusOk: "运行正常",
+                loading: "正在加载全部数据...",
+                noPosts: "暂无文章，快来发布第一篇吧！",
+                errorConnect: "无法连接到服务器，请重试。",
+                btnRetry: "重新加载",
+                modalPostTitle: "发布新文章 / 文档",
+                lblAuthor: "作者姓名",
+                phAuthor: "请输入您的名字...",
+                lblContent: "文章内容",
+                phContent: "请输入要分享的内容...",
+                lblFile: "附件 (图片 / 文档 / 视频)",
+                fileNote: "📌 最大上传限制：100MB。",
+                btnSubmit: "提交发布",
+                modalSetTitle: "系统设置",
+                modalSetSub: "自定义显示语言",
+                lblSelectLang: "选择语言",
+                modalDelTitle: "确定要删除此文章吗？",
+                modalDelSub: "此操作将永久从系统中删除该文章。",
+                btnCancel: "取消",
+                btnConfirmDel: "永久删除",
+                publisher: "发布者",
+                anonymous: "匿名",
+                downloadAttachment: "下载附件",
+                deletePost: "删除文章",
+                alreadyLiked: "您已经点过赞了！",
+                fileTooLarge: "文件过大！请选择100MB以下的文件。",
+                processingFile: "正在处理附件...",
+                submittingPost: "正在提交文章...",
+                deletingPost: "正在删除文章...",
+                deleteSuccess: "文章已成功删除！",
+                deleteFailed: "删除文章失败！",
+                langChanged: "已切换语言为： "
+            },
+            fr: {
+                siteTitle: "Centre de Partage de Documents",
+                siteSub: "Système de Stockage en Ligne",
+                version: "Version v2.0.2",
+                btnNewPost: "Nouveau Message",
+                timelineTitle: "Fil d'actualité & Documents",
+                timelineSub: "Plateforme officielle de stockage et de partage de documents.",
+                statusOk: "Système Opérationnel",
+                loading: "Chargement des données...",
+                noPosts: "Aucun message pour le moment. Soyez le premier à publier !",
+                errorConnect: "Impossible de se connecter au serveur.",
+                btnRetry: "Réessayer",
+                modalPostTitle: "Créer une publication",
+                lblAuthor: "Nom de l'auteur",
+                phAuthor: "Entrez votre nom...",
+                lblContent: "Contenu du message",
+                phContent: "Tapez votre contenu ici...",
+                lblFile: "Pièce jointe (Image / Doc / Vidéo)",
+                fileNote: "📌 Limite de taille maximale: 100 Mo.",
+                btnSubmit: "Publier le message",
+                modalSetTitle: "Paramètres du Système",
+                modalSetSub: "Personnaliser la langue d'affichage",
+                lblSelectLang: "Choisir la langue",
+                modalDelTitle: "Supprimer ce message ?",
+                modalDelSub: "Cette action supprimera définitivement le message.",
+                btnCancel: "Annuler",
+                btnConfirmDel: "Supprimer définitivement",
+                publisher: "Éditeur",
+                anonymous: "Anonyme",
+                downloadAttachment: "Télécharger la pièce jointe",
+                deletePost: "Supprimer le message",
+                alreadyLiked: "Vous avez déjà aimé ce message !",
+                fileTooLarge: "Fichier trop volumineux (moins de 100 Mo).",
+                processingFile: "Traitement du fichier...",
+                submittingPost: "Publication en cours...",
+                deletingPost: "Suppression en cours...",
+                deleteSuccess: "Message supprimé avec succès !",
+                deleteFailed: "Échec de la suppression !",
+                langChanged: "Langue modifiée en: "
+            },
+            de: {
+                siteTitle: "Dokumenten-Sharing-Hub",
+                siteSub: "Online-Speichersystem",
+                version: "Version v2.0.2",
+                btnNewPost: "Neuer Beitrag",
+                timelineTitle: "Zeitleiste & Dokumente",
+                timelineSub: "Offizielle Online-Plattform für Dokumentenspeicherung.",
+                statusOk: "System betriebsbereit",
+                loading: "Daten werden geladen...",
+                noPosts: "Noch keine Beiträge vorhanden. Seien Sie der Erste!",
+                errorConnect: "Verbindung zum Server fehlgeschlagen.",
+                btnRetry: "Erneut versuchen",
+                modalPostTitle: "Neuen Beitrag erstellen",
+                lblAuthor: "Autor Name",
+                phAuthor: "Ihr Name...",
+                lblContent: "Inhalt",
+                phContent: "Inhalt hier eingeben...",
+                lblFile: "Anhang (Bild / Dok / Video)",
+                fileNote: "📌 Maximale Dateigröße: 100MB.",
+                btnSubmit: "Beitrag veröffentlichen",
+                modalSetTitle: "Systemeinstellungen",
+                modalSetSub: "Sprache anpassen",
+                lblSelectLang: "Sprache auswählen",
+                modalDelTitle: "Diesen Beitrag löschen?",
+                modalDelSub: "Diese Aktion löscht den Beitrag dauerhaft.",
+                btnCancel: "Abbrechen",
+                btnConfirmDel: "Dauerhaft löschen",
+                publisher: "Herausgeber",
+                anonymous: "Anonym",
+                downloadAttachment: "Anhang herunterladen",
+                deletePost: "Beitrag löschen",
+                alreadyLiked: "Gefällt Ihnen bereits!",
+                fileTooLarge: "Datei zu groß (unter 100MB wählen).",
+                processingFile: "Datei wird verarbeitet...",
+                submittingPost: "Beitrag wird gesendet...",
+                deletingPost: "Wird gelöscht...",
+                deleteSuccess: "Erfolgreich gelöscht!",
+                deleteFailed: "Löschen fehlgeschlagen!",
+                langChanged: "Sprache geändert auf: "
+            },
+            es: {
+                siteTitle: "Centro de Documentos Compartidos",
+                siteSub: "Sistema de Almacenamiento en Línea",
+                version: "Versión v2.0.2",
+                btnNewPost: "Nueva Publicación",
+                timelineTitle: "Línea de Tiempo & Documentos",
+                timelineSub: "Plataforma oficial para compartir y almacenar documentos.",
+                statusOk: "Sistema Operativo",
+                loading: "Cargando datos...",
+                noPosts: "¡No hay publicaciones aún. Sé el primero en publicar!",
+                errorConnect: "Error de conexión con el servidor.",
+                btnRetry: "Reintentar",
+                modalPostTitle: "Crear Nueva Publicación",
+                lblAuthor: "Nombre del Autor",
+                phAuthor: "Ingrese su nombre...",
+                lblContent: "Contenido",
+                phContent: "Escriba el contenido aquí...",
+                lblFile: "Adjunto (Imagen / Doc / Video)",
+                fileNote: "📌 Límite máximo de carga: 100MB.",
+                btnSubmit: "Publicar",
+                modalSetTitle: "Configuración del Sistema",
+                modalSetSub: "Personalizar idioma",
+                lblSelectLang: "Seleccionar Idioma",
+                modalDelTitle: "¿Eliminar esta publicación?",
+                modalDelSub: "Esta acción eliminará permanentemente la publicación.",
+                btnCancel: "Cancelar",
+                btnConfirmDel: "Eliminar permanentemente",
+                publisher: "Editorial",
+                anonymous: "Anónimo",
+                downloadAttachment: "Descargar Adjunto",
+                deletePost: "Eliminar Publicación",
+                alreadyLiked: "¡Ya te gustó esta publicación!",
+                fileTooLarge: "Archivo demasiado grande (máx 100MB).",
+                processingFile: "Procesando archivo...",
+                submittingPost: "Publicando...",
+                deletingPost: "Eliminando...",
+                deleteSuccess: "¡Publicación eliminada con éxito!",
+                deleteFailed: "¡Error al eliminar!",
+                langChanged: "Idioma cambiado a: "
+            },
+            ru: {
+                siteTitle: "Центр Обмена Документами",
+                siteSub: "Онлайн система хранения",
+                version: "Версия v2.0.2",
+                btnNewPost: "Новый пост",
+                timelineTitle: "Лента и Документы",
+                timelineSub: "Официальная платформа для хранения и обмена документами.",
+                statusOk: "Система работает",
+                loading: "Загрузка данных...",
+                noPosts: "Пока нет публикаций. Будьте первым!",
+                errorConnect: "Ошибка подключения к серверу.",
+                btnRetry: "Повторить",
+                modalPostTitle: "Создать новую запись",
+                lblAuthor: "Имя автора",
+                phAuthor: "Введите ваше имя...",
+                lblContent: "Содержимое",
+                phContent: "Введите текст...",
+                lblFile: "Файл (Фото / Документ / Видео)",
+                fileNote: "📌 Максимальный размер файла: 100 МБ.",
+                btnSubmit: "Опубликовать",
+                modalSetTitle: "Настройки системы",
+                modalSetSub: "Выбор языка",
+                lblSelectLang: "Выберите язык",
+                modalDelTitle: "Удалить этот пост?",
+                modalDelSub: "Это действие безвозвратно удалит публикацию.",
+                btnCancel: "Отмена",
+                btnConfirmDel: "Удалить навсегда",
+                publisher: "Издатель",
+                anonymous: "Аноним",
+                downloadAttachment: "Скачать файл",
+                deletePost: "Удалить пост",
+                alreadyLiked: "Вы уже оценили этот пост!",
+                fileTooLarge: "Файл слишком большой (до 100 МБ).",
+                processingFile: "Обработка файла...",
+                submittingPost: "Публикация...",
+                deletingPost: "Удаление...",
+                deleteSuccess: "Пост успешно удален!",
+                deleteFailed: "Не удалось удалить пост!",
+                langChanged: "Язык изменен на: "
+            },
+            th: {
+                siteTitle: "ศูนย์แบ่งปันเอกสาร",
+                siteSub: "ระบบจัดเก็บข้อมูลออนไลน์",
+                version: "เวอร์ชัน v2.0.2",
+                btnNewPost: "สร้างโพสต์ใหม่",
+                timelineTitle: "ไทม์ไลน์และเอกสารที่แชร์",
+                timelineSub: "แพลตฟอร์มจัดเก็บและแบ่งปันเอกสารออนไลน์อย่างเป็นทางการ",
+                statusOk: "ระบบทำงานปกติ",
+                loading: "กำลังโหลดข้อมูลทั้งหมด...",
+                noPosts: "ยังไม่มีโพสต์ เป็นคนแรกที่แบ่งปัน!",
+                errorConnect: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ โปรดลองอีกครั้ง",
+                btnRetry: "ลองใหม่อีกครั้ง",
+                modalPostTitle: "สร้างโพสต์ / เอกสารใหม่",
+                lblAuthor: "ชื่อผู้เขียน",
+                phAuthor: "ใส่ชื่อของคุณ...",
+                lblContent: "เนื้อหาโพสต์",
+                phContent: "พิมพ์เนื้อหาที่คุณต้องการแชร์...",
+                lblFile: "ไฟล์แนบ (รูปภาพ / เอกสาร / วิดีโอ)",
+                fileNote: "📌 ขนาดอัปโหลดสูงสุด: 100MB",
+                btnSubmit: "เผยแพร่โพสต์",
+                modalSetTitle: "ตั้งค่าระบบ",
+                modalSetSub: "ปรับแต่งภาษาการแสดงผล",
+                lblSelectLang: "เลือกภาษา",
+                modalDelTitle: "ลบโพสต์นี้หรือไม่?",
+                modalDelSub: "การกระทำนี้จะลบโพสต์ออกจากระบบอย่างถาวร",
+                btnCancel: "ยกเลิก",
+                btnConfirmDel: "ลบถาวร",
+                publisher: "สำนักพิมพ์",
+                anonymous: "ไม่ระบุตัวตน",
+                downloadAttachment: "ดาวน์โหลดไฟล์แนบ",
+                deletePost: "ลบโพสต์",
+                alreadyLiked: "คุณกดถูกใจโพสต์นี้แล้ว!",
+                fileTooLarge: "ไฟล์ใหญ่เกินไป! กรุณาเลือกไฟล์ขนาดไม่เกิน 100MB",
+                processingFile: "กำลังประมวลผลไฟล์...",
+                submittingPost: "กำลังส่งโพสต์เข้าสู่ระบบ...",
+                deletingPost: "กำลังลบโพสต์...",
+                deleteSuccess: "ลบโพสต์สำเร็จแล้ว!",
+                deleteFailed: "ไม่สามารถลบโพสต์นี้ได้!",
+                langChanged: "เปลี่ยนภาษาเป็น: "
+            }
+        };
+
         let deleteTargetId = null;
+
+        function getLang() {
+            return localStorage.getItem('app_lang') || 'vi';
+        }
+
+        function t(key) {
+            const lang = getLang();
+            return (translations[lang] && translations[lang][key]) || translations['vi'][key] || key;
+        }
+
+        function applyLanguage() {
+            const lang = getLang();
+            
+            // Dịch tĩnh giao diện
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+
+            // Dịch Placeholder ô nhập liệu
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+
+            // Đồng bộ Select Box
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) langSelect.value = lang;
+        }
+
+        function changeAppLanguage(lang) {
+            localStorage.setItem('app_lang', lang);
+            applyLanguage();
+            fetchPosts(); // Tải lại bài viết để dịch nhãn động
+            showToast(t('langChanged') + lang.toUpperCase());
+            toggleModal('settingsModal');
+        }
 
         function getDeviceToken() {
             let token = localStorage.getItem('user_device_token');
@@ -194,11 +644,6 @@
             }
         }
 
-        function changeAppLanguage(lang) {
-            showToast("Đã cập nhật ngôn ngữ sang: " + lang.toUpperCase());
-            toggleModal('settingsModal');
-        }
-
         function togglePostMenu(id) {
             const menu = document.getElementById(`menu-${id}`);
             if (menu) {
@@ -217,12 +662,12 @@
                 const currentDeviceToken = getDeviceToken();
                 
                 if (!posts || posts.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-10 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-sm">Chưa có bài viết nào trên hệ thống. Hãy đăng bài viết đầu tiên!</div>`;
+                    container.innerHTML = `<div class="bg-white p-10 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-sm">${t('noPosts')}</div>`;
                     return;
                 }
 
                 container.innerHTML = posts.map(p => {
-                    const dateStr = new Date(p.createdAt).toLocaleString('vi-VN', {
+                    const dateStr = new Date(p.createdAt).toLocaleString(getLang() === 'vi' ? 'vi-VN' : 'en-US', {
                         hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
                     });
 
@@ -239,11 +684,11 @@
                         ? "w-10 h-10 bg-gradient-to-tr from-amber-500 to-yellow-400 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md shadow-amber-500/30 ring-2 ring-amber-300"
                         : "w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm uppercase";
 
-                    // TÍCH VÀNG NHÀ XUẤT BẢN DÀNH CHO BẠN
+                    // TÍCH VÀNG NHÀ XUẤT BẢN DÀNH CHO BẠN (DỊCH ĐA NGÔN NGỮ)
                     const publisherGoldBadgeHTML = isVip ? `
                         <span class="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-sm shadow-amber-500/30">
                             <i data-lucide="badge-check" class="w-3.5 h-3.5 fill-white text-amber-600"></i>
-                            <span>Nhà xuất bản</span>
+                            <span>${t('publisher')}</span>
                         </span>
                     ` : '';
 
@@ -252,8 +697,8 @@
                         if (p.mediaUrl.startsWith('data:image/')) {
                             mediaHTML = `<img src="${p.mediaUrl}" loading="lazy" class="mt-3 max-h-96 w-full object-cover rounded-xl border border-gray-200/80 shadow-sm">`;
                         } else {
-                            mediaHTML = `<a href="${p.mediaUrl}" download="${p.mediaName || 'tai-lieu'}" class="mt-3 inline-flex items-center gap-2.5 bg-white/80 border border-gray-200 p-3.5 rounded-xl text-xs font-semibold text-blue-600 hover:bg-blue-50 transition max-w-full shadow-sm">
-                                <i data-lucide="paperclip" class="w-4 h-4 shrink-0"></i> <span class="truncate">${p.mediaName || 'Tải tệp đính kèm'}</span>
+                            mediaHTML = `<a href="${p.mediaUrl}" download="${p.mediaName || 'file'}" class="mt-3 inline-flex items-center gap-2.5 bg-white/80 border border-gray-200 p-3.5 rounded-xl text-xs font-semibold text-blue-600 hover:bg-blue-50 transition max-w-full shadow-sm">
+                                <i data-lucide="paperclip" class="w-4 h-4 shrink-0"></i> <span class="truncate">${p.mediaName || t('downloadAttachment')}</span>
                             </a>`;
                         }
                     }
@@ -267,7 +712,7 @@
                                 </div>
                                 <div>
                                     <div class="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-                                        <span>${p.author || 'Ẩn danh'}</span>
+                                        <span>${p.author || t('anonymous')}</span>
                                         ${publisherGoldBadgeHTML}
                                     </div>
                                     <div class="text-xs text-gray-400 font-normal">${dateStr}</div>
@@ -279,7 +724,7 @@
 
                         ${mediaHTML}
 
-                        <!-- Hàng chức năng phía dưới (Like, Dislike bên trái & Nút '...' ở góc dưới bên phải) -->
+                        <!-- Hàng chức năng phía dưới -->
                         <div class="flex items-center justify-between pt-3 border-t ${isVip ? 'border-amber-200/60' : 'border-gray-100'} text-xs">
                             <div class="flex items-center gap-2">
                                 <button onclick="likePost('${p._id}')" class="flex items-center gap-2 transition ${isLiked ? 'bg-blue-600 text-white font-bold px-3.5 py-2 rounded-xl shadow-sm' : 'text-gray-600 hover:text-blue-600 hover:bg-white/80 px-3.5 py-2 rounded-xl'}">
@@ -292,15 +737,15 @@
                                 </button>
                             </div>
 
-                            <!-- Nút '...' Xóa bài ở góc dưới bên phải - Chỉ duy nhất tác giả thấy -->
+                            <!-- Nút '...' Xóa bài ở góc dưới bên phải -->
                             ${isMyPost ? `
                                 <div class="relative">
-                                    <button onclick="togglePostMenu('${p._id}')" title="Tùy chọn bài viết" class="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-white/80 transition">
+                                    <button onclick="togglePostMenu('${p._id}')" title="Option" class="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-white/80 transition">
                                         <i data-lucide="more-horizontal" class="w-5 h-5"></i>
                                     </button>
-                                    <div id="menu-${p._id}" class="hidden absolute right-0 bottom-full mb-2 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-20">
+                                    <div id="menu-${p._id}" class="hidden absolute right-0 bottom-full mb-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-20">
                                         <button onclick="promptDeletePost('${p._id}')" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 transition">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i> Xóa bài viết
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i> ${t('deletePost')}
                                         </button>
                                     </div>
                                 </div>
@@ -313,8 +758,8 @@
             } catch(e) {
                 container.innerHTML = `
                     <div class="bg-white p-6 rounded-2xl text-center border border-red-200 shadow-sm space-y-3">
-                        <p class="text-sm text-red-600 font-medium">Không thể kết nối đến máy chủ. Vui lòng thử lại.</p>
-                        <button onclick="fetchPosts()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">Thử tải lại</button>
+                        <p class="text-sm text-red-600 font-medium">${t('errorConnect')}</p>
+                        <button onclick="fetchPosts()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">${t('btnRetry')}</button>
                     </div>
                 `;
             }
@@ -323,7 +768,7 @@
         async function likePost(id) {
             const liked = getLikedPosts();
             if (liked.includes(id)) {
-                showToast("Bạn đã thích bài viết này rồi!");
+                showToast(t('alreadyLiked'));
                 return;
             }
             setLikedPost(id);
@@ -349,11 +794,11 @@
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 if (file.size > 100 * 1024 * 1024) {
-                    alert("Tệp quá lớn! Vui lòng chọn tệp dung lượng dưới 100MB.");
+                    alert(t('fileTooLarge'));
                     return;
                 }
                 mediaName = file.name;
-                showToast("Đang xử lý tệp đính kèm...");
+                showToast(t('processingFile'));
                 mediaUrl = await new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result);
@@ -362,7 +807,7 @@
             }
 
             toggleModal('postModal');
-            showToast("Đang gửi bài viết lên hệ thống...");
+            showToast(t('submittingPost'));
 
             document.getElementById('author').value = '';
             document.getElementById('content').value = '';
@@ -387,7 +832,7 @@
         document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
             if (deleteTargetId) {
                 toggleModal('deleteConfirmModal');
-                showToast("Đang xóa bài viết...");
+                showToast(t('deletingPost'));
 
                 const res = await fetch(`/api/posts/${deleteTargetId}`, { 
                     method: 'DELETE',
@@ -396,9 +841,9 @@
 
                 if (!res.ok) {
                     const errData = await res.json();
-                    showToast(errData.error || "Không thể xóa bài viết này!");
+                    showToast(errData.error || t('deleteFailed'));
                 } else {
-                    showToast("Đã xóa bài viết thành công!");
+                    showToast(t('deleteSuccess'));
                 }
 
                 deleteTargetId = null;
@@ -407,6 +852,7 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            applyLanguage();
             if (window.lucide) lucide.createIcons();
             fetchPosts();
         });
