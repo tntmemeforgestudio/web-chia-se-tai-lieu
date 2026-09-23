@@ -46,26 +46,32 @@
             border-radius: 20px;
         }
         .post-card {
-            background: #ffffff !important;
+            background: #ffffff;
             border-radius: 16px;
             padding: 20px 24px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
             margin-bottom: 16px;
             position: relative;
             transition: all 0.2s;
+            border: 1px solid #e5e7eb;
         }
-        /* Khung Viền Vàng VIP (Nền bên trong vẫn màu trắng) */
+
+        /* Khung Viền Vàng + Nền Vàng Nhạt (Khác hẳn màu trắng) */
         .vip-card {
+            background-color: #fffdf0 !important;
             border: 2px solid #f59e0b !important;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2) !important;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.18) !important;
         }
-        .vip-badge {
+
+        /* Tik Vàng Xác Minh (Không còn chữ VIP) */
+        .gold-tick {
             color: #f59e0b;
-            font-weight: 700;
-            font-size: 13px;
+            font-size: 16px;
             margin-left: 4px;
+            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.5));
         }
-        /* Vòng tròn Avatar Chữ cái đầu */
+
+        /* Vòng tròn Avatar chuẩn */
         .avatar-circle {
             width: 42px;
             height: 42px;
@@ -79,6 +85,16 @@
             text-transform: uppercase;
             flex-shrink: 0;
         }
+
+        /* Avatar Vàng Bóng Glossy 3D cho Tài khoản Xác Minh */
+        .avatar-gold-glossy {
+            background: linear-gradient(135deg, #ffe066 0%, #f59e0b 50%, #d97706 100%) !important;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 3px 10px rgba(245, 158, 11, 0.4) !important;
+            border: 1.5px solid #fef08a;
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
         /* Fix lỗi tràn chữ ra ngoài khung */
         .post-content {
             white-space: pre-wrap;
@@ -147,7 +163,7 @@
 
     <div class="container main-container py-4">
         
-        <!-- Header Web với Icon Logo mới -->
+        <!-- Header Web với Icon Logo dạng tệp -->
         <div class="app-header d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-3">
                 <div class="logo-box">
@@ -188,7 +204,7 @@
 
     </div>
 
-    <!-- Modal Đăng Bài (Đã bỏ câu lộ bí mật trong ô nhập tên) -->
+    <!-- Modal Đăng Bài -->
     <div class="modal fade" id="postModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -218,7 +234,7 @@
         </div>
     </div>
 
-    <!-- Modal Cài Đặt Thiết Kế Đẹp Chuyên Nghiệp -->
+    <!-- Modal Cài Đặt -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -256,7 +272,7 @@
         </div>
     </div>
 
-    <!-- Modal Xóa Bài Viết Tùy Biến (Thay Thế Popup Browser Xấu) -->
+    <!-- Modal Xóa Bài Viết Tùy Biến -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -317,8 +333,9 @@
                     const authorName = post.author || 'Ẩn danh';
                     const firstChar = authorName.charAt(0).toUpperCase();
 
-                    // Màu Avatar: VÀNG RỰC RỠ (#f59e0b) cho VIP, màu ngẫu nhiên cho người dùng thường
-                    const avatarBg = isVip ? '#f59e0b' : getAvatarColor(authorName);
+                    // Lớp CSS Avatar bóng nếu là Tik Vàng
+                    const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
+                    const avatarBg = isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
 
                     const hasLiked = localStorage.getItem(`voted_like_${post._id}`) === 'true';
                     const hasDisliked = localStorage.getItem(`voted_dislike_${post._id}`) === 'true';
@@ -327,19 +344,18 @@
                         <div class="post-card ${isVip ? 'vip-card' : ''}">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-circle" style="background-color: ${avatarBg}; shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                                    <div class="${avatarClass}" style="${avatarBg}">
                                         ${firstChar}
                                     </div>
                                     <div>
                                         <div class="d-flex align-items-center">
                                             <strong class="text-dark me-1" style="font-size: 15px;">${escapeHtml(authorName)}</strong>
-                                            ${isVip ? '<i class="fa-solid fa-circle-check vip-badge" title="Nhà phát triển Web"></i> <span class="vip-badge">VIP</span>' : ''}
+                                            ${isVip ? '<i class="fa-solid fa-circle-check gold-tick" title="Tài khoản chính chủ"></i>' : ''}
                                         </div>
                                         <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt).toLocaleString('vi-VN')}</small>
                                     </div>
                                 </div>
                                 
-                                <!-- Nút ... Chỉ xuất hiện với chính chủ bài viết -->
                                 ${isOwner ? `
                                     <div class="dropdown">
                                         <button class="btn btn-link text-muted p-0 dropdown-toggle" data-bs-toggle="dropdown">
@@ -352,7 +368,6 @@
                                 ` : ''}
                             </div>
 
-                            <!-- Thẻ Nội dung chứa lớp CSS cắt chữ tránh tràn khung -->
                             <div class="text-secondary post-content mb-3">${escapeHtml(post.content || '')}</div>
 
                             ${post.mediaName ? `
@@ -489,14 +504,12 @@
             }
         }
 
-        // Mở Modal Xóa Bài Viết Đẹp
         function openDeleteModal(id) {
             selectedPostIdToDelete = id;
             const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
             modal.show();
         }
 
-        // Thực hiện xóa bài viết
         async function confirmDeletePost() {
             if (!selectedPostIdToDelete) return;
             try {
