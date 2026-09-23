@@ -14,22 +14,38 @@
             padding-bottom: 60px;
         }
         .main-container { max-width: 720px; margin: 0 auto; }
+        
+        /* THANH HEADER THÔNG MINH KIỂU FACEBOOK (Ẩn khi cuộn xuống, hiện khi cuộn lên) */
+        .sticky-header-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f8f9fa;
+            padding-top: 12px;
+            padding-bottom: 8px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .header-hidden {
+            transform: translateY(-130%);
+        }
+
         .app-header {
             background: #ffffff;
             border-radius: 16px;
-            padding: 20px 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            padding: 16px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
         }
         .logo-box {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             background-color: #0d6efd;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 22px;
+            font-size: 20px;
         }
         .info-card {
             background: #ffffff;
@@ -56,23 +72,14 @@
             border: 1px solid #e5e7eb;
         }
 
-        /* Khung Viền Vàng + Nền Vàng Nhạt */
+        /* Khung Viền Vàng VIP + Nền Vàng Nhạt */
         .vip-card {
             background-color: #fffdf0 !important;
             border: 2px solid #f59e0b !important;
             box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15) !important;
         }
 
-        /* Tik Vàng chuẩn Huy Hiệu Facebook/Twitter (Scalloped Badge) */
-        .gold-tick-fb {
-            color: #f59e0b;
-            font-size: 17px;
-            margin-left: 4px;
-            vertical-align: middle;
-            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.4));
-        }
-
-        /* Vòng tròn Avatar chuẩn */
+        /* Avatar Vàng Glossy 3D */
         .avatar-circle {
             width: 42px;
             height: 42px;
@@ -86,8 +93,6 @@
             text-transform: uppercase;
             flex-shrink: 0;
         }
-
-        /* Avatar Vàng Bóng Glossy 3D cho Tài khoản Xác Minh */
         .avatar-gold-glossy {
             background: linear-gradient(135deg, #ffe066 0%, #f59e0b 50%, #d97706 100%) !important;
             box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 3px 10px rgba(245, 158, 11, 0.4) !important;
@@ -96,7 +101,6 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
-        /* Tránh lỗi tràn chữ */
         .post-content {
             white-space: pre-wrap;
             font-size: 14px;
@@ -157,36 +161,38 @@
 </head>
 <body>
 
-    <!-- Dòng chữ góc dưới bên trái cố định -->
+    <!-- Phiên bản v2.1.0 ở góc dưới trái -->
     <div class="version-tag">
         <span class="dot-green"></span> Phiên bản v2.1.0 (Tối ưu)
     </div>
 
-    <div class="container main-container py-4">
+    <div class="container main-container">
         
-        <!-- Header Web -->
-        <div class="app-header d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="logo-box">
-                    <i class="fa-solid fa-folder-open"></i>
+        <!-- THANH HEADER THÔNG MINH (Kéo cuộn cuộn ẩn/hiện) -->
+        <div class="sticky-header-wrapper" id="smartHeader">
+            <div class="app-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="logo-box">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark" style="font-size: 17px;">Góc Chia Sẻ Tài Liệu</h5>
+                        <span class="text-muted small">Hệ thống lưu trữ trực tuyến</span>
+                    </div>
                 </div>
-                <div>
-                    <h5 class="fw-bold mb-0 text-dark">Góc Chia Sẻ Tài Liệu</h5>
-                    <span class="text-muted small">Hệ thống lưu trữ trực tuyến</span>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-primary rounded-pill px-3 fw-medium" data-bs-toggle="modal" data-bs-target="#postModal">
+                        <i class="fa-solid fa-plus me-1"></i> Đăng bài mới
+                    </button>
+                    <button class="btn btn-gear" title="Cài đặt" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
                 </div>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-primary rounded-pill px-3 fw-medium" data-bs-toggle="modal" data-bs-target="#postModal">
-                    <i class="fa-solid fa-plus me-1"></i> Đăng bài mới
-                </button>
-                <button class="btn btn-gear" title="Cài đặt" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
             </div>
         </div>
 
-        <!-- Khung Dòng Thời Gian -->
-        <div class="info-card d-flex justify-content-between align-items-center mb-4">
+        <!-- Khung Thông Tin Dòng Thời Gian -->
+        <div class="info-card d-flex justify-content-between align-items-center my-3">
             <div>
                 <h6 class="fw-bold mb-1 text-dark">Dòng thời gian & Tài liệu</h6>
                 <small class="text-muted">Tự động cập nhật trực tiếp không cần F5.</small>
@@ -273,7 +279,7 @@
         </div>
     </div>
 
-    <!-- Modal Xóa Bài Viết Tùy Biến -->
+    <!-- Modal Xóa Bài Viết -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -295,6 +301,22 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let selectedPostIdToDelete = null;
+
+        // Xử lý Header ẩn/hiện khi cuộn trang
+        let lastScrollTop = 0;
+        const smartHeader = document.getElementById('smartHeader');
+
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // Vuốt xuống -> Ẩn header
+                smartHeader.classList.add('header-hidden');
+            } else {
+                // Vuốt lên -> Hiện header
+                smartHeader.classList.remove('header-hidden');
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, false);
 
         function getAuthorToken() {
             let token = localStorage.getItem('authorToken');
@@ -330,8 +352,11 @@
 
                 container.innerHTML = posts.map(post => {
                     const isOwner = (post.authorToken === myToken);
-                    const isVip = post.isAdmin;
-                    const authorName = post.author || 'Ẩn danh';
+                    const authorName = (post.author || 'Ẩn danh').trim();
+
+                    // Tự động nhận diện VIP nếu có thuộc tính isAdmin HOẶC là tên tài khoản TNT MEMEFORG STUDIO
+                    const isVip = post.isAdmin || (authorName.toUpperCase() === 'TNT MEMEFORG STUDIO');
+
                     const firstChar = authorName.charAt(0).toUpperCase();
 
                     const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
@@ -340,9 +365,12 @@
                     const hasLiked = localStorage.getItem(`voted_like_${post._id}`) === 'true';
                     const hasDisliked = localStorage.getItem(`voted_dislike_${post._id}`) === 'true';
 
-                    /* HTML Huy Hiệu Tik Vàng Chuẩn Facebook (fa-patch-check) */
-                    const goldTickIcon = `
-                        <i class="fa-solid fa-patch-check gold-tick-fb" title="Tài khoản xác minh chính chủ"></i>
+                    /* Mã SVG Tích Vàng Chuẩn Huy Hiệu Hoa Xòe Facebook / Twitter */
+                    const goldTickIconSVG = `
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-left: 4px; filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.5));">
+                            <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238 1.05 1.273 2.42 2.148 4 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-1.05 2.148-2.42 2.148-4z" fill="#F59E0B"/>
+                            <path d="M10.2 16.2l-3.7-3.7 1.4-1.4 2.3 2.3 5.3-5.3 1.4 1.4-6.7 6.7z" fill="#FFFFFF"/>
+                        </svg>
                     `;
 
                     return `
@@ -355,7 +383,7 @@
                                     <div>
                                         <div class="d-flex align-items-center">
                                             <strong class="text-dark me-1" style="font-size: 15px;">${escapeHtml(authorName)}</strong>
-                                            ${isVip ? goldTickIcon : ''}
+                                            ${isVip ? goldTickIconSVG : ''}
                                         </div>
                                         <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt).toLocaleString('vi-VN')}</small>
                                     </div>
