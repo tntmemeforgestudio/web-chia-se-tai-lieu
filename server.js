@@ -1,12 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const path = require('path');
 
 const app = express();
 
-// Bật CORS và tăng giới hạn dung lượng tải file lên 100MB
-app.use(cors());
+// Tăng giới hạn dung lượng tải file lên 100MB
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
@@ -124,13 +122,8 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// Trả về trang index.html cho các đường dẫn khác
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// SỬA TẠI ĐÂY: Thêm '0.0.0.0' để Render nhận diện được port mở ra
+// ĐỔI DUY NHẤT ĐOẠN NÀY ĐỂ RENDER NHẬN CỔNG CỦA SERVER
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server đang chạy thành công tại cổng ${PORT}`);
+    console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
 });
