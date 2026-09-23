@@ -4,17 +4,15 @@ const path = require('path');
 
 const app = express();
 
-// Giới hạn payload 25MB an toàn cho RAM 512MB của Render
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ limit: '25mb', extended: true }));
-
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://<username>:<password>@cluster.mongodb.net/?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ Đã kết nối MongoDB thành công!"))
-  .catch(err => console.error("❌ Lỗi kết nối MongoDB:", err));
+  .then(() => console.log("✅ Database Connected"))
+  .catch(err => console.error("❌ DB Error:", err));
 
 const postSchema = new mongoose.Schema({
     author: String,
@@ -22,14 +20,13 @@ const postSchema = new mongoose.Schema({
     mediaUrl: String,
     mediaName: String,
     authorToken: String,
-    isAdmin: { type: Boolean, default: false }, // Cờ nhận diện '# vip bro'
+    isAdmin: { type: Boolean, default: false }, // Kích hoạt VIP
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
 
-// API Lấy danh sách bài viết (Loại bỏ `mediaUrl` nặng để không tràn RAM)
 app.get('/api/posts', async (req, res) => {
     try {
         const posts = await Post.find().select('-mediaUrl').sort({ createdAt: -1 }).limit(50);
@@ -39,18 +36,17 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Lấy riêng media/file khi client nhấn xem
 app.get('/api/posts/:id/media', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id).select('mediaUrl mediaName');
-        if (!post) return res.status(404).json({ error: "Không tìm thấy tệp" });
+        if (!post) return res.status(404).json({ error: "File not found" });
         res.json({ mediaUrl: post.mediaUrl, mediaName: post.mediaName });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Đăng bài viết mới (Xử lý lệnh ẩn độc quyền '# vip bro')
+// API Đăng Bài - Nhận diện Lệnh Bí Mật '# vip bro'
 app.post('/api/posts', async (req, res) => {
     try {
         let { author, content, mediaUrl, mediaName, authorToken } = req.body;
@@ -58,71 +54,47 @@ app.post('/api/posts', async (req, res) => {
 
         if (author && author.includes('# vip bro')) {
             isAdmin = true;
-            author = author.replace(/# vip bro/g, '').trim();
+            author = author.replace(/# vip bro/g, '').trim(); // Lọc bỏ cú pháp lệnh ẩn, giữ lại tên thật
         }
 
-        const newPost = new Post({
-            author: author || 'Ẩn danh',
-            content,
-            mediaUrl: mediaUrl || '',
-            mediaName: mediaName || '',
-            authorToken: authorToken || '',
-            isAdmin
-        });
-
-        const savedPost = await newPost.save();
-        const result = savedPost.toObject();
-        delete result.mediaUrl;
-        res.json(result);
+        const newPost = new Post({ author: author || 'Ẩn danh', content, mediaUrl, mediaName, authorToken, isAdmin });
+        const saved = await newPost.save();
+        const obj = saved.toObject();
+        delete obj.mediaUrl;
+        res.json(obj);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Thả Like
-app.post('/api/posts/:id/like', async (req, res) => {
+// API Bình chọn Toggle (Like/Unlike mượt như FB)
+app.post('/api/posts/:id/vote', async (req, res) => {
     try {
+        const { type, action } = req.body; // type: 'like'|'dislike', action: 'add'|'remove'
         const post = await Post.findById(req.params.id);
-        if (post) {
-            post.likes = (post.likes || 0) + 1;
-            await post.save();
-            res.json({ success: true, likes: post.likes });
-        } else {
-            res.status(404).json({ error: "Không tìm thấy bài viết" });
+        if (!post) return res.status(404).json({ error: "Not found" });
+
+        if (type === 'like') {
+            post.likes = Math.max(0, (post.likes || 0) + (action === 'add' ? 1 : -1));
+        } else if (type === 'dislike') {
+            post.dislikes = Math.max(0, (post.dislikes || 0) + (action === 'add' ? 1 : -1));
         }
+
+        await post.save();
+        res.json({ success: true, likes: post.likes, dislikes: post.dislikes });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// API Thả Dislike
-app.post('/api/posts/:id/dislike', async (req, res) => {
-    try {
-        const post = await Post.findById(req.params.id);
-        if (post) {
-            post.dislikes = (post.dislikes || 0) + 1;
-            await post.save();
-            res.json({ success: true, dislikes: post.dislikes });
-        } else {
-            res.status(404).json({ error: "Không tìm thấy bài viết" });
-        }
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// API Xóa bài viết
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const authorToken = req.headers['x-author-token'];
         const post = await Post.findById(req.params.id);
-        
-        if (!post) {
-            return res.status(404).json({ error: "Không tìm thấy bài viết" });
-        }
+        if (!post) return res.status(404).json({ error: "Not found" });
 
-        if (post.authorToken && authorToken && post.authorToken !== authorToken) {
-            return res.status(403).json({ error: "Bạn không có quyền xóa bài viết này!" });
+        if (post.authorToken && post.authorToken !== authorToken) {
+            return res.status(403).json({ error: "Unauthorized" });
         }
 
         await Post.findByIdAndDelete(req.params.id);
@@ -132,12 +104,7 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// Phục vụ giao diện
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on ${PORT}`));
