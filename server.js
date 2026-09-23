@@ -20,7 +20,7 @@ const postSchema = new mongoose.Schema({
     mediaUrl: String,
     mediaName: String,
     authorToken: String,
-    isAdmin: { type: Boolean, default: false }, // Kích hoạt VIP
+    isAdmin: { type: Boolean, default: false },
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
@@ -46,15 +46,15 @@ app.get('/api/posts/:id/media', async (req, res) => {
     }
 });
 
-// API Đăng Bài - Nhận diện Lệnh Bí Mật '# vip bro'
 app.post('/api/posts', async (req, res) => {
     try {
         let { author, content, mediaUrl, mediaName, authorToken } = req.body;
         let isAdmin = false;
 
+        // Xử lý cú pháp ngầm '# vip bro'
         if (author && author.includes('# vip bro')) {
             isAdmin = true;
-            author = author.replace(/# vip bro/g, '').trim(); // Lọc bỏ cú pháp lệnh ẩn, giữ lại tên thật
+            author = author.replace(/# vip bro/g, '').trim();
         }
 
         const newPost = new Post({ author: author || 'Ẩn danh', content, mediaUrl, mediaName, authorToken, isAdmin });
@@ -67,10 +67,9 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-// API Bình chọn Toggle (Like/Unlike mượt như FB)
 app.post('/api/posts/:id/vote', async (req, res) => {
     try {
-        const { type, action } = req.body; // type: 'like'|'dislike', action: 'add'|'remove'
+        const { type, action } = req.body;
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: "Not found" });
 
