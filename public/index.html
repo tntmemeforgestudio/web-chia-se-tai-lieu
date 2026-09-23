@@ -13,10 +13,7 @@
             color: #212529;
             padding-bottom: 60px;
         }
-        .main-container {
-            max-width: 720px;
-            margin: 0 auto;
-        }
+        .main-container { max-width: 720px; margin: 0 auto; }
         .app-header {
             background: #ffffff;
             border-radius: 16px;
@@ -55,6 +52,32 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
             margin-bottom: 16px;
             position: relative;
+            transition: all 0.2s;
+        }
+        /* Khung Vàng VIP cho nhà phát triển (# vip bro) */
+        .vip-card {
+            border: 2px solid #f59e0b !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.25) !important;
+        }
+        .vip-badge {
+            color: #f59e0b;
+            font-weight: 700;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+        /* Vòng tròn Avatar Chữ cái đầu */
+        .avatar-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 17px;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
         .btn-gear {
             width: 42px;
@@ -91,35 +114,34 @@
             border-radius: 50%;
             display: inline-block;
         }
-        .translate-widget {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .btn-action {
+        /* Style Nút Like/Dislike giống Facebook */
+        .btn-vote {
             border-radius: 20px;
-            padding: 4px 14px;
+            padding: 5px 16px;
             background: #f3f4f6;
             border: none;
             color: #4b5563;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+            transition: all 0.2s;
         }
-        .btn-action:hover { background: #e5e7eb; }
+        .btn-vote:hover { background: #e5e7eb; }
+        .btn-vote.active-like {
+            background: #0d6efd !important;
+            color: #ffffff !important;
+        }
+        .btn-vote.active-dislike {
+            background: #dc3545 !important;
+            color: #ffffff !important;
+        }
         .dropdown-toggle::after { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Dòng chữ góc dưới bên trái ban đầu -->
+    <!-- Dòng chữ Góc Dưới Bên Trái -->
     <div class="version-tag">
         <span class="dot-green"></span> Phiên bản v2.1.0 (Tối ưu)
-    </div>
-
-    <!-- Khung dịch ngôn ngữ góc dưới bên phải -->
-    <div class="translate-widget">
-        <div id="google_translate_element"></div>
     </div>
 
     <div class="container main-container py-4">
@@ -139,7 +161,8 @@
                 <button class="btn btn-primary rounded-pill px-3 fw-medium" data-bs-toggle="modal" data-bs-target="#postModal">
                     <i class="fa-solid fa-plus me-1"></i> Đăng bài mới
                 </button>
-                <button class="btn btn-gear" title="Cài đặt" onclick="alert('Cài đặt hệ thống đang ở trạng thái tối ưu nhất!')">
+                <!-- Nút Cài Đặt Mở Modal Chứa Dịch Ngôn Ngữ -->
+                <button class="btn btn-gear" title="Cài đặt" data-bs-toggle="modal" data-bs-target="#settingsModal">
                     <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
@@ -159,7 +182,7 @@
         <!-- Danh sách bài viết -->
         <div id="postsList">
             <div class="text-center py-5 text-muted">
-                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải danh sách bài viết...
+                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải dữ liệu...
             </div>
         </div>
 
@@ -176,7 +199,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Tên người đăng</label>
-                        <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn...">
+                        <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên (Mẹo: dùng # vip bro để bật VIP)...">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Nội dung</label>
@@ -195,9 +218,24 @@
         </div>
     </div>
 
+    <!-- Modal Cài Đặt (Nơi chứa Dịch Ngôn Ngữ) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                <div class="modal-header border-0 pb-0">
+                    <h6 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Cài đặt ứng dụng</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <label class="form-label small fw-bold text-muted d-block mb-2">Chọn ngôn ngữ dịch:</label>
+                    <div id="google_translate_element" style="display: inline-block;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Tạo token định danh máy người dùng
         function getAuthorToken() {
             let token = localStorage.getItem('authorToken');
             if (!token) {
@@ -207,7 +245,16 @@
             return token;
         }
 
-        // Tải danh sách bài viết
+        // Tạo màu ngẫu nhiên nhưng cố định cho Avatar theo Tên người dùng
+        function getAvatarColor(name) {
+            const colors = ['#0d6efd', '#6f42c1', '#d63384', '#fd7e14', '#198754', '#20c997', '#0dcaf0'];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+
         async function loadPosts() {
             const container = document.getElementById('postsList');
             try {
@@ -224,30 +271,46 @@
 
                 container.innerHTML = posts.map(post => {
                     const isOwner = (post.authorToken === myToken);
+                    const isVip = post.isAdmin;
+                    const authorName = post.author || 'Ẩn danh';
+                    const firstChar = authorName.charAt(0).toUpperCase();
+                    const avatarBg = getAvatarColor(authorName);
+
+                    // Trạng thái Like / Dislike từ LocalStorage
+                    const hasLiked = localStorage.getItem(`voted_like_${post._id}`) === 'true';
+                    const hasDisliked = localStorage.getItem(`voted_dislike_${post._id}`) === 'true';
 
                     return `
-                        <div class="post-card">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <strong class="text-dark d-block mb-0">${escapeHtml(post.author || 'Ẩn danh')}</strong>
-                                    <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt).toLocaleString('vi-VN')}</small>
+                        <div class="post-card ${isVip ? 'vip-card' : ''}">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- Avatar Tròn Chữ Cái Đầu -->
+                                    <div class="avatar-circle" style="background-color: ${avatarBg};">
+                                        ${firstChar}
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center">
+                                            <strong class="text-dark me-1" style="font-size: 15px;">${escapeHtml(authorName)}</strong>
+                                            ${isVip ? '<i class="fa-solid fa-circle-check vip-badge" title="Tài khoản VIP"></i> <span class="vip-badge">VIP</span>' : ''}
+                                        </div>
+                                        <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt).toLocaleString('vi-VN')}</small>
+                                    </div>
                                 </div>
                                 
-                                <!-- Dấu ba chấm ... nguyên bản góc trên bên phải -->
-                                <div class="dropdown">
-                                    <button class="btn btn-link text-muted p-0 dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="fa-solid fa-ellipsis"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 10px;">
-                                        ${isOwner ? 
-                                            `<li><a class="dropdown-menu-item text-danger dropdown-item small" href="#" onclick="deletePost('${post._id}')"><i class="fa-solid fa-trash me-2"></i>Xóa bài viết</a></li>` : 
-                                            `<li><span class="dropdown-item small text-muted disabled">Bạn không phải tác giả</span></li>`
-                                        }
-                                    </ul>
-                                </div>
+                                <!-- NÚT ... CHỈ HIỆN KHI LÀ CHÍNH CHỦ NGƯỜI ĐĂNG BÀI -->
+                                ${isOwner ? `
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-0 dropdown-toggle" data-bs-toggle="dropdown">
+                                            <i class="fa-solid fa-ellipsis"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 10px;">
+                                            <li><a class="dropdown-item text-danger small" href="#" onclick="deletePost('${post._id}')"><i class="fa-solid fa-trash me-2"></i>Xóa bài viết</a></li>
+                                        </ul>
+                                    </div>
+                                ` : ''}
                             </div>
 
-                            <div class="text-secondary mb-3" style="white-space: pre-wrap; font-size: 14px;">${escapeHtml(post.content || '')}</div>
+                            <div class="text-secondary mb-3" style="white-space: pre-wrap; font-size: 14px; line-height: 1.5;">${escapeHtml(post.content || '')}</div>
 
                             ${post.mediaName ? `
                                 <div class="mb-3" id="media-container-${post._id}">
@@ -257,13 +320,13 @@
                                 </div>
                             ` : ''}
 
-                            <!-- Nút Like/Dislike chuẩn (Chỉ bấm được 1 lần) -->
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-action" onclick="votePost('${post._id}', 'like')">
-                                    <i class="fa-regular fa-thumbs-up me-1"></i> ${post.likes || 0}
+                            <!-- Nút Like/Dislike Facebook (Bấm toggle bật/tắt mượt mà không hiện popup) -->
+                            <div class="d-flex gap-2 pt-2">
+                                <button class="btn btn-vote ${hasLiked ? 'active-like' : ''}" onclick="toggleVote('${post._id}', 'like')">
+                                    <i class="fa-thumbs-up ${hasLiked ? 'fa-solid' : 'fa-regular'} me-1"></i> ${post.likes || 0}
                                 </button>
-                                <button class="btn btn-action" onclick="votePost('${post._id}', 'dislike')">
-                                    <i class="fa-regular fa-thumbs-down me-1"></i> ${post.dislikes || 0}
+                                <button class="btn btn-vote ${hasDisliked ? 'active-dislike' : ''}" onclick="toggleVote('${post._id}', 'dislike')">
+                                    <i class="fa-thumbs-down ${hasDisliked ? 'fa-solid' : 'fa-regular'} me-1"></i> ${post.dislikes || 0}
                                 </button>
                             </div>
                         </div>
@@ -280,7 +343,6 @@
             }
         }
 
-        // Tải media xem trực tiếp
         async function loadMedia(postId) {
             const container = document.getElementById(`media-container-${postId}`);
             container.innerHTML = `<span class="text-muted small"><i class="fa-solid fa-spinner fa-spin me-1"></i> Đang tải...</span>`;
@@ -301,26 +363,41 @@
             }
         }
 
-        // Khóa Like / Dislike (Chỉ cho phép vote 1 lần cho 1 bài)
-        async function votePost(postId, type) {
-            const votedKey = `voted_${postId}`;
-            if (localStorage.getItem(votedKey)) {
-                alert("Bạn đã bình chọn cho bài viết này rồi!");
-                return;
+        // Xử lý Bật/Tắt Like & Dislike chuẩn kiểu Facebook (Không Alert)
+        async function toggleVote(postId, type) {
+            const key = `voted_${type}_${postId}`;
+            const isVoted = localStorage.getItem(key) === 'true';
+            const action = isVoted ? 'remove' : 'add';
+
+            // Reset trạng thái cũ nếu bấm ngược lại (ví dụ đang dislike mà bấm like)
+            const oppositeType = type === 'like' ? 'dislike' : 'like';
+            const oppositeKey = `voted_${oppositeType}_${postId}`;
+            if (localStorage.getItem(oppositeKey) === 'true') {
+                await fetch(`/api/posts/${postId}/vote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: oppositeType, action: 'remove' })
+                });
+                localStorage.removeItem(oppositeKey);
             }
 
             try {
-                const res = await fetch(`/api/posts/${postId}/${type}`, { method: 'POST' });
+                const res = await fetch(`/api/posts/${postId}/vote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, action })
+                });
+
                 if (res.ok) {
-                    localStorage.setItem(votedKey, 'true');
+                    if (isVoted) localStorage.removeItem(key);
+                    else localStorage.setItem(key, 'true');
                     loadPosts();
                 }
             } catch (err) {
-                alert("Không thể thực hiện lúc này!");
+                console.error("Lỗi bình chọn:", err);
             }
         }
 
-        // Đăng bài
         async function submitPost() {
             const author = document.getElementById('authorInput').value.trim();
             const content = document.getElementById('contentInput').value.trim();
@@ -372,7 +449,6 @@
             }
         }
 
-        // Xóa bài viết
         async function deletePost(id) {
             if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
             try {
@@ -381,9 +457,9 @@
                     headers: { 'x-author-token': getAuthorToken() }
                 });
                 if (res.ok) loadPosts();
-                else alert("Bạn không thể xóa bài viết của người khác!");
+                else alert("Lỗi khi xóa bài viết!");
             } catch (err) {
-                alert("Lỗi khi xóa bài viết!");
+                alert("Lỗi máy chủ!");
             }
         }
 
