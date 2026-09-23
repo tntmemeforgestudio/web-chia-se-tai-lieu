@@ -3,528 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="siteTitle">Góc Chia Sẻ Tài Liệu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
+    <title>Góc Chia Sẻ Tài Liệu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .post-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; transition: all 0.2s; }
+        .post-card.vip-border { border: 2px solid #ffd700 !important; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        .vip-badge { color: #d4af37; font-weight: bold; margin-left: 5px; }
+        .translator-box { position: fixed; bottom: 15px; right: 15px; z-index: 9999; background: #fff; padding: 6px 12px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .media-preview-container img, .media-preview-container video { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col justify-between antialiased selection:bg-blue-100 selection:text-blue-600">
+<body>
 
-    <!-- Toast Thông báo -->
-    <div id="toast" class="fixed top-4 right-4 bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-2xl z-50 hidden flex items-center gap-3 text-sm font-medium border border-gray-800">
-        <i data-lucide="info" class="w-4 h-4 shrink-0 text-blue-400"></i>
-        <span id="toast-text">Đang xử lý...</span>
+    <!-- Công cụ dịch đa ngôn ngữ tự động -->
+    <div class="translator-box">
+        <i class="fa-solid font-awesome-flag me-1"></i> <span style="font-size: 12px;">Dịch:</span>
+        <div id="google_translate_element" style="display: inline-block;"></div>
     </div>
 
-    <!-- Badge Thông báo phiên bản -->
-    <div class="fixed bottom-4 left-4 z-30 bg-white/90 backdrop-blur-md border border-gray-200/80 text-gray-700 px-3.5 py-1.5 rounded-full shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white transition cursor-default">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span data-i18n="version">Phiên bản v2.1.0 (Tối ưu Tốc độ)</span>
-    </div>
-
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 px-6 py-3.5 shadow-sm">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20">
-                    <i data-lucide="folder-git-2" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-gray-900 tracking-tight" data-i18n="siteTitle">Góc Chia Sẻ Tài Liệu</h1>
-                    <p class="text-xs text-gray-500" data-i18n="siteSub">Hệ thống lưu trữ trực tuyến</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center space-x-2">
-                <button onclick="toggleModal('postModal')" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-blue-500/20 text-sm transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnNewPost">Đăng bài mới</span>
-                </button>
-                <button onclick="toggleModal('settingsModal')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl transition border border-gray-200" title="Cài đặt">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow space-y-4">
-        <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+    <div class="container py-4" style="max-width: 720px;">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-3 shadow-sm">
             <div>
-                <h2 class="font-bold text-gray-900 text-base" data-i18n="timelineTitle">Dòng thời gian & Tài liệu chia sẻ</h2>
-                <p class="text-xs text-gray-500" data-i18n="timelineSub">Tự động cập nhật trực tiếp không cần F5.</p>
+                <h4 class="m-0 fw-bold text-primary"><i class="fa-solid fa-folder-open me-2"></i>Góc Chia Sẻ Tài Liệu</h4>
+                <small class="text-muted">Hệ thống lưu trữ trực tuyến v2.1.0</small>
             </div>
-            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span data-i18n="statusOk">Hoạt động mượt mà</span>
-            </span>
-        </div>
-
-        <div id="postsContainer" class="space-y-4">
-            <div class="bg-white p-10 rounded-2xl text-center text-gray-500 border border-gray-200 shadow-sm flex flex-col items-center justify-center gap-3">
-                <i data-lucide="loader-2" class="w-7 h-7 animate-spin text-blue-600"></i>
-                <span class="text-sm font-medium text-gray-600" data-i18n="loading">Đang kết nối hệ thống...</span>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal Đăng Bài -->
-    <div id="postModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-gray-100 max-h-[90vh] overflow-y-auto">
-            <button onclick="toggleModal('postModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition">
-                <i data-lucide="x" class="w-5 h-5"></i>
+            <button class="btn btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                <i class="fa-solid fa-plus me-1"></i> Đăng bài mới
             </button>
-            <h3 class="font-bold text-lg mb-4 text-gray-900 flex items-center gap-2">
-                <i data-lucide="square-pen" class="w-5 h-5 text-blue-600"></i> <span data-i18n="modalPostTitle">Đăng bài viết / Tài liệu mới</span>
-            </h3>
-            
-            <form id="uploadForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1" data-i18n="lblAuthor">Tên tác giả</label>
-                    <input type="text" id="author" name="author" required data-i18n-placeholder="phAuthor" placeholder="Nhập tên của bạn..."
-                        class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                </div>
+        </div>
 
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1" data-i18n="lblContent">Nội dung bài viết</label>
-                    <textarea id="content" name="content" rows="4" required data-i18n-placeholder="phContent" placeholder="Nhập nội dung cần chia sẻ..."
-                        class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 resize-y"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1" data-i18n="lblFile">Tệp đính kèm (Ảnh / File / Video)</label>
-                    <input type="file" id="fileInput" class="w-full border border-gray-300 rounded-xl p-2 text-xs bg-gray-50 text-gray-600 outline-none file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                    <p class="text-xs text-blue-600 mt-1.5 font-semibold">⚡ Ảnh sẽ tự động được nén tối ưu để gửi siêu nhanh.</p>
-                </div>
-
-                <button type="submit" id="btnSubmitPost" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md shadow-blue-500/20">
-                    <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="btnSubmit">Tiến hành đăng bài</span>
-                </button>
-            </form>
+        <!-- Timeline -->
+        <div id="postsList">
+            <div class="text-center py-5 text-muted">
+                <div class="spinner-border text-primary me-2"></div> Đang tải dữ liệu...
+            </div>
         </div>
     </div>
 
-    <!-- Modal Cài Đặt Ngôn Ngữ -->
-    <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative border border-gray-100">
-            <button onclick="toggleModal('settingsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-700">
-                    <i data-lucide="sliders" class="w-5 h-5"></i>
+    <!-- Modal đăng bài -->
+    <div class="modal fade" id="createPostModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Tạo bài viết / Chia sẻ tài liệu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div>
-                    <h3 class="font-bold text-base text-gray-900" data-i18n="modalSetTitle">Cài đặt hệ thống</h3>
-                    <p class="text-xs text-gray-400" data-i18n="modalSetSub">Tùy chỉnh ngôn ngữ hiển thị</p>
-                </div>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2" data-i18n="lblSelectLang">Chọn ngôn ngữ</label>
-                    <div class="relative">
-                        <select id="languageSelect" onchange="changeAppLanguage(this.value)" class="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-xl p-3.5 pr-10 outline-none focus:ring-2 focus:ring-blue-500 font-medium transition cursor-pointer">
-                            <option value="vi">🇻🇳 Tiếng Việt</option>
-                            <option value="en">🇺🇸 English</option>
-                            <option value="ja">🇯🇵 日本語</option>
-                            <option value="ko">🇰🇷 한국어</option>
-                            <option value="zh">🇨🇳 中文</option>
-                        </select>
-                        <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                        </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên của bạn</label>
+                        <input type="text" id="authorInput" class="form-field form-control" placeholder="Nhập tên của bạn...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung</label>
+                        <textarea id="contentInput" class="form-control" rows="4" placeholder="Nội dung bài viết hoặc mô tả tài liệu..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tệp đính kèm (Ảnh, Video, Tài liệu < 25MB)</label>
+                        <input type="file" id="fileInput" class="form-control">
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitPost()">Đăng ngay</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Xác Nhận Xóa Bài -->
-    <div id="deleteConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl relative border border-gray-100 text-center space-y-4">
-            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h4 class="font-bold text-gray-900 text-base" data-i18n="modalDelTitle">Xóa bài viết này?</h4>
-                <p class="text-xs text-gray-500 mt-1" data-i18n="modalDelSub">Hành động này sẽ xóa bài đăng vĩnh viễn.</p>
-            </div>
-            <div class="flex items-center gap-2 pt-1">
-                <button onclick="toggleModal('deleteConfirmModal')" class="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-xs font-semibold transition" data-i18n="btnCancel">Hủy bỏ</button>
-                <button id="btnConfirmDelete" class="w-1/2 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-semibold transition shadow-md shadow-red-500/20" data-i18n="btnConfirmDel">Xóa vĩnh viễn</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const translations = {
-            vi: {
-                siteTitle: "Góc Chia Sẻ Tài Liệu", siteSub: "Hệ thống lưu trữ trực tuyến", version: "Phiên bản v2.1.0 (Tối ưu)",
-                btnNewPost: "Đăng bài mới", timelineTitle: "Dòng thời gian & Tài liệu", timelineSub: "Tự động cập nhật trực tiếp không cần F5.",
-                statusOk: "Hoạt động mượt mà", loading: "Đang kết nối hệ thống...", noPosts: "Chưa có bài viết nào.",
-                errorConnect: "Kết nối chập chờn. Đang thử lại...", btnRetry: "Tải lại", modalPostTitle: "Đăng bài mới",
-                lblAuthor: "Tên tác giả", phAuthor: "Nhập tên của bạn...", lblContent: "Nội dung", phContent: "Nhập nội dung...",
-                lblFile: "Tệp đính kèm", btnSubmit: "Tiến hành đăng bài", modalSetTitle: "Cài đặt", modalSetSub: "Ngôn ngữ hiển thị",
-                lblSelectLang: "Chọn ngôn ngữ", modalDelTitle: "Xóa bài viết?", modalDelSub: "Không thể khôi phục sau khi xóa.",
-                btnCancel: "Hủy bỏ", btnConfirmDel: "Xóa vĩnh viễn", publisher: "Nhà xuất bản", anonymous: "Ẩn danh",
-                downloadAttachment: "Tải tệp đính kèm", deletePost: "Xóa bài viết", alreadyLiked: "Bạn đã thích bài viết này!",
-                fileTooLarge: "Tệp quá lớn (>30MB)! Vui lòng chọn tệp nhỏ hơn.", processingFile: "⚡ Đang nén & tối ưu tệp...",
-                submittingPost: "Đang đăng bài...", deletingPost: "Đang xóa bài...", deleteSuccess: "Đã xóa bài viết!",
-                deleteFailed: "Không thể xóa bài này!", langChanged: "Đã đổi ngôn ngữ: "
-            },
-            en: {
-                siteTitle: "Document Hub", siteSub: "Online Cloud Storage", version: "Version v2.1.0 (Optimized)",
-                btnNewPost: "New Post", timelineTitle: "Timeline & Documents", timelineSub: "Live updates without refreshing.",
-                statusOk: "System Smooth", loading: "Connecting...", noPosts: "No posts yet.",
-                errorConnect: "Connection unstable. Retrying...", btnRetry: "Retry", modalPostTitle: "New Post",
-                lblAuthor: "Author Name", phAuthor: "Your name...", lblContent: "Content", phContent: "Type content...",
-                lblFile: "Attachment", btnSubmit: "Publish Post", modalSetTitle: "Settings", modalSetSub: "Display Language",
-                lblSelectLang: "Select Language", modalDelTitle: "Delete Post?", modalDelSub: "Permanent action.",
-                btnCancel: "Cancel", btnConfirmDel: "Delete", publisher: "Publisher", anonymous: "Anonymous",
-                downloadAttachment: "Download Attachment", deletePost: "Delete Post", alreadyLiked: "Already liked!",
-                fileTooLarge: "File too large (>30MB)!", processingFile: "⚡ Optimizing file...",
-                submittingPost: "Publishing...", deletingPost: "Deleting...", deleteSuccess: "Post deleted!",
-                deleteFailed: "Delete failed!", langChanged: "Language set to: "
-            }
-        };
-
-        let deleteTargetId = null;
-        let isInitialLoad = true;
-        let cachedPostsJSON = "";
-
-        function getLang() { return localStorage.getItem('app_lang') || 'vi'; }
-        function t(key) {
-            const lang = getLang();
-            return (translations[lang] && translations[lang][key]) || translations['vi'][key] || key;
-        }
-
-        function applyLanguage() {
-            const lang = getLang();
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
-            });
-            const langSelect = document.getElementById('languageSelect');
-            if (langSelect) langSelect.value = lang;
-        }
-
-        function changeAppLanguage(lang) {
-            localStorage.setItem('app_lang', lang);
-            applyLanguage();
-            fetchPosts(true);
-            showToast(t('langChanged') + lang.toUpperCase());
-            toggleModal('settingsModal');
-        }
-
-        function getDeviceToken() {
-            let token = localStorage.getItem('user_device_token');
+        // Khởi tạo Token thiết bị người dùng
+        function getAuthorToken() {
+            let token = localStorage.getItem('authorToken');
             if (!token) {
-                token = 'token_' + Math.random().toString(36).substring(2) + Date.now();
-                localStorage.setItem('user_device_token', token);
+                token = 'user_' + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('authorToken', token);
             }
             return token;
         }
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-        function showToast(text) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-text').innerText = text;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        function getLikedPosts() {
-            try { return JSON.parse(localStorage.getItem('user_liked_posts') || '[]'); } catch(e) { return []; }
-        }
-
-        function setLikedPost(id) {
-            const liked = getLikedPosts();
-            if (!liked.includes(id)) {
-                liked.push(id);
-                localStorage.setItem('user_liked_posts', JSON.stringify(liked));
-            }
-        }
-
-        function togglePostMenu(id) {
-            const menu = document.getElementById(`menu-${id}`);
-            if (menu) menu.classList.toggle('hidden');
-        }
-
-        // HÀM TỰ ĐỘNG NÉN ẢNH GIÚP ĐIỆN THOẠI TRÁNH BỊ QUAY MÃI / BỊ ĐƠ
-        function compressImage(file, maxWidth = 1000, quality = 0.7) {
-            return new Promise((resolve) => {
-                if (!file.type.startsWith('image/')) return resolve(null);
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        if (width > maxWidth) {
-                            height = Math.round((height * maxWidth) / width);
-                            width = maxWidth;
-                        }
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', quality));
-                    };
-                    img.onerror = () => resolve(null);
-                };
-            });
-        }
-
-        // TỰ ĐỘNG LÀM MỚI VÀ TỐI ƯU TỐC ĐỘ HỆ THỐNG
-        async function fetchPosts(forceRender = false) {
-            const container = document.getElementById('postsContainer');
+        // Tải danh sách bài viết
+        async function loadPosts() {
+            const container = document.getElementById('postsList');
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000); // Timeout 8 giây tránh treo
-
-                const res = await fetch('/api/posts', { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (!res.ok) throw new Error("Connection Error");
+                const res = await fetch('/api/posts');
+                if (!res.ok) throw new Error("Lỗi máy chủ");
                 const posts = await res.json();
 
-                // Kiểm tra nếu dữ liệu không đổi thì KHÔNG đè lại giao diện (tránh giật lag màn hình)
-                const currentJSON = JSON.stringify(posts);
-                if (!forceRender && currentJSON === cachedPostsJSON) return;
-                cachedPostsJSON = currentJSON;
-
-                const likedPosts = getLikedPosts();
-                const currentDeviceToken = getDeviceToken();
-
-                if (!posts || posts.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-10 rounded-2xl text-center text-gray-400 border border-gray-200 shadow-sm text-sm">${t('noPosts')}</div>`;
+                if (posts.length === 0) {
+                    container.innerHTML = `<div class="text-center py-5 text-muted">Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!</div>`;
                     return;
                 }
 
-                container.innerHTML = posts.map(p => {
-                    const dateStr = new Date(p.createdAt).toLocaleString('vi-VN', {
-                        hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'
-                    });
-
-                    const isLiked = likedPosts.includes(p._id);
-                    const isMyPost = !p.authorToken || p.authorToken === currentDeviceToken;
-                    const isVip = p.isAdmin;
-
-                    const cardClass = isVip
-                        ? "bg-gradient-to-br from-amber-50/90 via-yellow-50/40 to-amber-100/60 border-2 border-amber-400 shadow-lg p-5 rounded-2xl space-y-3 relative"
-                        : "bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-3 relative";
-
-                    const publisherBadge = isVip ? `
-                        <span class="inline-flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                            <i data-lucide="badge-check" class="w-3 h-3"></i> VIP
-                        </span>
-                    ` : '';
-
-                    let mediaHTML = '';
-                    if (p.mediaUrl) {
-                        if (p.mediaUrl.startsWith('data:image/')) {
-                            // Tải ảnh lười (lazy loading) giúp di động lướt cực mượt
-                            mediaHTML = `<img src="${p.mediaUrl}" loading="lazy" class="mt-2 max-h-80 w-full object-cover rounded-xl border border-gray-200 shadow-sm">`;
-                        } else {
-                            mediaHTML = `<a href="${p.mediaUrl}" download="${p.mediaName || 'file'}" class="mt-2 inline-flex items-center gap-2 bg-gray-50 border border-gray-200 p-3 rounded-xl text-xs font-semibold text-blue-600 hover:bg-blue-50 transition max-w-full">
-                                <i data-lucide="paperclip" class="w-4 h-4 shrink-0"></i> <span class="truncate">${p.mediaName || t('downloadAttachment')}</span>
-                            </a>`;
-                        }
-                    }
+                const myToken = getAuthorToken();
+                container.innerHTML = posts.map(post => {
+                    const isVip = post.isAdmin;
+                    const canDelete = !post.authorToken || post.authorToken === myToken;
 
                     return `
-                    <div class="${cardClass}">
-                        <div class="flex justify-between items-center">
-                            <div class="font-bold text-gray-900 text-sm flex items-center gap-2.5">
-                                <div class="w-9 h-9 ${isVip ? 'bg-amber-500 text-white' : 'bg-blue-100 text-blue-700'} rounded-full flex items-center justify-center font-bold text-xs uppercase">
-                                    ${(p.author || 'A').charAt(0)}
-                                </div>
+                        <div class="post-card p-3 mb-3 ${isVip ? 'vip-border' : ''}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <div class="text-xs font-semibold text-gray-900 flex items-center gap-1">
-                                        <span>${p.author || t('anonymous')}</span>
-                                        ${publisherBadge}
-                                    </div>
-                                    <div class="text-[10px] text-gray-400 font-normal">${dateStr}</div>
+                                    <strong class="text-dark">${escapeHtml(post.author)}</strong>
+                                    ${isVip ? '<span class="vip-badge" title="Tài khoản VIP"><i class="fa-solid fa-circle-check"></i> VIP</span>' : ''}
+                                    <br><small class="text-muted" style="font-size:11px;">${new Date(post.createdAt).toLocaleString('vi-VN')}</small>
                                 </div>
+                                ${canDelete ? `<button class="btn btn-sm btn-outline-danger border-0" onclick="deletePost('${post._id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
                             </div>
-                        </div>
-
-                        <div class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap break-words">${p.content}</div>
-                        ${mediaHTML}
-
-                        <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-xs">
-                            <div class="flex items-center gap-2">
-                                <button onclick="likePost('${p._id}')" class="flex items-center gap-1.5 transition ${isLiked ? 'bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm' : 'text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded-lg'}">
-                                    <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
-                                    <span id="like-count-${p._id}">${p.likes || 0}</span>
-                                </button>
-                                <button onclick="dislikePost('${p._id}')" class="flex items-center gap-1.5 text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition">
-                                    <i data-lucide="thumbs-down" class="w-3.5 h-3.5"></i>
-                                    <span id="dislike-count-${p._id}">${p.dislikes || 0}</span>
-                                </button>
-                            </div>
-
-                            ${isMyPost ? `
-                                <div class="relative">
-                                    <button onclick="togglePostMenu('${p._id}')" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 transition">
-                                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                            <p class="mb-2 text-secondary" style="white-space: pre-wrap;">${escapeHtml(post.content || '')}</p>
+                            
+                            ${post.mediaName ? `
+                                <div class="my-2 p-2 bg-light rounded" id="media-box-${post._id}">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="loadMedia('${post._id}')">
+                                        <i class="fa-solid fa-paperclip me-1"></i> Xem tệp đính kèm: <strong>${escapeHtml(post.mediaName)}</strong>
                                     </button>
-                                    <div id="menu-${p._id}" class="hidden absolute right-0 bottom-full mb-1 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-20">
-                                        <button onclick="promptDeletePost('${p._id}')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 transition">
-                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> ${t('deletePost')}
-                                        </button>
-                                    </div>
                                 </div>
                             ` : ''}
-                        </div>
-                    </div>
-                `}).join('');
 
-                if (window.lucide) lucide.createIcons();
-            } catch(e) {
-                if (isInitialLoad) {
-                    container.innerHTML = `
-                        <div class="bg-white p-6 rounded-2xl text-center border border-red-200 shadow-sm space-y-3">
-                            <p class="text-sm text-red-600 font-medium">${t('errorConnect')}</p>
-                            <button onclick="fetchPosts(true)" class="bg-blue-600 text-white text-xs px-4 py-2 rounded-xl font-semibold">${t('btnRetry')}</button>
+                            <div class="d-flex gap-2 mt-3 pt-2 border-top">
+                                <button class="btn btn-sm btn-light border rounded-pill px-3" onclick="likePost('${post._id}')">
+                                    <i class="fa-regular fa-thumbs-up text-primary me-1"></i> ${post.likes || 0}
+                                </button>
+                                <button class="btn btn-sm btn-light border rounded-pill px-3" onclick="dislikePost('${post._id}')">
+                                    <i class="fa-regular fa-thumbs-down text-danger me-1"></i> ${post.dislikes || 0}
+                                </button>
+                            </div>
                         </div>
                     `;
-                }
-            } finally {
-                isInitialLoad = false;
+                }).join('');
+
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="text-center py-4 bg-white rounded shadow-sm">
+                        <p class="text-danger mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> Kết nối chưa ổn định</p>
+                        <button class="btn btn-sm btn-primary rounded-pill" onclick="loadPosts()"><i class="fa-solid fa-rotate-right me-1"></i> Tải lại trang</button>
+                    </div>
+                `;
             }
         }
 
-        // BẤM LIKE NHẢY CON SỐ TỨC THÌ (OPTIMISTIC UI)
-        async function likePost(id) {
-            const liked = getLikedPosts();
-            if (liked.includes(id)) {
-                showToast(t('alreadyLiked'));
+        // Tải media riêng biệt để tránh nghẽn mạng
+        async function loadMedia(postId) {
+            const box = document.getElementById(`media-box-${postId}`);
+            box.innerHTML = `<span class="text-muted small"><i class="fa-solid fa-spinner fa-spin me-1"></i> Đang tải tệp...</span>`;
+            try {
+                const res = await fetch(`/api/posts/${postId}/media`);
+                const data = await res.json();
+                if (data.mediaUrl) {
+                    if (data.mediaUrl.startsWith('data:image')) {
+                        box.innerHTML = `<img src="${data.mediaUrl}" class="img-fluid rounded" alt="media">`;
+                    } else if (data.mediaUrl.startsWith('data:video')) {
+                        box.innerHTML = `<video controls class="w-100 rounded"><source src="${data.mediaUrl}"></video>`;
+                    } else {
+                        box.innerHTML = `<a href="${data.mediaUrl}" download="${data.mediaName}" class="btn btn-sm btn-success"><i class="fa-solid fa-download me-1"></i> Tải về ${escapeHtml(data.mediaName)}</a>`;
+                    }
+                }
+            } catch (err) {
+                box.innerHTML = `<span class="text-danger small">Không thể tải tệp đính kèm này.</span>`;
+            }
+        }
+
+        // Đăng bài viết
+        async function submitPost() {
+            const author = document.getElementById('authorInput').value.trim();
+            const content = document.getElementById('contentInput').value.trim();
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!content && !file) {
+                alert("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
                 return;
             }
-            setLikedPost(id);
 
-            // Nhảy số ngay lập tức trên màn hình
-            const countEl = document.getElementById(`like-count-${id}`);
-            if (countEl) countEl.innerText = parseInt(countEl.innerText || '0') + 1;
-
-            fetch(`/api/posts/${id}/like`, { method: 'POST' }).then(() => fetchPosts(true));
-        }
-
-        async function dislikePost(id) {
-            const countEl = document.getElementById(`dislike-count-${id}`);
-            if (countEl) countEl.innerText = parseInt(countEl.innerText || '0') + 1;
-
-            fetch(`/api/posts/${id}/dislike`, { method: 'POST' }).then(() => fetchPosts(true));
-        }
-
-        // ĐĂNG BÀI VIẾT VỚI THUẬT TOÁN NÉN TỆP CỰC NHANH
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btnSubmit = document.getElementById('btnSubmitPost');
-            btnSubmit.disabled = true;
-
-            const author = document.getElementById('author').value;
-            const content = document.getElementById('content').value;
-            const fileInput = document.getElementById('fileInput');
-            const authorToken = getDeviceToken();
-            
             let mediaUrl = '';
             let mediaName = '';
 
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                mediaName = file.name;
-                showToast(t('processingFile'));
-
-                if (file.type.startsWith('image/')) {
-                    // Nén ảnh tự động để giảm dung lượng từ 10MB xuống 200KB
-                    mediaUrl = await compressImage(file) || '';
-                } else {
-                    if (file.size > 30 * 1024 * 1024) {
-                        alert(t('fileTooLarge'));
-                        btnSubmit.disabled = false;
-                        return;
-                    }
-                    mediaUrl = await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.readAsDataURL(file);
-                    });
+            if (file) {
+                if (file.size > 25 * 1024 * 1024) {
+                    alert("Tệp vượt quá dung lượng cho phép (tối đa 25MB)!");
+                    return;
                 }
+                mediaName = file.name;
+                mediaUrl = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
             }
-
-            toggleModal('postModal');
-            showToast(t('submittingPost'));
-
-            document.getElementById('author').value = '';
-            document.getElementById('content').value = '';
-            fileInput.value = '';
 
             try {
-                await fetch('/api/posts', {
+                const response = await fetch('/api/posts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ author, content, mediaUrl, mediaName, authorToken })
+                    body: JSON.stringify({
+                        author,
+                        content,
+                        mediaUrl,
+                        mediaName,
+                        authorToken: getAuthorToken()
+                    })
                 });
-                fetchPosts(true);
-            } catch(e) {
-                showToast("Đăng bài thất bại, thử lại sau!");
-            } finally {
-                btnSubmit.disabled = false;
-            }
-        });
 
-        function promptDeletePost(id) {
-            deleteTargetId = id;
-            const menu = document.getElementById(`menu-${id}`);
-            if (menu) menu.classList.add('hidden');
-            toggleModal('deleteConfirmModal');
+                if (response.ok) {
+                    document.getElementById('contentInput').value = '';
+                    document.getElementById('fileInput').value = '';
+                    bootstrap.Modal.getInstance(document.getElementById('createPostModal')).hide();
+                    loadPosts();
+                } else {
+                    alert("Đã xảy ra lỗi khi gửi bài!");
+                }
+            } catch (err) {
+                alert("Lỗi kết nối máy chủ!");
+            }
         }
 
-        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
-            if (deleteTargetId) {
-                toggleModal('deleteConfirmModal');
-                showToast(t('deletingPost'));
+        async function likePost(id) {
+            await fetch(`/api/posts/${id}/like`, { method: 'POST' });
+            loadPosts();
+        }
 
-                try {
-                    const res = await fetch(`/api/posts/${deleteTargetId}`, { 
-                        method: 'DELETE',
-                        headers: { 'x-author-token': getDeviceToken() }
-                    });
-                    if (!res.ok) {
-                        showToast(t('deleteFailed'));
-                    } else {
-                        showToast(t('deleteSuccess'));
-                    }
-                } catch(e) {
-                    showToast(t('deleteFailed'));
-                }
+        async function dislikePost(id) {
+            await fetch(`/api/posts/${id}/dislike`, { method: 'POST' });
+            loadPosts();
+        }
 
-                deleteTargetId = null;
-                fetchPosts(true);
-            }
-        });
+        async function deletePost(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
+            const res = await fetch(`/api/posts/${id}`, {
+                method: 'DELETE',
+                headers: { 'x-author-token': getAuthorToken() }
+            });
+            if (res.ok) loadPosts();
+            else alert("Bạn không có quyền xóa bài viết này!");
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            applyLanguage();
-            if (window.lucide) lucide.createIcons();
-            fetchPosts(true);
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
 
-            // BẬT CHẾ ĐỘ TỰ ĐỘNG CẬP NHẬT TRỰC TIẾP TỰ ĐỘNG (4 GIÂY / LẦN)
-            setInterval(() => {
-                fetchPosts(false);
-            }, 4000);
-        });
+        loadPosts();
     </script>
+
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'vi',
+                includedLanguages: 'vi,en,zh-CN,ja,ko,fr,de,es',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
