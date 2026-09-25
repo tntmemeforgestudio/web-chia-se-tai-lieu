@@ -10,24 +10,31 @@
         .modal-active { overflow: hidden; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        /* Khung vàng Avatar Admin chính chủ */
-        .gold-avatar-frame {
-            box-shadow: 0 0 0 3px #f59e0b, 0 0 12px rgba(245, 158, 11, 0.6);
-            border: 2px solid #fff;
+        
+        /* Hiệu ứng Avatar VIP/Admin vàng bóng bẩy */
+        .gold-glow-avatar {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+            border: 2px solid #ffffff;
+        }
+
+        /* Smart Header Transitions */
+        #smartHeader {
+            transition: transform 0.3s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen font-sans">
+<body class="bg-gray-100 text-gray-800 min-h-screen font-sans pt-16">
 
-    <!-- Header Sticky Cố Định Ở Trên Cùng -->
-    <header class="bg-white/95 backdrop-blur-md shadow-sm border-b sticky top-0 z-30">
+    <!-- Header Thông Minh (Smart Scroll Header Như Facebook) -->
+    <header id="smartHeader" class="bg-white/95 backdrop-blur-md shadow-sm border-b fixed top-0 left-0 right-0 z-30 transform">
         <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md shadow-blue-200">
                     <i class="fa-solid fa-folder-closed text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-gray-900 leading-tight flex items-center gap-1.5">
+                    <h1 class="text-lg font-bold text-gray-900 leading-tight">
                         Góc Chia Sẻ Tài Liệu
                     </h1>
                     <p class="text-xs text-gray-500">Hệ thống lưu trữ & thảo luận trực tuyến</p>
@@ -35,11 +42,9 @@
             </div>
             
             <div class="flex items-center space-x-2">
-                <!-- Nút Cài đặt -->
                 <button onclick="openSettingsModal()" class="p-2.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-xl transition" title="Cài đặt cá nhân">
                     <i class="fa-solid fa-gear text-lg"></i>
                 </button>
-                <!-- Nút Đăng bài -->
                 <button onclick="openPostModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl flex items-center space-x-2 transition shadow-sm">
                     <i class="fa-solid fa-plus"></i>
                     <span>Đăng bài mới</span>
@@ -50,16 +55,24 @@
 
     <!-- Main Content Container -->
     <main class="max-w-3xl mx-auto px-4 py-6 space-y-4">
-        <!-- Status Bar -->
-        <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <div>
-                <h2 class="font-bold text-gray-800">Dòng thời gian & Bài viết</h2>
-                <p class="text-xs text-gray-500">Tương tác và chia sẻ tài liệu cộng đồng</p>
+        <!-- Status Bar & Search Bar -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="font-bold text-gray-800">Dòng thời gian & Bài viết</h2>
+                    <p class="text-xs text-gray-500">Tương tác và chia sẻ tài liệu cộng đồng</p>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    Hoạt động mượt mà
+                </span>
             </div>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                Hoạt động mượt mà
-            </span>
+
+            <!-- Ô Tìm Kiếm Bài Viết -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="filterPosts()" placeholder="Tìm kiếm bài viết hoặc tác giả..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
         </div>
 
         <!-- Feed List -->
@@ -84,7 +97,7 @@
             <div class="space-y-3 text-sm">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Tên mặc định khi đăng bài / bình luận</label>
-                    <input type="text" id="settingDefaultName" placeholder="Nhập tên mặc định..." class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="settingDefaultName" placeholder="Mẹo: Nhập #vip để bật tích vàng..." class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Mã Định Danh Máy Tính (Author Token)</label>
@@ -103,7 +116,7 @@
             <button onclick="closePostModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
             <h3 class="text-lg font-bold text-gray-900">Tạo bài viết mới</h3>
             <form id="postForm" onsubmit="handleCreatePost(event)" class="space-y-3">
-                <input type="text" id="postAuthor" placeholder="Tên của bạn (Tùy chọn)..." class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="text" id="postAuthor" placeholder="Tên của bạn (Nhập #vip để bật tích vàng)..." class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                 <textarea id="postContent" rows="4" placeholder="Nội dung thảo luận hoặc mô tả tài liệu..." class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">Đính kèm file/ảnh (Dưới 20MB)</label>
@@ -142,6 +155,19 @@
     </div>
 
     <script>
+        // SMART HEADER SCROLL BEHAVIOR (Giống FB: Cuộn xuống giấu, vuốt lên hiện)
+        let lastScrollTop = 0;
+        const smartHeader = document.getElementById('smartHeader');
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 60) {
+                smartHeader.style.transform = 'translateY(-100%)';
+            } else {
+                smartHeader.style.transform = 'translateY(0)';
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+
         // QUẢN LÝ USER TOKEN
         let MY_TOKEN = localStorage.getItem('my_author_token');
         if (!MY_TOKEN) {
@@ -149,93 +175,101 @@
             localStorage.setItem('my_author_token', MY_TOKEN);
         }
 
-        // BỘ LƯU TRỮ VOTE CHỐNG VOTE VÔ HẠN
         let myPostVotes = JSON.parse(localStorage.getItem('my_post_votes') || '{}');
         let myCommentVotes = JSON.parse(localStorage.getItem('my_comment_votes') || '{}');
 
         let currentActivePostId = null;
         let activePostsData = [];
 
-        // MÀU AVATAR ĐA DẠNG NGUYÊN BẢN
+        // MÀU AVATAR THƯỜNG
         function getAvatarGradient(name) {
             const gradients = [
                 'bg-gradient-to-tr from-blue-500 to-indigo-600',
                 'bg-gradient-to-tr from-emerald-500 to-teal-600',
                 'bg-gradient-to-tr from-purple-500 to-pink-600',
-                'bg-gradient-to-tr from-amber-500 to-orange-600',
                 'bg-gradient-to-tr from-rose-500 to-red-600',
-                'bg-gradient-to-tr from-cyan-500 to-blue-600',
-                'bg-gradient-to-tr from-fuchsia-500 to-pink-500'
+                'bg-gradient-to-tr from-cyan-500 to-blue-600'
             ];
             let hash = 0;
             const str = name || 'Ẩn danh';
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
+            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
             return gradients[Math.abs(hash) % gradients.length];
         }
 
-        // KIỂM TRA TÀI KHOẢN ADMIN/TNT MEMEFORGE
+        // KIỂM TRA QUYỀN VIP / ADMIN
         function checkIsAdmin(author) {
-            const name = (author || '').toUpperCase();
-            return name.includes('TNT MEMEFORG') || name.includes('ADMIN');
+            if (!author) return false;
+            const name = author.toLowerCase();
+            return name.includes('#vip') || name.includes('tnt memeforge') || name.includes('admin');
         }
 
-        // TẢI BÀI VIẾT
+        // LOAD FEED
         async function loadFeed() {
             try {
                 const res = await fetch('/api/posts');
                 activePostsData = await res.json();
-                renderPosts(activePostsData);
+                filterPosts();
             } catch (err) {
                 console.error(err);
             }
         }
 
+        function filterPosts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = activePostsData.filter(p => 
+                (p.content || '').toLowerCase().includes(query) || 
+                (p.author || '').toLowerCase().includes(query)
+            );
+            renderPosts(filtered);
+        }
+
         function renderPosts(posts) {
             const feed = document.getElementById('postsFeed');
             if (!posts || posts.length === 0) {
-                feed.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400">Chưa có bài viết nào. Hãy là người đầu tiên đăng bài!</div>`;
+                feed.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400">Không tìm thấy bài viết nào.</div>`;
                 return;
             }
 
             feed.innerHTML = posts.map(post => {
                 const isOwner = post.authorToken === MY_TOKEN;
                 const commentCount = post.comments ? post.comments.length : 0;
-                const isAdmin = post.isAdmin || checkIsAdmin(post.author);
+                const isAdmin = checkIsAdmin(post.author);
 
-                const avatarFrameClass = isAdmin ? 'gold-avatar-frame' : '';
-                const goldTick = isAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 ml-1 text-sm" title="Xác minh chính chủ"></i>` : '';
-                const adminBadge = isAdmin ? `<span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-white font-bold px-2 py-0.5 rounded-md text-[10px] shadow-sm ml-2">ADMIN</span>` : '';
-                const avatarBg = getAvatarGradient(post.author);
+                // CHỈ HIỆN TÍCH VÀNG (KHÔNG HIỆN NHÃN ADMIN)
+                const goldTick = isAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 text-sm ml-1" title="Xác minh chính chủ"></i>` : '';
+                
+                // AVATAR CỐ ĐỊNH VÀNG BÓNG CHO ADMIN / VIP
+                const avatarClass = isAdmin ? 'gold-glow-avatar text-white font-bold' : `${getAvatarGradient(post.author)} text-white font-bold`;
 
-                // TRẠNG THÁI VOTE BÀI VIẾT CỦA USER NÀY
                 const myVote = myPostVotes[post._id];
                 const likeStyle = myVote === 'like' ? 'text-blue-600 font-bold' : 'hover:text-blue-600';
                 const dislikeStyle = myVote === 'dislike' ? 'text-red-600 font-bold' : 'hover:text-red-600';
 
+                const isImage = post.mediaUrl && post.mediaUrl.startsWith('data:image/');
+
                 return `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3 relative">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full ${avatarBg} text-white font-bold flex items-center justify-center text-lg ${avatarFrameClass}">
+                            <div class="w-10 h-10 rounded-full ${avatarClass} flex items-center justify-center text-lg">
                                 ${(post.author || 'A').charAt(0).toUpperCase()}
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 text-sm flex items-center">
-                                    ${escapeHtml(post.author || 'Ẩn danh')} ${goldTick} ${adminBadge}
+                                    ${escapeHtml(post.author || 'Ẩn danh')} ${goldTick}
                                 </div>
                                 <div class="text-[11px] text-gray-400">${new Date(post.createdAt).toLocaleString('vi-VN')}</div>
                             </div>
                         </div>
-                        ${isOwner ? `
-                            <button onclick="deletePost('${post._id}')" class="text-xs text-red-500 hover:text-red-700 bg-red-50 px-2.5 py-1 rounded-lg transition">
-                                <i class="fa-solid fa-trash mr-1"></i> Xóa
-                            </button>
-                        ` : ''}
                     </div>
 
                     <p class="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">${escapeHtml(post.content || '')}</p>
+
+                    ${isImage ? `
+                        <div class="rounded-xl overflow-hidden border bg-black/5 max-h-96 flex items-center justify-center">
+                            <img src="${post.mediaUrl}" alt="Attachment" class="max-h-96 w-auto object-contain">
+                        </div>
+                    ` : ''}
 
                     ${post.mediaName ? `
                         <div class="bg-gray-50 p-3 rounded-xl flex items-center justify-between border">
@@ -244,33 +278,55 @@
                         </div>
                     ` : ''}
 
-                    <div class="flex items-center space-x-4 border-t pt-3 text-xs text-gray-500 font-medium">
-                        <!-- Nút Thích -->
-                        <button onclick="votePost('${post._id}', 'like')" class="flex items-center space-x-1 ${likeStyle} transition">
-                            <i class="fa-${myVote === 'like' ? 'solid' : 'regular'} fa-thumbs-up text-sm"></i>
-                            <span>${post.likes || 0}</span>
-                        </button>
-                        <!-- Nút Không Thích -->
-                        <button onclick="votePost('${post._id}', 'dislike')" class="flex items-center space-x-1 ${dislikeStyle} transition">
-                            <i class="fa-${myVote === 'dislike' ? 'solid' : 'regular'} fa-thumbs-down text-sm"></i>
-                            <span>${post.dislikes || 0}</span>
-                        </button>
+                    <!-- HÀNG NÚT TƯƠNG TÁC + NÚT 3 CHẤM Ở GÓC PHẢI DƯỚI CÙNG -->
+                    <div class="flex items-center justify-between border-t pt-3 text-xs text-gray-500 font-medium">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="votePost('${post._id}', 'like')" class="flex items-center space-x-1 ${likeStyle} transition">
+                                <i class="fa-${myVote === 'like' ? 'solid' : 'regular'} fa-thumbs-up text-sm"></i>
+                                <span>${post.likes || 0}</span>
+                            </button>
+                            <button onclick="votePost('${post._id}', 'dislike')" class="flex items-center space-x-1 ${dislikeStyle} transition">
+                                <i class="fa-${myVote === 'dislike' ? 'solid' : 'regular'} fa-thumbs-down text-sm"></i>
+                                <span>${post.dislikes || 0}</span>
+                            </button>
+                            <button onclick="openCommentModal('${post._id}')" class="flex items-center space-x-1.5 hover:text-blue-600 transition">
+                                <i class="fa-regular fa-comment text-sm"></i>
+                                <span>${commentCount} Bình luận</span>
+                            </button>
+                        </div>
 
-                        <button onclick="openCommentModal('${post._id}')" class="flex items-center space-x-1.5 bg-gray-100 hover:bg-blue-50 px-3 py-1.5 rounded-xl text-blue-600 transition ml-auto">
-                            <i class="fa-regular fa-comment text-sm"></i>
-                            <span>${commentCount} Bình luận</span>
-                        </button>
+                        <!-- MENU 3 CHẤM DƯỚI CÙNG BÊN PHẢI -->
+                        ${isOwner ? `
+                            <div class="relative">
+                                <button onclick="togglePostMenu('${post._id}')" class="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition">
+                                    <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+                                </button>
+                                <div id="menu-${post._id}" class="hidden absolute right-0 bottom-8 bg-white border shadow-lg rounded-xl py-1 w-28 z-20">
+                                    <button onclick="deletePost('${post._id}')" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center space-x-2">
+                                        <i class="fa-solid fa-trash"></i>
+                                        <span>Xóa bài</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                 </div>`;
             }).join('');
         }
 
-        // XỬ LÝ VOTE BÀI VIẾT (CHỐNG VOTE VÔ HẠN)
+        // BẬT / TẮT MENU 3 CHẤM
+        function togglePostMenu(postId) {
+            const menu = document.getElementById(`menu-${postId}`);
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // VOTE BÀI VIẾT
         async function votePost(id, type) {
             const currentVote = myPostVotes[id];
 
             if (currentVote === type) {
-                // Hủy vote đã chọn
                 await fetch(`/api/posts/${id}/vote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -278,7 +334,6 @@
                 });
                 delete myPostVotes[id];
             } else if (currentVote) {
-                // Đổi từ Like -> Dislike hoặc ngược lại
                 await fetch(`/api/posts/${id}/vote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -291,7 +346,6 @@
                 });
                 myPostVotes[id] = type;
             } else {
-                // Vote mới
                 await fetch(`/api/posts/${id}/vote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -304,21 +358,22 @@
             loadFeed();
         }
 
-        // POPUP BÌNH LUẬN FB
+        // BÌNH LUẬN
         async function openCommentModal(postId) {
             currentActivePostId = postId;
             const post = activePostsData.find(p => p._id === postId);
             if (!post) return;
 
-            const isAdmin = post.isAdmin || checkIsAdmin(post.author);
-            const goldTick = isAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 ml-1 text-sm"></i>` : '';
+            const isAdmin = checkIsAdmin(post.author);
+            const goldTick = isAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 text-sm ml-1"></i>` : '';
+            const avatarClass = isAdmin ? 'gold-glow-avatar text-white font-bold' : `${getAvatarGradient(post.author)} text-white font-bold`;
 
             document.getElementById('modalPostAuthorTitle').innerText = `Bài viết của ${post.author || 'Ẩn danh'}`;
             
             const modalPostBox = document.getElementById('modalPostBox');
             modalPostBox.innerHTML = `
                 <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-9 h-9 rounded-full ${getAvatarGradient(post.author)} text-white font-bold flex items-center justify-center text-sm ${isAdmin ? 'gold-avatar-frame' : ''}">
+                    <div class="w-9 h-9 rounded-full ${avatarClass} flex items-center justify-center text-sm">
                         ${(post.author || 'A').charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -382,7 +437,6 @@
             }).join('');
         }
 
-        // XỬ LÝ VOTE BÌNH LUẬN (CHỐNG VOTE VÔ HẠN)
         async function voteComment(commentId, type) {
             if (!currentActivePostId) return;
             const currentVote = myCommentVotes[commentId];
@@ -460,7 +514,7 @@
             }
         }
 
-        // CÀI ĐẶT
+        // CÀI ĐẶT CÁ NHÂN
         function openSettingsModal() {
             document.getElementById('settingDefaultName').value = localStorage.getItem('default_author_name') || '';
             document.getElementById('settingUserToken').value = MY_TOKEN;
@@ -512,7 +566,7 @@
         }
 
         async function deletePost(postId) {
-            if (!confirm('Bạn có muốn xóa bài viết này?')) return;
+            if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
             await fetch(`/api/posts/${postId}`, {
                 method: 'DELETE',
                 headers: { 'x-author-token': MY_TOKEN }
