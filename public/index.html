@@ -15,7 +15,6 @@
         }
         .main-container { max-width: 720px; margin: 0 auto; }
         
-        /* THANH HEADER THÔNG MINH KIỂU FACEBOOK */
         .sticky-header-wrapper {
             position: sticky;
             top: 0;
@@ -72,7 +71,7 @@
             border: 1px solid #e5e7eb;
         }
 
-        /* Khung Viền Vàng VIP + Nền Vàng Nhạt */
+        /* Khung Viền Vàng VIP */
         .vip-card {
             background-color: #fffdf0 !important;
             border: 2px solid #f59e0b !important;
@@ -161,14 +160,12 @@
 </head>
 <body>
 
-    <!-- Đã nâng cấp lên phiên bản v2.2.0 (Real-Time Auto-Sync) -->
     <div class="version-tag">
-        <span class="dot-green"></span> Phiên bản v2.2.0 (Real-Time)
+        <span class="dot-green"></span> Phiên bản v2.3.0 (MongoDB & VIP Key)
     </div>
 
     <div class="container main-container">
         
-        <!-- THANH HEADER THÔNG MINH -->
         <div class="sticky-header-wrapper" id="smartHeader">
             <div class="app-header d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
@@ -191,7 +188,6 @@
             </div>
         </div>
 
-        <!-- Khung Thông Tin Dòng Thời Gian -->
         <div class="info-card d-flex justify-content-between align-items-center my-3">
             <div>
                 <h6 class="fw-bold mb-1 text-dark">Dòng thời gian & Tài liệu</h6>
@@ -202,7 +198,6 @@
             </span>
         </div>
 
-        <!-- Danh sách bài viết -->
         <div id="postsList">
             <div class="text-center py-5 text-muted" id="loadingIndicator">
                 <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải dữ liệu...
@@ -262,7 +257,7 @@
                         <div class="p-3 bg-light rounded-3 small">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Phiên bản hiện tại:</span>
-                                <span class="fw-bold text-dark">v2.2.0 (Real-Time Sync)</span>
+                                <span class="fw-bold text-dark">v2.3.0 (Real-Time Sync)</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Tình trạng máy chủ:</span>
@@ -303,7 +298,6 @@
         let selectedPostIdToDelete = null;
         let isFirstLoad = true;
 
-        // Xử lý Header ẩn/hiện khi cuộn trang
         let lastScrollTop = 0;
         const smartHeader = document.getElementById('smartHeader');
 
@@ -349,12 +343,28 @@
                 }
 
                 const myToken = getAuthorToken();
-                const currentScroll = window.scrollY; // Lưu lại vị trí cuộn trang hiện tại
+                const currentScroll = window.scrollY;
 
                 container.innerHTML = posts.map(post => {
                     const isOwner = (post.authorToken === myToken);
-                    const authorName = (post.author || 'Ẩn danh').trim();
-                    const isVip = post.isAdmin || (authorName.toUpperCase() === 'TNT MEMEFORG STUDIO');
+                    let rawAuthor = (post.author || 'Ẩn danh').trim();
+                    let isVip = post.isAdmin || false;
+
+                    // 🔑 BẬT TÍNH NĂNG MẬT MÃ BÍ MẬT VIP (# nhà xuất bản)
+                    const vipSecretKey = '# nhà xuất bản';
+                    let displayAuthor = rawAuthor;
+
+                    if (rawAuthor.toLowerCase().includes(vipSecretKey.toLowerCase())) {
+                        isVip = true;
+                        // Tự động ẩn/xóa mật mã bí mật khỏi màn hình công khai
+                        displayAuthor = rawAuthor.replace(new RegExp(vipSecretKey, 'gi'), '').trim();
+                    } else if (rawAuthor.toUpperCase().includes('TNT MEMEFORG')) {
+                        isVip = true;
+                    }
+
+                    if (!displayAuthor) displayAuthor = 'Ẩn danh';
+
+                    const authorName = displayAuthor;
                     const firstChar = authorName.charAt(0).toUpperCase();
 
                     const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
@@ -421,7 +431,7 @@
                 }).join('');
 
                 if (isSilent) {
-                    window.scrollTo(0, currentScroll); // Khôi phục lại vị trí cuộn khi auto-sync ngầm
+                    window.scrollTo(0, currentScroll);
                 }
                 isFirstLoad = false;
 
@@ -573,10 +583,8 @@
             return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // Tải dữ liệu ban đầu
         loadPosts();
 
-        // 🟢 BẬT TÍNH NĂNG TỰ ĐỘNG ĐỒNG BỘ NGẦM THỜI GIAN THỰC (Mỗi 4 giây cập nhật 1 lần mà không cần F5)
         setInterval(() => {
             loadPosts(true);
         }, 4000);
