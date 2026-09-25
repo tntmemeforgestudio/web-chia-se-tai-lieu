@@ -6,12 +6,19 @@
     <title>Góc Chia Sẻ Tài Liệu - v2.3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'vi'}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <style>
         .modal-active { overflow: hidden; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        /* Hiệu ứng Avatar VIP/Admin vàng bóng bẩy */
+        /* Hiệu ứng Avatar VIP / Creator */
         .gold-glow-avatar {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
             box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.6);
@@ -22,11 +29,27 @@
         #smartHeader {
             transition: transform 0.3s ease-in-out;
         }
+
+        /* Dark Mode Classes */
+        body.dark-mode {
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        body.dark-mode .bg-white {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            border-color: #334155 !important;
+        }
+        body.dark-mode input, body.dark-mode textarea {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            border-color: #334155 !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen font-sans pt-16">
 
-    <!-- Header Thông Minh (Smart Scroll Header Như Facebook) -->
+    <!-- Smart Header -->
     <header id="smartHeader" class="bg-white/95 backdrop-blur-md shadow-sm border-b fixed top-0 left-0 right-0 z-30 transform">
         <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -34,15 +57,13 @@
                     <i class="fa-solid fa-folder-closed text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-gray-900 leading-tight">
-                        Góc Chia Sẻ Tài Liệu
-                    </h1>
+                    <h1 class="text-lg font-bold text-gray-900 leading-tight">Góc Chia Sẻ Tài Liệu</h1>
                     <p class="text-xs text-gray-500">Hệ thống lưu trữ & thảo luận trực tuyến</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-2">
-                <button onclick="openSettingsModal()" class="p-2.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-xl transition" title="Cài đặt cá nhân">
+                <button onclick="openSettingsModal()" class="p-2.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-xl transition" title="Cài đặt">
                     <i class="fa-solid fa-gear text-lg"></i>
                 </button>
                 <button onclick="openPostModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl flex items-center space-x-2 transition shadow-sm">
@@ -53,26 +74,17 @@
         </div>
     </header>
 
-    <!-- Main Content Container -->
+    <!-- Main Container -->
     <main class="max-w-3xl mx-auto px-4 py-6 space-y-4">
-        <!-- Status Bar & Search Bar -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="font-bold text-gray-800">Dòng thời gian & Bài viết</h2>
-                    <p class="text-xs text-gray-500">Tương tác và chia sẻ tài liệu cộng đồng</p>
-                </div>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                    <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Hoạt động mượt mà
-                </span>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <h2 class="font-bold text-gray-800">Dòng thời gian & Bài viết</h2>
+                <p class="text-xs text-gray-500">Tương tác và chia sẻ tài liệu cộng đồng</p>
             </div>
-
-            <!-- Ô Tìm Kiếm Bài Viết -->
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
-                <input type="text" id="searchInput" oninput="filterPosts()" placeholder="Tìm kiếm bài viết hoặc tác giả..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                Hoạt động mượt mà
+            </span>
         </div>
 
         <!-- Feed List -->
@@ -81,45 +93,40 @@
         </div>
     </main>
 
-    <!-- Badge Thông Báo Phiên Bản Ở Góc Dưới Bên Trái -->
-    <div class="fixed bottom-4 left-4 z-20 bg-white/90 backdrop-blur-md border border-gray-200 shadow-lg px-3.5 py-2 rounded-full text-xs flex items-center space-x-2 font-medium text-gray-700">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Phiên bản v2.3.0 (Full Features)</span>
-    </div>
-
-    <!-- MODAL 1: CÀI ĐẶT CÁ NHÂN -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 relative shadow-2xl">
+    <!-- BẢNG CÀI ĐẶT (Đè mờ nền, Dịch Google, Chế độ tối) -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-5 relative shadow-2xl">
             <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <i class="fa-solid fa-gear text-blue-600"></i> Cài đặt cá nhân
+                <i class="fa-solid fa-gear text-blue-600"></i> Cài đặt hệ thống
             </h3>
-            <div class="space-y-3 text-sm">
+            
+            <div class="space-y-4 text-sm">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Tên mặc định khi đăng bài / bình luận</label>
-                    <input type="text" id="settingDefaultName" placeholder="Mẹo: Nhập #vip để bật tích vàng..." class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold text-gray-500 mb-2">🌐 Dịch ngôn ngữ (Google Translate)</label>
+                    <div id="google_translate_element" class="border rounded-xl p-2 bg-gray-50"></div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Mã Định Danh Máy Tính (Author Token)</label>
-                    <input type="text" id="settingUserToken" readonly class="w-full bg-gray-100 border rounded-xl p-2.5 text-xs text-gray-500 font-mono">
+
+                <div class="border-t pt-3 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-700">🎨 Giao diện Tối / Sáng</span>
+                    <button onclick="toggleDarkMode()" class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded-xl text-xs font-medium transition">
+                        Đổi giao diện
+                    </button>
                 </div>
-            </div>
-            <div class="flex justify-end space-x-2 pt-2 border-t">
-                <button onclick="saveSettings()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition">Lưu cài đặt</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 2: ĐĂNG BÀI MỚI -->
-    <div id="createPostModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <!-- BẢNG ĐĂNG BÀI MỚI (Sạch sẽ, không gợi ý mã bí mật) -->
+    <div id="createPostModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 relative shadow-2xl">
             <button onclick="closePostModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
             <h3 class="text-lg font-bold text-gray-900">Tạo bài viết mới</h3>
             <form id="postForm" onsubmit="handleCreatePost(event)" class="space-y-3">
-                <input type="text" id="postAuthor" placeholder="Tên của bạn (Nhập #vip để bật tích vàng)..." class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="text" id="postAuthor" placeholder="Tên của bạn..." class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                 <textarea id="postContent" rows="4" placeholder="Nội dung thảo luận hoặc mô tả tài liệu..." class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">Đính kèm file/ảnh (Dưới 20MB)</label>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1">Đính kèm file/ảnh</label>
                     <input type="file" id="postFile" class="text-xs w-full text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
@@ -130,32 +137,24 @@
         </div>
     </div>
 
-    <!-- MODAL 3: XEM BÌNH LUẬN KHUNG FACEBOOK -->
-    <div id="commentModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col relative shadow-2xl overflow-hidden">
-            <div class="p-4 border-b flex items-center justify-between bg-gray-50">
-                <h3 id="modalPostAuthorTitle" class="font-bold text-gray-800 text-base">Bài viết</h3>
-                <button onclick="closeCommentModal()" class="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-bold">✕</button>
+    <!-- BẢNG XÁC NHẬN XÓA BÀI TỰ THIẾT KẾ (Không dùng confirm() của trình duyệt) -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-4 relative shadow-2xl text-center">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <div class="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-                <div id="modalPostBox" class="border-b pb-4 space-y-3"></div>
-                <div class="text-sm font-bold text-gray-700">Tất cả bình luận</div>
-                <div id="modalCommentsList" class="space-y-3"></div>
+            <div>
+                <h4 class="font-bold text-gray-900 text-base">Xác nhận xóa bài viết?</h4>
+                <p class="text-xs text-gray-500 mt-1">Hành động này không thể hoàn tác.</p>
             </div>
-            <div class="p-3 border-t bg-white space-y-2">
-                <input type="text" id="modalCommentAuthor" placeholder="Tên của bạn..." class="w-full border rounded-xl px-3 py-1.5 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
-                <div class="flex items-center space-x-2">
-                    <textarea id="modalCommentContent" rows="1" placeholder="Viết bình luận..." class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none resize-none"></textarea>
-                    <button onclick="submitModalComment()" class="bg-blue-600 text-white p-2.5 rounded-xl hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-paper-plane text-sm"></i>
-                    </button>
-                </div>
+            <div class="flex justify-center space-x-3 pt-2">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-medium transition">Hủy</button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-medium transition">Xóa ngay</button>
             </div>
         </div>
     </div>
 
     <script>
-        // SMART HEADER SCROLL BEHAVIOR (Giống FB: Cuộn xuống giấu, vuốt lên hiện)
         let lastScrollTop = 0;
         const smartHeader = document.getElementById('smartHeader');
         window.addEventListener('scroll', () => {
@@ -168,7 +167,6 @@
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         });
 
-        // QUẢN LÝ USER TOKEN
         let MY_TOKEN = localStorage.getItem('my_author_token');
         if (!MY_TOKEN) {
             MY_TOKEN = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -176,19 +174,15 @@
         }
 
         let myPostVotes = JSON.parse(localStorage.getItem('my_post_votes') || '{}');
-        let myCommentVotes = JSON.parse(localStorage.getItem('my_comment_votes') || '{}');
-
-        let currentActivePostId = null;
         let activePostsData = [];
+        let deletingPostId = null;
 
-        // MÀU AVATAR THƯỜNG
         function getAvatarGradient(name) {
             const gradients = [
                 'bg-gradient-to-tr from-blue-500 to-indigo-600',
                 'bg-gradient-to-tr from-emerald-500 to-teal-600',
                 'bg-gradient-to-tr from-purple-500 to-pink-600',
-                'bg-gradient-to-tr from-rose-500 to-red-600',
-                'bg-gradient-to-tr from-cyan-500 to-blue-600'
+                'bg-gradient-to-tr from-rose-500 to-red-600'
             ];
             let hash = 0;
             const str = name || 'Ẩn danh';
@@ -196,55 +190,40 @@
             return gradients[Math.abs(hash) % gradients.length];
         }
 
-        // KIỂM TRA QUYỀN VIP / ADMIN
+        // Logic ẩn kiểm tra mã VIP
         function checkIsAdmin(author) {
             if (!author) return false;
             const name = author.toLowerCase();
             return name.includes('#vip') || name.includes('tnt memeforge') || name.includes('admin');
         }
 
-        // LOAD FEED
         async function loadFeed() {
             try {
                 const res = await fetch('/api/posts');
                 activePostsData = await res.json();
-                filterPosts();
+                renderPosts(activePostsData);
             } catch (err) {
                 console.error(err);
             }
         }
 
-        function filterPosts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = activePostsData.filter(p => 
-                (p.content || '').toLowerCase().includes(query) || 
-                (p.author || '').toLowerCase().includes(query)
-            );
-            renderPosts(filtered);
-        }
-
         function renderPosts(posts) {
             const feed = document.getElementById('postsFeed');
             if (!posts || posts.length === 0) {
-                feed.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400">Không tìm thấy bài viết nào.</div>`;
+                feed.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400">Chưa có bài viết nào. Hãy đăng bài đầu tiên!</div>`;
                 return;
             }
 
             feed.innerHTML = posts.map(post => {
                 const isOwner = post.authorToken === MY_TOKEN;
-                const commentCount = post.comments ? post.comments.length : 0;
                 const isAdmin = checkIsAdmin(post.author);
 
-                // CHỈ HIỆN TÍCH VÀNG (KHÔNG HIỆN NHÃN ADMIN)
                 const goldTick = isAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 text-sm ml-1" title="Xác minh chính chủ"></i>` : '';
-                
-                // AVATAR CỐ ĐỊNH VÀNG BÓNG CHO ADMIN / VIP
                 const avatarClass = isAdmin ? 'gold-glow-avatar text-white font-bold' : `${getAvatarGradient(post.author)} text-white font-bold`;
 
                 const myVote = myPostVotes[post._id];
                 const likeStyle = myVote === 'like' ? 'text-blue-600 font-bold' : 'hover:text-blue-600';
                 const dislikeStyle = myVote === 'dislike' ? 'text-red-600 font-bold' : 'hover:text-red-600';
-
                 const isImage = post.mediaUrl && post.mediaUrl.startsWith('data:image/');
 
                 return `
@@ -267,18 +246,11 @@
 
                     ${isImage ? `
                         <div class="rounded-xl overflow-hidden border bg-black/5 max-h-96 flex items-center justify-center">
-                            <img src="${post.mediaUrl}" alt="Attachment" class="max-h-96 w-auto object-contain">
+                            <img src="${post.mediaUrl}" class="max-h-96 w-auto object-contain">
                         </div>
                     ` : ''}
 
-                    ${post.mediaName ? `
-                        <div class="bg-gray-50 p-3 rounded-xl flex items-center justify-between border">
-                            <span class="text-xs font-medium text-gray-700 truncate max-w-xs">📎 ${escapeHtml(post.mediaName)}</span>
-                            <button onclick="downloadMedia('${post._id}', '${escapeHtml(post.mediaName)}')" class="text-xs text-blue-600 hover:underline font-semibold">Tải về</button>
-                        </div>
-                    ` : ''}
-
-                    <!-- HÀNG NÚT TƯƠNG TÁC + NÚT 3 CHẤM Ở GÓC PHẢI DƯỚI CÙNG -->
+                    <!-- Thanh tương tác + 3 chấm góc dưới bên phải cùng hàng -->
                     <div class="flex items-center justify-between border-t pt-3 text-xs text-gray-500 font-medium">
                         <div class="flex items-center space-x-4">
                             <button onclick="votePost('${post._id}', 'like')" class="flex items-center space-x-1 ${likeStyle} transition">
@@ -289,20 +261,15 @@
                                 <i class="fa-${myVote === 'dislike' ? 'solid' : 'regular'} fa-thumbs-down text-sm"></i>
                                 <span>${post.dislikes || 0}</span>
                             </button>
-                            <button onclick="openCommentModal('${post._id}')" class="flex items-center space-x-1.5 hover:text-blue-600 transition">
-                                <i class="fa-regular fa-comment text-sm"></i>
-                                <span>${commentCount} Bình luận</span>
-                            </button>
                         </div>
 
-                        <!-- MENU 3 CHẤM DƯỚI CÙNG BÊN PHẢI -->
                         ${isOwner ? `
                             <div class="relative">
                                 <button onclick="togglePostMenu('${post._id}')" class="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition">
                                     <i class="fa-solid fa-ellipsis-vertical text-base"></i>
                                 </button>
                                 <div id="menu-${post._id}" class="hidden absolute right-0 bottom-8 bg-white border shadow-lg rounded-xl py-1 w-28 z-20">
-                                    <button onclick="deletePost('${post._id}')" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center space-x-2">
+                                    <button onclick="openDeleteModal('${post._id}')" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center space-x-2">
                                         <i class="fa-solid fa-trash"></i>
                                         <span>Xóa bài</span>
                                     </button>
@@ -314,18 +281,34 @@
             }).join('');
         }
 
-        // BẬT / TẮT MENU 3 CHẤM
-        function togglePostMenu(postId) {
-            const menu = document.getElementById(`menu-${postId}`);
-            if (menu) {
-                menu.classList.toggle('hidden');
-            }
+        function togglePostMenu(id) {
+            const menu = document.getElementById(`menu-${id}`);
+            if (menu) menu.classList.toggle('hidden');
         }
 
-        // VOTE BÀI VIẾT
+        // BẢNG XÓA ĐẸP (Không xài popup trình duyệt)
+        function openDeleteModal(postId) {
+            deletingPostId = postId;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deletingPostId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            if (!deletingPostId) return;
+            await fetch(`/api/posts/${deletingPostId}`, {
+                method: 'DELETE',
+                headers: { 'x-author-token': MY_TOKEN }
+            });
+            closeDeleteModal();
+            loadFeed();
+        });
+
         async function votePost(id, type) {
             const currentVote = myPostVotes[id];
-
             if (currentVote === type) {
                 await fetch(`/api/posts/${id}/vote`, {
                     method: 'POST',
@@ -333,18 +316,6 @@
                     body: JSON.stringify({ type: type, action: 'remove' })
                 });
                 delete myPostVotes[id];
-            } else if (currentVote) {
-                await fetch(`/api/posts/${id}/vote`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: currentVote, action: 'remove' })
-                });
-                await fetch(`/api/posts/${id}/vote`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: type, action: 'add' })
-                });
-                myPostVotes[id] = type;
             } else {
                 await fetch(`/api/posts/${id}/vote`, {
                     method: 'POST',
@@ -353,187 +324,18 @@
                 });
                 myPostVotes[id] = type;
             }
-
             localStorage.setItem('my_post_votes', JSON.stringify(myPostVotes));
             loadFeed();
         }
 
-        // BÌNH LUẬN
-        async function openCommentModal(postId) {
-            currentActivePostId = postId;
-            const post = activePostsData.find(p => p._id === postId);
-            if (!post) return;
-
-            const isAdmin = checkIsAdmin(post.author);
-            const goldTick = isAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 text-sm ml-1"></i>` : '';
-            const avatarClass = isAdmin ? 'gold-glow-avatar text-white font-bold' : `${getAvatarGradient(post.author)} text-white font-bold`;
-
-            document.getElementById('modalPostAuthorTitle').innerText = `Bài viết của ${post.author || 'Ẩn danh'}`;
-            
-            const modalPostBox = document.getElementById('modalPostBox');
-            modalPostBox.innerHTML = `
-                <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-9 h-9 rounded-full ${avatarClass} flex items-center justify-center text-sm">
-                        ${(post.author || 'A').charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                        <div class="font-bold text-gray-900 text-sm flex items-center">${escapeHtml(post.author || 'Ẩn danh')} ${goldTick}</div>
-                        <div class="text-[10px] text-gray-400">${new Date(post.createdAt).toLocaleString('vi-VN')}</div>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-800 whitespace-pre-wrap">${escapeHtml(post.content || '')}</p>
-            `;
-
-            const defaultName = localStorage.getItem('default_author_name') || '';
-            if (defaultName) document.getElementById('modalCommentAuthor').value = defaultName;
-
-            renderModalComments(post.comments || []);
-
-            document.getElementById('commentModal').classList.remove('hidden');
-            document.body.classList.add('modal-active');
-        }
-
-        function closeCommentModal() {
-            document.getElementById('commentModal').classList.add('hidden');
-            document.body.classList.remove('modal-active');
-            currentActivePostId = null;
-        }
-
-        function renderModalComments(comments) {
-            const container = document.getElementById('modalCommentsList');
-            if (!comments || comments.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>`;
-                return;
-            }
-
-            container.innerHTML = comments.map(c => {
-                const isCommentOwner = c.authorToken === MY_TOKEN;
-                const isCommentAdmin = checkIsAdmin(c.author);
-                const commentGoldTick = isCommentAdmin ? `<i class="fa-solid fa-circle-check text-amber-500 text-[10px] ml-1"></i>` : '';
-
-                const cVote = myCommentVotes[c._id];
-                const cLikeClass = cVote === 'like' ? 'text-blue-600 font-bold' : 'hover:text-blue-600';
-                const cDislikeClass = cVote === 'dislike' ? 'text-red-600 font-bold' : 'hover:text-red-600';
-
-                return `
-                <div class="bg-gray-100 p-3 rounded-2xl text-xs space-y-1 relative">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-gray-800 flex items-center">${escapeHtml(c.author || 'Ẩn danh')} ${commentGoldTick}</span>
-                        <span class="text-[10px] text-gray-400">${new Date(c.createdAt).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span>
-                    </div>
-                    <p class="text-gray-700 leading-snug">${escapeHtml(c.content)}</p>
-                    <div class="flex items-center justify-between pt-1 text-[11px] text-gray-500 border-t border-gray-200 mt-1">
-                        <div class="flex space-x-3">
-                            <button onclick="voteComment('${c._id}', 'like')" class="${cLikeClass}">Thích (${c.likes||0})</button>
-                            <button onclick="voteComment('${c._id}', 'dislike')" class="${cDislikeClass}">Không thích (${c.dislikes||0})</button>
-                        </div>
-                        ${isCommentOwner ? `
-                            <button onclick="deleteComment('${c._id}')" class="text-red-500 font-semibold hover:underline">
-                                Xóa
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        async function voteComment(commentId, type) {
-            if (!currentActivePostId) return;
-            const currentVote = myCommentVotes[commentId];
-
-            if (currentVote === type) {
-                await fetch(`/api/posts/${currentActivePostId}/comments/${commentId}/vote`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: type, action: 'remove' })
-                });
-                delete myCommentVotes[commentId];
-            } else if (currentVote) {
-                await fetch(`/api/posts/${currentActivePostId}/comments/${commentId}/vote`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: currentVote, action: 'remove' })
-                });
-                await fetch(`/api/posts/${currentActivePostId}/comments/${commentId}/vote`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: type, action: 'add' })
-                });
-                myCommentVotes[commentId] = type;
-            } else {
-                await fetch(`/api/posts/${currentActivePostId}/comments/${commentId}/vote`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: type, action: 'add' })
-                });
-                myCommentVotes[commentId] = type;
-            }
-
-            localStorage.setItem('my_comment_votes', JSON.stringify(myCommentVotes));
-            await loadFeed();
-            openCommentModal(currentActivePostId);
-        }
-
-        async function submitModalComment() {
-            const author = document.getElementById('modalCommentAuthor').value.trim();
-            const content = document.getElementById('modalCommentContent').value.trim();
-
-            if (!content) return alert('Vui lòng nhập nội dung bình luận!');
-
-            try {
-                const res = await fetch(`/api/posts/${currentActivePostId}/comments`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ author, content, authorToken: MY_TOKEN })
-                });
-
-                if (res.ok) {
-                    document.getElementById('modalCommentContent').value = '';
-                    await loadFeed();
-                    openCommentModal(currentActivePostId);
-                }
-            } catch (err) {
-                alert('Không thể gửi bình luận');
-            }
-        }
-
-        async function deleteComment(commentId) {
-            if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
-            try {
-                const res = await fetch(`/api/posts/${currentActivePostId}/comments/${commentId}`, {
-                    method: 'DELETE',
-                    headers: { 'x-author-token': MY_TOKEN }
-                });
-
-                if (res.ok) {
-                    await loadFeed();
-                    openCommentModal(currentActivePostId);
-                }
-            } catch (err) {
-                alert('Lỗi khi xóa bình luận');
-            }
-        }
-
-        // CÀI ĐẶT CÁ NHÂN
-        function openSettingsModal() {
-            document.getElementById('settingDefaultName').value = localStorage.getItem('default_author_name') || '';
-            document.getElementById('settingUserToken').value = MY_TOKEN;
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
+        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); }
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-        function saveSettings() {
-            const val = document.getElementById('settingDefaultName').value.trim();
-            localStorage.setItem('default_author_name', val);
-            closeSettingsModal();
-            alert('Đã lưu cài đặt!');
-        }
-
-        function openPostModal() {
-            const defaultName = localStorage.getItem('default_author_name') || '';
-            if (defaultName) document.getElementById('postAuthor').value = defaultName;
-            document.getElementById('createPostModal').classList.remove('hidden');
-        }
+        function openPostModal() { document.getElementById('createPostModal').classList.remove('hidden'); }
         function closePostModal() { document.getElementById('createPostModal').classList.add('hidden'); }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
 
         async function handleCreatePost(e) {
             e.preventDefault();
@@ -562,26 +364,6 @@
                 closePostModal();
                 document.getElementById('postForm').reset();
                 loadFeed();
-            }
-        }
-
-        async function deletePost(postId) {
-            if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
-            await fetch(`/api/posts/${postId}`, {
-                method: 'DELETE',
-                headers: { 'x-author-token': MY_TOKEN }
-            });
-            loadFeed();
-        }
-
-        async function downloadMedia(postId, fileName) {
-            const res = await fetch(`/api/posts/${postId}/media`);
-            const data = await res.json();
-            if (data.mediaUrl) {
-                const a = document.createElement('a');
-                a.href = data.mediaUrl;
-                a.download = fileName;
-                a.click();
             }
         }
 
