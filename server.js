@@ -1,109 +1,182 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ limit: '20mb', extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
+app.use(express.static('public'));
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://<username>:<password>@cluster.mongodb.net/?retryWrites=true&w=majority";
+// Kết nối MongoDB
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chiasetailieu';
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ Đã kết nối MongoDB thành công'))
+    .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ Database Connected"))
-  .catch(err => console.error("❌ DB Error:", err));
-
-const postSchema = new mongoose.Schema({
-    author: String,
-    content: String,
-    mediaUrl: String,
-    mediaName: String,
-    authorToken: String,
-    isAdmin: { type: Boolean, default: false },
+// Schema Bình luận
+const commentSchema = new mongoose.Schema({
+    author: { type: String, default: 'Ẩn danh' },
+    content: { type: String, required: true },
+    parentId: { type: String, default: null }, // ID của bình luận gốc nếu là câu trả lời
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
+    authorToken: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
+
+// Schema Bài viết
+const postSchema = new mongoose.Schema({
+    author: { type: String, default: 'Ẩn danh' },
+    content: { type: String, default: '' },
+    mediaUrl: { type: String, default: '' },
+    mediaName: { type: String, default: '' },
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    authorToken: { type: String },
+    isAdmin: { type: Boolean, default: false },
+    comments: [commentSchema],
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+});
+
 const Post = mongoose.model('Post', postSchema);
 
+// 1. Lấy danh sách bài viết (Không trả về mediaUrl nặng để tối ưu tốc độ)
 app.get('/api/posts', async (req, res) => {
     try {
-        const posts = await Post.find().select('-mediaUrl').sort({ createdAt: -1 }).limit(50);
+        const posts = await Post.find({}, '-mediaUrl').sort({ createdAt: -1 }).lean();
         res.json(posts);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Lỗi máy chủ' });
     }
 });
 
+// 2. Lấy tệp đính kèm của bài viết
 app.get('/api/posts/:id/media', async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id).select('mediaUrl mediaName');
-        if (!post) return res.status(404).json({ error: "File not found" });
+        const post = await Post.findById(req.params.id, 'mediaUrl mediaName');
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
         res.json({ mediaUrl: post.mediaUrl, mediaName: post.mediaName });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Lỗi tải tệp' });
     }
 });
 
+// 3. Đăng bài viết mới
 app.post('/api/posts', async (req, res) => {
     try {
-        let { author, content, mediaUrl, mediaName, authorToken } = req.body;
-        let isAdmin = false;
+        const { author, content, mediaUrl, mediaName, authorToken } = req.body;
+        const authorName = (author || '').trim();
+        const isAdmin = (authorName.toUpperCase() === 'TNT MEMEFORG STUDIO');
 
-        // Xử lý cú pháp ngầm '# vip bro'
-        if (author && author.includes('# vip bro')) {
-            isAdmin = true;
-            author = author.replace(/# vip bro/g, '').trim();
-        }
+        const newPost = new Post({
+            author: authorName || 'Ẩn danh',
+            content,
+            mediaUrl,
+            mediaName,
+            authorToken,
+            isAdmin
+        });
 
-        const newPost = new Post({ author: author || 'Ẩn danh', content, mediaUrl, mediaName, authorToken, isAdmin });
-        const saved = await newPost.save();
-        const obj = saved.toObject();
-        delete obj.mediaUrl;
-        res.json(obj);
+        await newPost.save();
+        res.status(201).json(newPost);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Lỗi đăng bài' });
     }
 });
 
+// 4. Bình chọn Like / Dislike cho bài viết
 app.post('/api/posts/:id/vote', async (req, res) => {
     try {
         const { type, action } = req.body;
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ error: "Not found" });
+        const update = {};
+        const amount = action === 'add' ? 1 : -1;
 
-        if (type === 'like') {
-            post.likes = Math.max(0, (post.likes || 0) + (action === 'add' ? 1 : -1));
-        } else if (type === 'dislike') {
-            post.dislikes = Math.max(0, (post.dislikes || 0) + (action === 'add' ? 1 : -1));
-        }
+        if (type === 'like') update.$inc = { likes: amount };
+        if (type === 'dislike') update.$inc = { dislikes: amount };
+        update.updatedAt = new Date();
 
-        await post.save();
-        res.json({ success: true, likes: post.likes, dislikes: post.dislikes });
+        const post = await Post.findByIdAndUpdate(req.params.id, update, { new: true });
+        res.json(post);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Lỗi bình chọn' });
     }
 });
 
+// 5. Thêm Bình luận / Trả lời bình luận
+app.post('/api/posts/:id/comments', async (req, res) => {
+    try {
+        const { author, content, parentId, authorToken } = req.body;
+        if (!content || !content.trim()) {
+            return res.status(400).json({ error: 'Nội dung bình luận không được để trống' });
+        }
+
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+
+        post.comments.push({
+            author: (author || '').trim() || 'Ẩn danh',
+            content: content.trim(),
+            parentId: parentId || null,
+            authorToken
+        });
+
+        post.updatedAt = new Date();
+        await post.save();
+        res.status(201).json(post.comments);
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi thêm bình luận' });
+    }
+});
+
+// 6. Bình chọn Like / Dislike cho Bình luận
+app.post('/api/posts/:postId/comments/:commentId/vote', async (req, res) => {
+    try {
+        const { type, action } = req.body;
+        const post = await Post.findById(req.params.postId);
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+
+        const comment = post.comments.id(req.params.commentId);
+        if (!comment) return res.status(404).json({ error: 'Không tìm thấy bình luận' });
+
+        const amount = action === 'add' ? 1 : -1;
+        if (type === 'like') comment.likes = Math.max(0, (comment.likes || 0) + amount);
+        if (type === 'dislike') comment.dislikes = Math.max(0, (comment.dislikes || 0) + amount);
+
+        post.updatedAt = new Date();
+        await post.save();
+        res.json(comment);
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi bình chọn bình luận' });
+    }
+});
+
+// 7. Xóa bài viết (Kiểm tra tác giả)
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const authorToken = req.headers['x-author-token'];
         const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ error: "Not found" });
 
-        if (post.authorToken && post.authorToken !== authorToken) {
-            return res.status(403).json({ error: "Unauthorized" });
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+        if (post.authorToken !== authorToken) {
+            return res.status(403).json({ error: 'Bạn không có quyền xóa bài viết này' });
         }
 
         await Post.findByIdAndDelete(req.params.id);
-        res.json({ success: true });
+        res.json({ message: 'Đã xóa bài viết thành công' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Lỗi xóa bài viết' });
     }
 });
 
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+});
