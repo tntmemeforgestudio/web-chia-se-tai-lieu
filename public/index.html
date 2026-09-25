@@ -133,26 +133,12 @@
             border-radius: 50%;
             display: inline-block;
         }
-        .btn-vote {
-            border-radius: 20px;
-            padding: 5px 16px;
-            background: #f3f4f6;
-            border: none;
-            color: #4b5563;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-vote:hover { background: #e5e7eb; }
-        .btn-vote.active-like { background: #0d6efd !important; color: #ffffff !important; }
-        .btn-vote.active-dislike { background: #dc3545 !important; color: #ffffff !important; }
-        .dropdown-toggle::after { display: none; }
     </style>
 </head>
 <body>
 
     <div class="version-tag">
-        <span class="dot-green"></span> Phiên bản v2.3.2 (Fixed & Stable)
+        <span class="dot-green"></span> Phiên bản v2.3.3 (Secure & Stable)
     </div>
 
     <div class="container main-container">
@@ -195,7 +181,7 @@
         </div>
     </div>
 
-    <!-- Modal Đăng Bài -->
+    <!-- Modal Đăng Bài (Đã xóa sạch gợi ý tích vàng để giữ bí mật) -->
     <div class="modal fade" id="postModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -206,7 +192,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Tên người đăng</label>
-                        <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn (Thêm # nhà xuất bản để nhận VIP)...">
+                        <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn...">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Nội dung</label>
@@ -237,19 +223,6 @@
                             <div id="google_translate_element"></div>
                         </div>
                     </div>
-                    <div>
-                        <label class="form-label small fw-bold text-secondary">Thông tin ứng dụng</label>
-                        <div class="p-3 bg-light rounded-3 small">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Phiên bản hiện tại:</span>
-                                <span class="fw-bold text-dark">v2.3.2 (Stable)</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Tình trạng máy chủ:</span>
-                                <span class="text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i>Hoạt động tốt</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -277,7 +250,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let selectedPostIdToDelete = null;
-        let isFirstLoad = true;
         let lastScrollTop = 0;
         const smartHeader = document.getElementById('smartHeader');
 
@@ -322,7 +294,6 @@
 
                 if (posts.length === 0) {
                     container.innerHTML = `<div class="text-center py-5 text-muted">Chưa có bài viết nào.</div>`;
-                    isFirstLoad = false;
                     return;
                 }
 
@@ -336,9 +307,6 @@
 
                     const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
                     const avatarBg = isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
-
-                    const hasLiked = localStorage.getItem(`voted_like_${post._id}`) === 'true';
-                    const hasDisliked = localStorage.getItem(`voted_dislike_${post._id}`) === 'true';
 
                     const goldTickIconSVG = `
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-left: 4px;">
@@ -369,40 +337,20 @@
                                             <i class="fa-solid fa-ellipsis"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 10px;">
-                                            <li><a class="dropdown-item text-danger small" href="#" onclick="openDeleteModal('${post._id || post.id}')"><i class="fa-solid fa-trash me-2"></i>Xóa bài viết</a></li>
+                                            <li><a class="dropdown-item text-danger small" href="#" onclick="openDeleteModal('${post._id}')"><i class="fa-solid fa-trash me-2"></i>Xóa bài viết</a></li>
                                         </ul>
                                     </div>
                                 ` : ''}
                             </div>
 
-                            <div class="text-secondary post-content mb-3">${escapeHtml(post.content || '')}</div>
-
-                            <div class="d-flex gap-2 pt-2">
-                                <button class="btn btn-vote ${hasLiked ? 'active-like' : ''}" onclick="toggleVote('${post._id || post.id}', 'like')">
-                                    <i class="fa-thumbs-up ${hasLiked ? 'fa-solid' : 'fa-regular'} me-1"></i> ${post.likes || 0}
-                                </button>
-                                <button class="btn btn-vote ${hasDisliked ? 'active-dislike' : ''}" onclick="toggleVote('${post._id || post.id}', 'dislike')">
-                                    <i class="fa-thumbs-down ${hasDisliked ? 'fa-solid' : 'fa-regular'} me-1"></i> ${post.dislikes || 0}
-                                </button>
-                            </div>
+                            <div class="text-secondary post-content mb-2">${escapeHtml(post.content || '')}</div>
                         </div>
                     `;
                 }).join('');
 
-                if (container.innerHTML !== postsHtml) {
-                    container.innerHTML = postsHtml;
-                }
-                isFirstLoad = false;
-
+                container.innerHTML = postsHtml;
             } catch (err) {
-                if (isFirstLoad) {
-                    container.innerHTML = `
-                        <div class="text-center py-4 bg-white rounded-4 shadow-sm">
-                            <p class="text-danger mb-2" style="font-size:14px;"><i class="fa-solid fa-triangle-exclamation me-1"></i> Không thể kết nối máy chủ...</p>
-                            <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="loadPosts()">Tải lại</button>
-                        </div>
-                    `;
-                }
+                container.innerHTML = `<div class="text-center py-4 bg-white rounded-4 shadow-sm text-danger">Không thể tải dữ liệu.</div>`;
             }
         }
 
@@ -488,4 +436,4 @@
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
-</html>g
+</html>
