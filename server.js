@@ -11,16 +11,12 @@ app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ limit: '25mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Kết nối MongoDB với cấu hình Timeout an toàn
+// Kết nối MongoDB qua biến môi trường MONGODB_URI
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chiasetailieu';
 
-mongoose.connect(MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000 // Tối đa 5s nếu không thấy DB sẽ tự hủy chờ để tránh treo web
-}).then(() => {
-    console.log('✅ Đã kết nối MongoDB thành công');
-}).catch(err => {
-    console.error('⚠️ Chưa thể kết nối MongoDB:', err.message);
-});
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ Đã kết nối thành công MongoDB Atlas'))
+    .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err.message));
 
 // Schema Bình luận
 const commentSchema = new mongoose.Schema({
@@ -50,26 +46,20 @@ const postSchema = new mongoose.Schema({
 
 const Post = mongoose.model('Post', postSchema);
 
-// 1. Lấy danh sách bài viết (An toàn, không lo sập)
+// 1. Lấy danh sách bài viết
 app.get('/api/posts', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) {
-            // Nếu DB chưa sẵn sàng, trả về mảng rỗng để web không bị hiện chữ "Kết nối chập chờn"
-            return res.json([]);
-        }
         const posts = await Post.find({}, '-mediaUrl').sort({ createdAt: -1 }).lean();
-        res.json(posts || []);
+        res.json(posts);
     } catch (err) {
-        res.json([]);
+        console.error('Lỗi lấy bài viết:', err);
+        res.status(500).json({ error: 'Không thể tải danh sách bài viết' });
     }
 });
 
 // 2. Lấy tệp đính kèm
 app.get('/api/posts/:id/media', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({ error: 'Cơ sở dữ liệu chưa sẵn sàng' });
-        }
         const post = await Post.findById(req.params.id, 'mediaUrl mediaName');
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
         res.json({ mediaUrl: post.mediaUrl, mediaName: post.mediaName });
@@ -81,9 +71,6 @@ app.get('/api/posts/:id/media', async (req, res) => {
 // 3. Đăng bài mới
 app.post('/api/posts', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({ error: 'Cơ sở dữ liệu chưa sẵn sàng' });
-        }
         const { author, content, mediaUrl, mediaName, authorToken } = req.body;
         const authorName = (author || '').trim();
         const isAdmin = (authorName.toUpperCase() === 'TNT MEMEFORG STUDIO');
@@ -107,7 +94,6 @@ app.post('/api/posts', async (req, res) => {
 // 4. Bình chọn Like / Dislike bài viết
 app.post('/api/posts/:id/vote', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) return res.json({});
         const { type, action } = req.body;
         const update = {};
         const amount = action === 'add' ? 1 : -1;
@@ -126,7 +112,6 @@ app.post('/api/posts/:id/vote', async (req, res) => {
 // 5. Thêm Bình luận
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB chưa sẵn sàng' });
         const { author, content, parentId, authorToken } = req.body;
         if (!content || !content.trim()) {
             return res.status(400).json({ error: 'Nội dung không được để trống' });
@@ -153,7 +138,6 @@ app.post('/api/posts/:id/comments', async (req, res) => {
 // 6. Bình chọn Like / Dislike Bình luận
 app.post('/api/posts/:postId/comments/:commentId/vote', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) return res.json({});
         const { type, action } = req.body;
         const post = await Post.findById(req.params.postId);
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
@@ -176,7 +160,6 @@ app.post('/api/posts/:postId/comments/:commentId/vote', async (req, res) => {
 // 7. Xóa bài viết
 app.delete('/api/posts/:id', async (req, res) => {
     try {
-        if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB chưa sẵn sàng' });
         const authorToken = req.headers['x-author-token'];
         const post = await Post.findById(req.params.id);
 
