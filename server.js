@@ -52,7 +52,6 @@ app.get('/api/posts', async (req, res) => {
         const posts = await Post.find({}, '-mediaUrl').sort({ createdAt: -1 }).lean();
         res.json(posts || []);
     } catch (err) {
-        console.error('Lỗi lấy bài viết:', err);
         res.status(500).json({ error: 'Lỗi máy chủ' });
     }
 });
@@ -68,7 +67,7 @@ app.get('/api/posts/:id/media', async (req, res) => {
     }
 });
 
-// 3. Đăng bài mới (Hoạt động bình thường)
+// 3. Đăng bài mới
 app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, mediaUrl, mediaName, authorToken } = req.body;
@@ -87,7 +86,6 @@ app.post('/api/posts', async (req, res) => {
         await newPost.save();
         res.status(201).json(newPost);
     } catch (err) {
-        console.error('Lỗi đăng bài:', err);
         res.status(500).json({ error: 'Lỗi đăng bài' });
     }
 });
@@ -173,6 +171,32 @@ app.delete('/api/posts/:id', async (req, res) => {
         res.json({ message: 'Xóa bài viết thành công' });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi xóa bài viết' });
+    }
+});
+
+// 8. XÓA BÌNH LUẬN (MỚI: Chỉ chính chủ mới có quyền xóa)
+app.delete('/api/posts/:postId/comments/:commentId', async (req, res) => {
+    try {
+        const authorToken = req.headers['x-author-token'];
+        const post = await Post.findById(req.params.postId);
+
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+
+        const comment = post.comments.id(req.params.commentId);
+        if (!comment) return res.status(404).json({ error: 'Không tìm thấy bình luận' });
+
+        if (comment.authorToken !== authorToken) {
+            return res.status(403).json({ error: 'Bạn không có quyền xóa bình luận này' });
+        }
+
+        comment.deleteOne();
+        post.updatedAt = new Date();
+        await post.save();
+
+        res.json({ message: 'Đã xóa bình luận', comments: post.comments });
+    } catch (err) {
+        console.error('Lỗi xóa bình luận:', err);
+        res.status(500).json({ error: 'Lỗi xóa bình luận' });
     }
 });
 
