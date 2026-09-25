@@ -9,19 +9,24 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ limit: '25mb', extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Kết nối MongoDB
+// Kết nối MongoDB với cấu hình Timeout an toàn
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chiasetailieu';
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ Đã kết nối MongoDB thành công'))
-    .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
+
+mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000 // Tối đa 5s nếu không thấy DB sẽ tự hủy chờ để tránh treo web
+}).then(() => {
+    console.log('✅ Đã kết nối MongoDB thành công');
+}).catch(err => {
+    console.error('⚠️ Chưa thể kết nối MongoDB:', err.message);
+});
 
 // Schema Bình luận
 const commentSchema = new mongoose.Schema({
     author: { type: String, default: 'Ẩn danh' },
     content: { type: String, required: true },
-    parentId: { type: String, default: null }, // ID của bình luận gốc nếu là câu trả lời
+    parentId: { type: String, default: null },
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     authorToken: { type: String },
@@ -45,19 +50,26 @@ const postSchema = new mongoose.Schema({
 
 const Post = mongoose.model('Post', postSchema);
 
-// 1. Lấy danh sách bài viết (Không trả về mediaUrl nặng để tối ưu tốc độ)
+// 1. Lấy danh sách bài viết (An toàn, không lo sập)
 app.get('/api/posts', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            // Nếu DB chưa sẵn sàng, trả về mảng rỗng để web không bị hiện chữ "Kết nối chập chờn"
+            return res.json([]);
+        }
         const posts = await Post.find({}, '-mediaUrl').sort({ createdAt: -1 }).lean();
-        res.json(posts);
+        res.json(posts || []);
     } catch (err) {
-        res.status(500).json({ error: 'Lỗi máy chủ' });
+        res.json([]);
     }
 });
 
-// 2. Lấy tệp đính kèm của bài viết
+// 2. Lấy tệp đính kèm
 app.get('/api/posts/:id/media', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'Cơ sở dữ liệu chưa sẵn sàng' });
+        }
         const post = await Post.findById(req.params.id, 'mediaUrl mediaName');
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
         res.json({ mediaUrl: post.mediaUrl, mediaName: post.mediaName });
@@ -66,9 +78,12 @@ app.get('/api/posts/:id/media', async (req, res) => {
     }
 });
 
-// 3. Đăng bài viết mới
+// 3. Đăng bài mới
 app.post('/api/posts', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'Cơ sở dữ liệu chưa sẵn sàng' });
+        }
         const { author, content, mediaUrl, mediaName, authorToken } = req.body;
         const authorName = (author || '').trim();
         const isAdmin = (authorName.toUpperCase() === 'TNT MEMEFORG STUDIO');
@@ -89,9 +104,10 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-// 4. Bình chọn Like / Dislike cho bài viết
+// 4. Bình chọn Like / Dislike bài viết
 app.post('/api/posts/:id/vote', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) return res.json({});
         const { type, action } = req.body;
         const update = {};
         const amount = action === 'add' ? 1 : -1;
@@ -107,12 +123,13 @@ app.post('/api/posts/:id/vote', async (req, res) => {
     }
 });
 
-// 5. Thêm Bình luận / Trả lời bình luận
+// 5. Thêm Bình luận
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB chưa sẵn sàng' });
         const { author, content, parentId, authorToken } = req.body;
         if (!content || !content.trim()) {
-            return res.status(400).json({ error: 'Nội dung bình luận không được để trống' });
+            return res.status(400).json({ error: 'Nội dung không được để trống' });
         }
 
         const post = await Post.findById(req.params.id);
@@ -133,9 +150,10 @@ app.post('/api/posts/:id/comments', async (req, res) => {
     }
 });
 
-// 6. Bình chọn Like / Dislike cho Bình luận
+// 6. Bình chọn Like / Dislike Bình luận
 app.post('/api/posts/:postId/comments/:commentId/vote', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) return res.json({});
         const { type, action } = req.body;
         const post = await Post.findById(req.params.postId);
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
@@ -151,23 +169,24 @@ app.post('/api/posts/:postId/comments/:commentId/vote', async (req, res) => {
         await post.save();
         res.json(comment);
     } catch (err) {
-        res.status(500).json({ error: 'Lỗi bình chọn bình luận' });
+        res.status(500).json({ error: 'Lỗi bình chọn' });
     }
 });
 
-// 7. Xóa bài viết (Kiểm tra tác giả)
+// 7. Xóa bài viết
 app.delete('/api/posts/:id', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'DB chưa sẵn sàng' });
         const authorToken = req.headers['x-author-token'];
         const post = await Post.findById(req.params.id);
 
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
         if (post.authorToken !== authorToken) {
-            return res.status(403).json({ error: 'Bạn không có quyền xóa bài viết này' });
+            return res.status(403).json({ error: 'Không có quyền xóa' });
         }
 
         await Post.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Đã xóa bài viết thành công' });
+        res.json({ message: 'Xóa bài viết thành công' });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi xóa bài viết' });
     }
@@ -178,5 +197,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+    console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
 });
