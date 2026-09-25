@@ -43,7 +43,7 @@ app.post('/api/posts', async (req, res) => {
         // 🔒 BẢO MẬT TÍCH VÀNG ĐỘC QUYỀN:
         // Hãy thay chữ "TênCủaBạn" bằng tên chính xác mà bạn dùng để đăng bài.
         // Ngoài tên này ra, không ai có thể có tích vàng.
-        const SECRET_AUTHOR_NAME = "TênCủaBạn"; 
+        const SECRET_AUTHOR_NAME = "nhà phát triển"; 
         const isVip = (rawAuthor.trim() === SECRET_AUTHOR_NAME);
 
         const newPost = new Post({
