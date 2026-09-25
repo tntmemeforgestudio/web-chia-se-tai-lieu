@@ -1,41 +1,59 @@
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
 const app = express();
 
-// Cấu hình để đọc dữ liệu dạng JSON từ Front-end gửi lên
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Mảng lưu trữ tạm thời (Hoặc bạn giữ nguyên đoạn kết nối Database / Mongoose sẵn có của bạn ở đây)
-let posts = [];
+// Kết nối MongoDB từ biến môi trường trên Render (như cấu hình bạn đã cài)
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log("Đã kết nối MongoDB thành công!"))
+.catch(err => console.error("Lỗi kết nối MongoDB:", err));
+
+// Cấu trúc dữ liệu bài viết trong Database
+const postSchema = new mongoose.Schema({
+    author: String,
+    content: String,
+    authorToken: String,
+    isVip: Boolean,
+    createdAt: { type: Date, default: Date.now }
+});
+const Post = mongoose.model('Post', postSchema);
 
 // API Lấy danh sách bài viết
-app.get('/api/posts', (req, res) => {
-    res.json(posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+app.get('/api/posts', async (req, res) => {
+    try {
+        const posts = await Post.find().sort({ createdAt: -1 });
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi tải dữ liệu' });
+    }
 });
 
-// API Đăng bài viết mới (Đã khớp hoàn toàn với Front-end dạng JSON)
-app.post('/api/posts', (req, res) => {
+// API Đăng bài viết mới
+app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, authorToken } = req.body;
-
-        // Xử lý kiểm tra mã VIP an toàn ở phía Server
         const rawAuthor = author || 'Ẩn danh';
-        const isVip = rawAuthor.includes('# nhà xuất bản');
-        const cleanAuthor = rawAuthor.replace('# nhà xuất bản', '').trim();
 
-        const newPost = {
-            _id: Date.now().toString(),
-            author: cleanAuthor || 'Ẩn danh',
+        // 🔒 BẢO MẬT TÍCH VÀNG ĐỘC QUYỀN:
+        // Hãy thay chữ "TênCủaBạn" bằng tên chính xác mà bạn dùng để đăng bài.
+        // Ngoài tên này ra, không ai có thể có tích vàng.
+        const SECRET_AUTHOR_NAME = "TênCủaBạn"; 
+        const isVip = (rawAuthor.trim() === SECRET_AUTHOR_NAME);
+
+        const newPost = new Post({
+            author: rawAuthor,
             content: content || '',
             authorToken: authorToken || '',
-            isVip: isVip,
-            likes: 0,
-            dislikes: 0,
-            createdAt: new Date()
-        };
+            isVip: isVip
+        });
 
-        posts.unshift(newPost); // Thêm bài mới lên đầu danh sách
+        await newPost.save();
         res.status(201).json(newPost);
     } catch (error) {
         console.error("Lỗi đăng bài:", error);
@@ -44,29 +62,27 @@ app.post('/api/posts', (req, res) => {
 });
 
 // API Xóa bài viết
-app.delete('/api/posts/:id', (req, res) => {
+app.delete('/api/posts/:id', async (req, res) => {
     try {
         const postId = req.params.id;
         const authorToken = req.headers['x-author-token'];
 
-        const postIndex = posts.findIndex(p => p._id === postId);
-        if (postIndex === -1) {
+        const post = await Post.findById(postId);
+        if (!post) {
             return res.status(404).json({ error: 'Không tìm thấy bài viết' });
         }
 
-        // Kiểm tra quyền sở hữu bài viết
-        if (posts[postIndex].authorToken && posts[postIndex].authorToken !== authorToken) {
+        if (post.authorToken && post.authorToken !== authorToken) {
             return res.status(403).json({ error: 'Không có quyền xóa bài viết này' });
         }
 
-        posts.splice(postIndex, 1);
+        await Post.findByIdAndDelete(postId);
         res.status(200).json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Lỗi máy chủ' });
     }
 });
 
-// Khởi động Server (Port mặc định của Render/Glitch/Local)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server đang chạy tại cổng ${PORT}`);
