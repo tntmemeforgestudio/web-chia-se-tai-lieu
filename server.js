@@ -3,39 +3,47 @@ const path = require('path');
 const mongoose = require('mongoose');
 const app = express();
 
-app.use(express.json());
+// Tăng giới hạn dung lượng nhận dữ liệu để hỗ trợ đính kèm tệp file
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Kết loại bỏ các options deprecated (useNewUrlParser, useUnifiedTopology) ở Mongoose bản mới
+// Kết nối MongoDB Cloud
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("Đã kết nối MongoDB thành công!"))
 .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 
-// Cấu trúc dữ liệu bài viết trong Database
+// Cấu trúc dữ liệu bài viết (Schema) bao gồm Tệp đính kèm & lượt Like
 const postSchema = new mongoose.Schema({
     author: String,
     content: String,
     authorToken: String,
     isVip: Boolean,
+    fileData: String,     // Dữ liệu Base64 của tệp đính kèm
+    fileName: String,     // Tên tệp
+    fileSize: String,     // Kích thước tệp (KB/MB)
+    fileType: String,     // Loại tệp
     likes: { type: Number, default: 0 },
-    likedBy: [String], // Lưu danh sách token đã thả tim
+    likedBy: [String],
     createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
 
 // API Lấy danh sách bài viết
-// 🔒 ĐÃ SỬA BẢO MẬT: Không trả về authorToken trực tiếp ra công khai để tránh bị lấy cắp xóa bài.
 app.get('/api/posts', async (req, res) => {
     try {
         const clientToken = req.headers['x-author-token'] || '';
         const posts = await Post.find().sort({ createdAt: -1 }).limit(100).lean();
 
-        // Xử lý dữ liệu an toàn trước khi gửi về client
         const safePosts = posts.map(post => ({
             _id: post._id,
             author: post.author,
             content: post.content,
             isVip: Boolean(post.isVip),
+            fileData: post.fileData || null,
+            fileName: post.fileName || null,
+            fileSize: post.fileSize || null,
+            fileType: post.fileType || null,
             likes: post.likes || 0,
             hasLiked: Array.isArray(post.likedBy) && post.likedBy.includes(clientToken),
             isOwner: Boolean(post.authorToken && post.authorToken === clientToken),
@@ -49,19 +57,18 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Đăng bài viết mới
+// API Đăng bài viết mới (kèm file)
 app.post('/api/posts', async (req, res) => {
     try {
-        const { author, content, authorToken, vipPasscode } = req.body;
+        const { author, content, authorToken, vipPasscode, fileData, fileName, fileSize, fileType } = req.body;
         const rawAuthor = (author || 'Ẩn danh').trim();
 
-        // 🔒 BẢO MẬT TÍCH VÀNG ĐỘC QUYỀN
+        // Kiểm tra tư cách VIP / Tích Vàng
         const SECRET_AUTHOR_NAME = "nhà phát triển"; 
-        const VIP_PASSCODE = process.env.VIP_PASSCODE || "tnt123"; // Mật khẩu bí mật tùy chọn
+        const VIP_PASSCODE = process.env.VIP_PASSCODE || "tnt123";
 
         let isVip = false;
         if (rawAuthor === SECRET_AUTHOR_NAME) {
-            // Kiểm tra nếu có thiết lập Passcode VIP
             if (!vipPasscode || vipPasscode === VIP_PASSCODE) {
                 isVip = true;
             }
@@ -72,6 +79,10 @@ app.post('/api/posts', async (req, res) => {
             content: content || '',
             authorToken: authorToken || '',
             isVip: isVip,
+            fileData: fileData || '',
+            fileName: fileName || '',
+            fileSize: fileSize || '',
+            fileType: fileType || '',
             likes: 0,
             likedBy: []
         });
@@ -83,6 +94,10 @@ app.post('/api/posts', async (req, res) => {
             author: newPost.author,
             content: newPost.content,
             isVip: newPost.isVip,
+            fileData: newPost.fileData,
+            fileName: newPost.fileName,
+            fileSize: newPost.fileSize,
+            fileType: newPost.fileType,
             likes: 0,
             hasLiked: false,
             isOwner: true,
@@ -94,20 +109,16 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-// API Thả tim / Bỏ thả tim bài viết
+// API Thích / Bỏ Thích (Like kiểu Facebook)
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const postId = req.params.id;
         const clientToken = req.headers['x-author-token'];
 
-        if (!clientToken) {
-            return res.status(400).json({ error: 'Thiếu định danh người dùng' });
-        }
+        if (!clientToken) return res.status(400).json({ error: 'Thiếu định danh' });
 
         const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({ error: 'Không tìm thấy bài viết' });
-        }
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
 
         if (!Array.isArray(post.likedBy)) post.likedBy = [];
 
@@ -138,12 +149,10 @@ app.delete('/api/posts/:id', async (req, res) => {
         const authorToken = req.headers['x-author-token'];
 
         const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({ error: 'Không tìm thấy bài viết' });
-        }
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài' });
 
         if (post.authorToken && post.authorToken !== authorToken) {
-            return res.status(403).json({ error: 'Không có quyền xóa bài viết này' });
+            return res.status(403).json({ error: 'Không có quyền xóa bài' });
         }
 
         await Post.findByIdAndDelete(postId);
