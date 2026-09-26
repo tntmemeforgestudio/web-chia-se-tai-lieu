@@ -133,33 +133,44 @@
             border-radius: 50%;
             display: inline-block;
         }
-        .btn-like {
+        /* Nút Like phong cách Facebook */
+        .btn-like-fb {
             border: none;
             background: transparent;
-            color: #6b7280;
+            color: #65676b;
             font-size: 13px;
-            font-weight: 500;
-            padding: 4px 10px;
-            border-radius: 20px;
-            transition: all 0.2s ease;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn-like:hover { background-color: #f3f4f6; }
-        .btn-like.liked { color: #ef4444; font-weight: 600; }
-        .btn-like.liked i { animation: heartBeat 0.3s ease-in-out; }
-        @keyframes heartBeat {
+        .btn-like-fb:hover { background-color: #f2f2f2; }
+        .btn-like-fb.liked { color: #0866ff !important; }
+        .btn-like-fb.liked i { animation: fbPop 0.25s ease-in-out; }
+        @keyframes fbPop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+            50% { transform: scale(1.3) rotate(-10deg); }
             100% { transform: scale(1); }
+        }
+        .file-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
         }
     </style>
 </head>
 <body>
 
     <div class="version-tag">
-        <span class="dot-green"></span> Phiên bản v2.4.0 (Secure & Enhanced)
+        <span class="dot-green"></span> Phiên bản v2.5.0 (Full Features)
     </div>
 
     <div class="container main-container">
+        <!-- Smart Header -->
         <div class="sticky-header-wrapper" id="smartHeader">
             <div class="app-header d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
@@ -199,7 +210,7 @@
         </div>
     </div>
 
-    <!-- Modal Đăng Bài -->
+    <!-- Modal Đăng Bài (Có Đính Kèm File) -->
     <div class="modal fade" id="postModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -213,8 +224,13 @@
                         <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn...">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-medium text-muted">Nội dung</label>
+                        <label class="form-label small fw-medium text-muted">Nội dung bài viết</label>
                         <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc dán link tài liệu..."></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-medium text-muted"><i class="fa-solid fa-paperclip me-1"></i> Tệp đính kèm tài liệu (Tùy chọn)</label>
+                        <input type="file" id="fileInput" class="form-control rounded-3" style="font-size: 13px;">
+                        <small class="text-muted d-block mt-1" style="font-size: 11px;">Hỗ trợ ảnh, PDF, Word, zip, v.v.</small>
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
@@ -225,7 +241,7 @@
         </div>
     </div>
 
-    <!-- Modal Cài Đặt -->
+    <!-- Modal Cài Đặt (Đầy Đủ Thông Tin & Mã Token) -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -233,8 +249,23 @@
                     <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Cài đặt hệ thống</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body py-4">
-                    <div class="mb-4">
+                <div class="modal-body py-3">
+                    <div class="mb-3 p-3 bg-light rounded-3">
+                        <h6 class="fw-bold mb-2 text-dark small"><i class="fa-solid fa-circle-info me-1 text-primary"></i> Thông tin dự án</h6>
+                        <div class="small text-muted mb-1">Thương hiệu: <strong>TNT MEMEFORGE STUDIO</strong></div>
+                        <div class="small text-muted mb-1">Phiên bản: <strong>v2.5.0 (Build 2026)</strong></div>
+                        <div class="small text-muted">Trạng thái Server: <span class="text-success fw-bold">Online</span></div>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-light rounded-3">
+                        <h6 class="fw-bold mb-2 text-dark small"><i class="fa-solid fa-key me-1 text-warning"></i> Mã Định Danh Cá Nhân (Author Token)</h6>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="userTokenDisplay" class="form-control" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyToken()"><i class="fa-solid fa-copy"></i> Sao chép</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
                         <label class="form-label small fw-bold text-secondary">Ngôn ngữ dịch tự động</label>
                         <div class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between">
                             <span class="small text-muted"><i class="fa-solid fa-language me-2"></i>Chọn ngôn ngữ</span>
@@ -290,6 +321,15 @@
             return token;
         }
 
+        document.getElementById('userTokenDisplay').value = getAuthorToken();
+
+        function copyToken() {
+            const tokenInput = document.getElementById('userTokenDisplay');
+            tokenInput.select();
+            document.execCommand('copy');
+            alert('Đã sao chép mã Token cá nhân!');
+        }
+
         function getAvatarColor(name) {
             const colors = ['#0d6efd', '#6f42c1', '#d63384', '#fd7e14', '#198754', '#20c997', '#0dcaf0'];
             let hash = 0;
@@ -303,7 +343,6 @@
             return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // Tự động chuyển các liên kết (http/https) trong bài viết thành đường link bấm được
         function formatContent(str) {
             const escaped = escapeHtml(str);
             const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -326,6 +365,14 @@
                     return;
                 }
 
+                // HUY HIỆU TÍCH VÀNG BÁNH RĂNG TICK TRẮNG CHUẨN KÍỂU FB/X/YOUTUBE
+                const goldTickBadgeSVG = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" title="Xác minh vàng chính chủ" style="vertical-align: sub; margin-left: 4px;">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C12.5641 2 13.1116 2.2323 13.5065 2.63806L14.6543 3.81735C14.9082 4.07823 15.2536 4.22108 15.6112 4.21303L17.2281 4.17658C17.7844 4.16403 18.3216 4.38575 18.7058 4.78651C19.09 5.18728 19.2905 5.73391 19.2573 6.29045L19.161 7.90425C19.1397 8.26127 19.2638 8.61254 19.505 8.87788L20.5959 10.0782C20.971 10.491 21.1687 11.0384 21.1396 11.5839C21.1105 12.1295 20.857 12.6288 20.4428 12.9575L19.2415 13.9109C18.9757 14.1217 18.8028 14.4367 18.7623 14.7836L18.5792 16.3533C18.5162 16.892 18.2324 17.3828 17.7983 17.7028C17.3643 18.0227 16.8143 18.1453 16.2863 18.0396L14.7548 17.7329C14.416 17.6651 14.0628 17.747 13.7885 17.9572L12.5473 18.9082C12.1199 19.2356 11.5746 19.3705 11.047 19.2792C10.5195 19.188 10.0521 18.8781 9.76237 18.4282L8.92211 17.1235C8.73623 16.8349 8.42398 16.6385 8.06733 16.5855L6.45268 16.3458C5.89736 16.2633 5.40578 15.9455 5.1017 15.4722C4.79761 14.9989 4.70588 14.4087 4.84955 13.849L5.26615 12.2223C5.35833 11.8624 5.28189 11.4795 5.05436 11.1714L4.02506 9.77663C3.67137 9.29707 3.58288 8.68114 3.78168 8.1221C3.98048 7.56306 4.44976 7.10842 5.02283 6.87227L6.68536 6.18735C7.05318 6.03583 7.33833 5.73693 7.46827 5.36868L8.05602 3.70119C8.25813 3.12781 8.73516 2.68266 9.31707 2.47805C9.89899 2.27344 10.5376 2.32712 11.0732 2.62024L12 2Z" fill="#F59E0B"/>
+                        <path d="M9.5 11.8L11.2 13.5L15 9.7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+
                 const postsHtml = posts.map(post => {
                     const isOwner = Boolean(post.isOwner);
                     const isVip = Boolean(post.isVip);
@@ -335,12 +382,24 @@
                     const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
                     const avatarBg = isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
 
-                    const goldTickIconSVG = `
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-left: 4px;">
-                            <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238 1.05 1.273 2.42 2.148 4 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-1.05 2.148-2.42 2.148-4z" fill="#F59E0B"/>
-                            <path d="M10.2 16.2l-3.7-3.7 1.4-1.4 2.3 2.3 5.3-5.3 1.4 1.4-6.7 6.7z" fill="#FFFFFF"/>
-                        </svg>
-                    `;
+                    // Khung Tệp Đính Kèm File (nếu có)
+                    let fileAttachmentHtml = '';
+                    if (post.fileData && post.fileName) {
+                        fileAttachmentHtml = `
+                            <div class="file-box my-3 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                    <i class="fa-solid fa-file-arrow-down text-primary fs-4"></i>
+                                    <div class="text-truncate">
+                                        <div class="fw-bold text-dark small text-truncate">${escapeHtml(post.fileName)}</div>
+                                        <small class="text-muted" style="font-size: 11px;">${post.fileSize || 'Tệp đính kèm'}</small>
+                                    </div>
+                                </div>
+                                <a href="${post.fileData}" download="${escapeHtml(post.fileName)}" class="btn btn-sm btn-primary rounded-pill px-3 ms-2 text-nowrap">
+                                    <i class="fa-solid fa-download me-1"></i> Tải về
+                                </a>
+                            </div>
+                        `;
+                    }
 
                     return `
                         <div class="post-card ${isVip ? 'vip-card' : ''}">
@@ -352,7 +411,7 @@
                                     <div>
                                         <div class="d-flex align-items-center">
                                             <strong class="text-dark me-1" style="font-size: 15px;">${escapeHtml(authorName)}</strong>
-                                            ${isVip ? goldTickIconSVG : ''}
+                                            ${isVip ? goldTickBadgeSVG : ''}
                                         </div>
                                         <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt || Date.now()).toLocaleString('vi-VN')}</small>
                                     </div>
@@ -370,12 +429,15 @@
                                 ` : ''}
                             </div>
 
-                            <div class="text-secondary post-content mb-3">${formatContent(post.content || '')}</div>
+                            <div class="text-secondary post-content mb-2">${formatContent(post.content || '')}</div>
 
-                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-light">
-                                <button class="btn-like ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post._id}', this)">
-                                    <i class="${post.hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart me-1"></i>
-                                    <span class="like-count">${post.likes || 0}</span>
+                            ${fileAttachmentHtml}
+
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-light mt-2">
+                                <button class="btn-like-fb ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post._id}', this)">
+                                    <i class="${post.hasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
+                                    <span class="like-label">${post.hasLiked ? 'Đã thích' : 'Thích'}</span>
+                                    <span class="badge bg-light text-dark rounded-pill border ms-1 like-count">${post.likes || 0}</span>
                                 </button>
                             </div>
                         </div>
@@ -391,18 +453,20 @@
         async function toggleLike(postId, btnElement) {
             try {
                 const icon = btnElement.querySelector('i');
+                const label = btnElement.querySelector('.like-label');
                 const countSpan = btnElement.querySelector('.like-count');
                 let currentLikes = parseInt(countSpan.textContent) || 0;
                 const isLiked = btnElement.classList.contains('liked');
 
-                // Cập nhật giao diện ngay lập tức (Optimistic UI)
                 if (isLiked) {
                     btnElement.classList.remove('liked');
-                    icon.className = 'fa-regular fa-heart me-1';
+                    icon.className = 'fa-regular fa-thumbs-up';
+                    label.textContent = 'Thích';
                     countSpan.textContent = Math.max(0, currentLikes - 1);
                 } else {
                     btnElement.classList.add('liked');
-                    icon.className = 'fa-solid fa-heart me-1';
+                    icon.className = 'fa-solid fa-thumbs-up';
+                    label.textContent = 'Đã thích';
                     countSpan.textContent = currentLikes + 1;
                 }
 
@@ -426,17 +490,36 @@
         async function submitPost() {
             const author = document.getElementById('authorInput').value.trim();
             const content = document.getElementById('contentInput').value.trim();
+            const fileInput = document.getElementById('fileInput');
             const submitBtn = document.getElementById('btnSubmitPost');
 
-            if (!content) {
-                alert("Vui lòng nhập nội dung bài viết!");
+            if (!content && fileInput.files.length === 0) {
+                alert("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
                 return;
+            }
+
+            let fileData = '', fileName = '', fileSize = '', fileType = '';
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileName = file.name;
+                fileType = file.type;
+                fileSize = (file.size / 1024 > 1024) 
+                    ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' 
+                    : (file.size / 1024).toFixed(1) + ' KB';
+
+                fileData = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
             }
 
             const postData = {
                 author: author || 'Ẩn danh',
                 content: content,
-                authorToken: getAuthorToken()
+                authorToken: getAuthorToken(),
+                fileData, fileName, fileSize, fileType
             };
 
             submitBtn.disabled = true;
@@ -452,6 +535,7 @@
                 if (res.ok) {
                     document.getElementById('contentInput').value = '';
                     document.getElementById('authorInput').value = '';
+                    fileInput.value = '';
                     const modalEl = document.getElementById('postModal');
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
