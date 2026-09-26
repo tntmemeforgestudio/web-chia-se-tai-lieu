@@ -13,7 +13,21 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sharedb')
 .then(() => console.log("Đã kết nối MongoDB thành công!"))
 .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 
-// Schema bài viết hỗ trợ Like & Dislike
+// Schema Bình luận (Hỗ trợ phản hồi thụt lề & Like/Dislike)
+const commentSchema = new mongoose.Schema({
+    author: String,
+    content: String,
+    authorToken: String,
+    isVip: Boolean,
+    parentId: { type: String, default: null }, // Nếu là trả lời bình luận khác
+    likes: { type: Number, default: 0 },
+    likedBy: [String],
+    dislikes: { type: Number, default: 0 },
+    dislikedBy: [String],
+    createdAt: { type: Date, default: Date.now }
+});
+
+// Schema Bài viết
 const postSchema = new mongoose.Schema({
     author: String,
     content: String,
@@ -27,14 +41,16 @@ const postSchema = new mongoose.Schema({
     likedBy: [String],
     dislikes: { type: Number, default: 0 },
     dislikedBy: [String],
+    comments: [commentSchema],
     createdAt: { type: Date, default: Date.now }
 });
+
 const Post = mongoose.model('Post', postSchema);
 
-// Danh sách tác giả VIP mặc định có Tích Vàng
+// Tác giả chính chủ có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// API Giám sát Server Thông minh (Xanh / Vàng / Đỏ)
+// API Giám sát Server (Xanh / Vàng / Đỏ)
 app.get('/api/health', (req, res) => {
     try {
         const isDbConnected = mongoose.connection.readyState === 1;
@@ -58,7 +74,7 @@ app.get('/api/health', (req, res) => {
 
         res.json({ status, message, ramUsage: usedMemPercent + '%' });
     } catch (err) {
-        res.json({ status: 'red', message: 'Nguy cấp: Lỗi hệ thống' });
+        res.json({ status: 'red', message: 'Lỗi hệ thống' });
     }
 });
 
@@ -76,13 +92,14 @@ app.get('/api/posts', async (req, res) => {
                 _id: post._id,
                 author: post.author,
                 content: post.content,
-                isVip: isVip,
+                isVip,
                 fileData: post.fileData || null,
                 fileName: post.fileName || null,
                 fileSize: post.fileSize || null,
                 fileType: post.fileType || null,
                 likes: post.likes || 0,
                 dislikes: post.dislikes || 0,
+                commentCount: Array.isArray(post.comments) ? post.comments.length : 0,
                 hasLiked: Array.isArray(post.likedBy) && post.likedBy.includes(clientToken),
                 hasDisliked: Array.isArray(post.dislikedBy) && post.dislikedBy.includes(clientToken),
                 isOwner: Boolean(post.authorToken && post.authorToken === clientToken),
@@ -92,7 +109,7 @@ app.get('/api/posts', async (req, res) => {
 
         res.json(safePosts);
     } catch (error) {
-        res.status(500).json({ error: 'Lỗi tải dữ liệu' });
+        res.status(500).json({ error: 'Lỗi tải bài viết' });
     }
 });
 
@@ -115,7 +132,8 @@ app.post('/api/posts', async (req, res) => {
             likes: 0,
             likedBy: [],
             dislikes: 0,
-            dislikedBy: []
+            dislikedBy: [],
+            comments: []
         });
 
         await newPost.save();
@@ -125,13 +143,11 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-// API Thích (Like)
+// API Like Bài viết
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const postId = req.params.id;
         const clientToken = req.headers['x-author-token'];
-        if (!clientToken) return res.status(400).json({ error: 'Thiếu định danh' });
-
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài' });
 
@@ -141,37 +157,31 @@ app.post('/api/posts/:id/like', async (req, res) => {
         const likeIdx = post.likedBy.indexOf(clientToken);
         const dislikeIdx = post.dislikedBy.indexOf(clientToken);
 
-        // Hủy Dislike nếu đang Dislike
         if (dislikeIdx !== -1) {
             post.dislikedBy.splice(dislikeIdx, 1);
             post.dislikes = Math.max(0, (post.dislikes || 1) - 1);
         }
 
-        let hasLiked = false;
         if (likeIdx === -1) {
             post.likedBy.push(clientToken);
             post.likes = (post.likes || 0) + 1;
-            hasLiked = true;
         } else {
             post.likedBy.splice(likeIdx, 1);
             post.likes = Math.max(0, (post.likes || 1) - 1);
-            hasLiked = false;
         }
 
         await post.save();
-        res.json({ likes: post.likes, dislikes: post.dislikes, hasLiked, hasDisliked: false });
+        res.json({ likes: post.likes, dislikes: post.dislikes });
     } catch (error) {
         res.status(500).json({ error: 'Lỗi xử lý' });
     }
 });
 
-// API Không thích (Dislike)
+// API Dislike Bài viết
 app.post('/api/posts/:id/dislike', async (req, res) => {
     try {
         const postId = req.params.id;
         const clientToken = req.headers['x-author-token'];
-        if (!clientToken) return res.status(400).json({ error: 'Thiếu định danh' });
-
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài' });
 
@@ -181,26 +191,158 @@ app.post('/api/posts/:id/dislike', async (req, res) => {
         const likeIdx = post.likedBy.indexOf(clientToken);
         const dislikeIdx = post.dislikedBy.indexOf(clientToken);
 
-        // Hủy Like nếu đang Like
         if (likeIdx !== -1) {
             post.likedBy.splice(likeIdx, 1);
             post.likes = Math.max(0, (post.likes || 1) - 1);
         }
 
-        let hasDisliked = false;
         if (dislikeIdx === -1) {
             post.dislikedBy.push(clientToken);
             post.dislikes = (post.dislikes || 0) + 1;
-            hasDisliked = true;
         } else {
             post.dislikedBy.splice(dislikeIdx, 1);
             post.dislikes = Math.max(0, (post.dislikes || 1) - 1);
-            hasDisliked = false;
         }
 
         await post.save();
-        res.json({ likes: post.likes, dislikes: post.dislikes, hasLiked: false, hasDisliked });
+        res.json({ likes: post.likes, dislikes: post.dislikes });
     } catch (error) {
+        res.status(500).json({ error: 'Lỗi xử lý' });
+    }
+});
+
+// API Lấy danh sách bình luận của 1 bài viết
+app.get('/api/posts/:id/comments', async (req, res) => {
+    try {
+        const clientToken = req.headers['x-author-token'] || '';
+        const post = await Post.findById(req.params.id).lean();
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+
+        const comments = (post.comments || []).map(cmt => {
+            const authorLower = (cmt.author || '').trim().toLowerCase();
+            const isVip = Boolean(cmt.isVip) || VIP_AUTHORS.includes(authorLower);
+
+            return {
+                _id: cmt._id,
+                author: cmt.author,
+                content: cmt.content,
+                parentId: cmt.parentId || null,
+                isVip,
+                likes: cmt.likes || 0,
+                dislikes: cmt.dislikes || 0,
+                hasLiked: Array.isArray(cmt.likedBy) && cmt.likedBy.includes(clientToken),
+                hasDisliked: Array.isArray(cmt.dislikedBy) && cmt.dislikedBy.includes(clientToken),
+                createdAt: cmt.createdAt
+            };
+        });
+
+        res.json({ post, comments });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi tải bình luận' });
+    }
+});
+
+// API Thêm Bình luận / Trả lời
+app.post('/api/posts/:id/comments', async (req, res) => {
+    try {
+        const { author, content, parentId, authorToken } = req.body;
+        if (!content || !content.trim()) return res.status(400).json({ error: 'Nội dung rỗng' });
+
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+
+        const rawAuthor = (author || 'Ẩn danh').trim();
+        const isVip = VIP_AUTHORS.includes(rawAuthor.toLowerCase());
+
+        post.comments.push({
+            author: rawAuthor,
+            content: content.trim(),
+            authorToken: authorToken || '',
+            isVip,
+            parentId: parentId || null,
+            likes: 0,
+            dislikes: 0,
+            likedBy: [],
+            dislikedBy: []
+        });
+
+        await post.save();
+        res.status(201).json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi gửi bình luận' });
+    }
+});
+
+// API Like Bình luận
+app.post('/api/posts/:postId/comments/:commentId/like', async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const clientToken = req.headers['x-author-token'];
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy' });
+
+        const cmt = post.comments.id(commentId);
+        if (!cmt) return res.status(404).json({ error: 'Không tìm thấy bình luận' });
+
+        if (!Array.isArray(cmt.likedBy)) cmt.likedBy = [];
+        if (!Array.isArray(cmt.dislikedBy)) cmt.dislikedBy = [];
+
+        const likeIdx = cmt.likedBy.indexOf(clientToken);
+        const dislikeIdx = cmt.dislikedBy.indexOf(clientToken);
+
+        if (dislikeIdx !== -1) {
+            cmt.dislikedBy.splice(dislikeIdx, 1);
+            cmt.dislikes = Math.max(0, (cmt.dislikes || 1) - 1);
+        }
+
+        if (likeIdx === -1) {
+            cmt.likedBy.push(clientToken);
+            cmt.likes = (cmt.likes || 0) + 1;
+        } else {
+            cmt.likedBy.splice(likeIdx, 1);
+            cmt.likes = Math.max(0, (cmt.likes || 1) - 1);
+        }
+
+        await post.save();
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi xử lý' });
+    }
+});
+
+// API Dislike Bình luận
+app.post('/api/posts/:postId/comments/:commentId/dislike', async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const clientToken = req.headers['x-author-token'];
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ error: 'Không tìm thấy' });
+
+        const cmt = post.comments.id(commentId);
+        if (!cmt) return res.status(404).json({ error: 'Không tìm thấy bình luận' });
+
+        if (!Array.isArray(cmt.likedBy)) cmt.likedBy = [];
+        if (!Array.isArray(cmt.dislikedBy)) cmt.dislikedBy = [];
+
+        const likeIdx = cmt.likedBy.indexOf(clientToken);
+        const dislikeIdx = cmt.dislikedBy.indexOf(clientToken);
+
+        if (likeIdx !== -1) {
+            cmt.likedBy.splice(likeIdx, 1);
+            cmt.likes = Math.max(0, (cmt.likes || 1) - 1);
+        }
+
+        if (dislikeIdx === -1) {
+            cmt.dislikedBy.push(clientToken);
+            cmt.dislikes = (cmt.dislikes || 0) + 1;
+        } else {
+            cmt.dislikedBy.splice(dislikeIdx, 1);
+            cmt.dislikes = Math.max(0, (cmt.dislikes || 1) - 1);
+        }
+
+        await post.save();
+        res.json({ success: true });
+    } catch (err) {
         res.status(500).json({ error: 'Lỗi xử lý' });
     }
 });
