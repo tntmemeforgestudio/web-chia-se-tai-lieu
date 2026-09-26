@@ -133,12 +133,30 @@
             border-radius: 50%;
             display: inline-block;
         }
+        .btn-like {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+        .btn-like:hover { background-color: #f3f4f6; }
+        .btn-like.liked { color: #ef4444; font-weight: 600; }
+        .btn-like.liked i { animation: heartBeat 0.3s ease-in-out; }
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
 
     <div class="version-tag">
-        <span class="dot-green"></span> Phiên bản v2.3.3 (Secure & Stable)
+        <span class="dot-green"></span> Phiên bản v2.4.0 (Secure & Enhanced)
     </div>
 
     <div class="container main-container">
@@ -181,7 +199,7 @@
         </div>
     </div>
 
-    <!-- Modal Đăng Bài (Đã xóa sạch gợi ý tích vàng để giữ bí mật) -->
+    <!-- Modal Đăng Bài -->
     <div class="modal fade" id="postModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -196,7 +214,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Nội dung</label>
-                        <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc tài liệu..."></textarea>
+                        <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc dán link tài liệu..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
@@ -285,10 +303,21 @@
             return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
+        // Tự động chuyển các liên kết (http/https) trong bài viết thành đường link bấm được
+        function formatContent(str) {
+            const escaped = escapeHtml(str);
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return escaped.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-underline">${url}</a>`;
+            });
+        }
+
         async function loadPosts() {
             const container = document.getElementById('postsList');
             try {
-                const res = await fetch('/api/posts');
+                const res = await fetch('/api/posts', {
+                    headers: { 'x-author-token': getAuthorToken() }
+                });
                 if (!res.ok) throw new Error("Server error");
                 const posts = await res.json();
 
@@ -297,10 +326,8 @@
                     return;
                 }
 
-                const myToken = getAuthorToken();
-
                 const postsHtml = posts.map(post => {
-                    const isOwner = (post.authorToken === myToken);
+                    const isOwner = Boolean(post.isOwner);
                     const isVip = Boolean(post.isVip);
                     const authorName = (post.author || 'Ẩn danh').trim();
                     const firstChar = authorName.charAt(0).toUpperCase();
@@ -343,7 +370,14 @@
                                 ` : ''}
                             </div>
 
-                            <div class="text-secondary post-content mb-2">${escapeHtml(post.content || '')}</div>
+                            <div class="text-secondary post-content mb-3">${formatContent(post.content || '')}</div>
+
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-light">
+                                <button class="btn-like ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post._id}', this)">
+                                    <i class="${post.hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart me-1"></i>
+                                    <span class="like-count">${post.likes || 0}</span>
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -351,6 +385,41 @@
                 container.innerHTML = postsHtml;
             } catch (err) {
                 container.innerHTML = `<div class="text-center py-4 bg-white rounded-4 shadow-sm text-danger">Không thể tải dữ liệu.</div>`;
+            }
+        }
+
+        async function toggleLike(postId, btnElement) {
+            try {
+                const icon = btnElement.querySelector('i');
+                const countSpan = btnElement.querySelector('.like-count');
+                let currentLikes = parseInt(countSpan.textContent) || 0;
+                const isLiked = btnElement.classList.contains('liked');
+
+                // Cập nhật giao diện ngay lập tức (Optimistic UI)
+                if (isLiked) {
+                    btnElement.classList.remove('liked');
+                    icon.className = 'fa-regular fa-heart me-1';
+                    countSpan.textContent = Math.max(0, currentLikes - 1);
+                } else {
+                    btnElement.classList.add('liked');
+                    icon.className = 'fa-solid fa-heart me-1';
+                    countSpan.textContent = currentLikes + 1;
+                }
+
+                const res = await fetch(`/api/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-author-token': getAuthorToken()
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    countSpan.textContent = data.likes;
+                }
+            } catch (err) {
+                console.error("Lỗi tương tác like:", err);
             }
         }
 
