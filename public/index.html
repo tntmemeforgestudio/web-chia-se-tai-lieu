@@ -3,700 +3,805 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TNT MemeForge Studio - Cộng đồng & Dự án Game</title>
-    <!-- Google Fonts & FontAwesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Góc Chia Sẻ Tài Liệu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --vip-gradient: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            padding-bottom: 50px;
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #212529;
+            padding-bottom: 60px;
         }
-
-        header {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .main-container { max-width: 720px; margin: 0 auto; }
+        
+        .sticky-header-wrapper {
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            background-color: #f8f9fa;
+            padding-top: 12px;
+            padding-bottom: 8px;
+            transition: transform 0.3s ease-in-out;
         }
+        .header-hidden { transform: translateY(-130%); }
 
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: var(--vip-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .app-header {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
         }
-
-        .server-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #22c55e;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        /* Khung đăng bài */
-        .post-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
+        .logo-box {
+            width: 44px;
+            height: 44px;
+            background-color: #0d6efd;
             border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .post-box input, .post-box textarea {
-            width: 100%;
-            background-color: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.75rem;
-            color: var(--text-color);
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-
-        .post-box textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .post-actions {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
         }
+        .info-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 18px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        
+        /* Trạng thái Server (Xanh / Vàng / Đỏ) */
+        .status-badge {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-badge.green { background-color: #e8f7f0; color: #0d9488; }
+        .status-badge.yellow { background-color: #fef3c7; color: #d97706; }
+        .status-badge.red { background-color: #fee2e2; color: #dc2626; }
 
-        .file-upload-label {
-            cursor: pointer;
-            color: var(--primary-color);
-            font-size: 0.9rem;
+        .dot-status { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-status.green { background-color: #10b981; }
+        .dot-status.yellow { background-color: #f59e0b; }
+        .dot-status.red { background-color: #ef4444; }
+
+        .post-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+            border: 1px solid #e5e7eb;
+        }
+        .vip-card {
+            background-color: #fffdf0 !important;
+            border: 2px solid #f59e0b !important;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15) !important;
+        }
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .avatar-circle-sm {
+            width: 32px;
+            height: 32px;
+            font-size: 13px;
+        }
+        .avatar-gold-glossy {
+            background: linear-gradient(135deg, #ffe066 0%, #f59e0b 50%, #d97706 100%) !important;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 3px 10px rgba(245, 158, 11, 0.4) !important;
+            border: 1.5px solid #fef08a;
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .post-content {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        .btn-gear {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-gear:hover { background: #f3f4f6; }
+
+        .version-tag {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: #ffffff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
+        /* Nút tương tác tối ưu GỌN ĐẸP */
+        .action-btn-compact {
             border: none;
-            padding: 0.5rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        /* Thẻ bài viết */
-        .post-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-        }
-
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .author-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-        }
-
-        .avatar.vip {
-            background: var(--vip-gradient);
-        }
-
-        .author-name {
+            background: #f0f2f5;
+            color: #65676b;
+            font-size: 13px;
             font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .post-time {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .post-content {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-            white-space: pre-wrap;
-        }
-
-        .post-file-preview {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 1rem;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .file-download-btn {
-            background: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            padding: 6px 14px;
+            border-radius: 20px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
+        .action-btn-compact:hover { background-color: #e4e6eb; color: #1c1e21; }
+        .action-btn-compact.liked { color: #0866ff; background-color: #e7f3ff; }
+        .action-btn-compact.disliked { color: #dc2626; background-color: #fef2f2; }
 
-        .post-footer {
-            display: flex;
-            gap: 15px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 0.75rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
+        /* Style Bình luận Facebook */
+        .comment-bubble {
+            background-color: #f0f2f5;
+            border-radius: 16px;
+            padding: 8px 14px;
+            display: inline-block;
+            max-width: 100%;
+            word-break: break-word;
         }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.1s ease;
-        }
-
-        .action-btn:hover, .action-btn.active {
-            color: var(--primary-color);
-        }
-
-        /* Modal Bình luận */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            padding: 1rem;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        .comment-item {
-            margin-bottom: 0.75rem;
-            padding: 10px;
-            background: #0f172a;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .comment-reply {
-            margin-left: 20px;
-            border-left: 2px solid var(--border-color);
+        .reply-indent {
+            margin-left: 38px;
+            border-left: 2px solid #e5e7eb;
             padding-left: 10px;
-            margin-top: 6px;
+            margin-top: 8px;
+        }
+        .btn-reply {
+            border: none;
+            background: transparent;
+            font-size: 11px;
+            font-weight: bold;
+            color: #65676b;
+            padding: 0 6px;
+            cursor: pointer;
+        }
+        .btn-reply:hover { text-decoration: underline; color: #0866ff; }
+
+        .file-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">TNT MemeForge Studio</div>
-        <div class="server-status">
-            <div class="status-dot"></div>
-            <span id="server-status-text">Đang kết nối Server...</span>
-        </div>
-    </header>
+    <div class="version-tag">
+        <span class="dot-status green" id="footerDot"></span> Phiên bản v2.5.0 (Full Features)
+    </div>
 
-    <div class="container">
-        <!-- Khung đăng bài -->
-        <div class="post-box">
-            <input type="text" id="post-author" placeholder="Tên của bạn (hoặc biệt danh)...">
-            <textarea id="post-content" placeholder="Bạn đang nghĩ gì về game hoặc dự án sắp tới?"></textarea>
-            <div class="post-actions">
-                <label class="file-upload-label">
-                    <i class="fa-solid fa-paperclip"></i> Đính kèm tệp (Max 23MB)
-                    <input type="file" id="post-file" style="display: none;" onchange="handleFileSelect(event)">
-                </label>
-                <button class="btn" onclick="submitPost()">Đăng bài</button>
+    <div class="container main-container">
+        <!-- Smart Header -->
+        <div class="sticky-header-wrapper" id="smartHeader">
+            <div class="app-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="logo-box">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark" style="font-size: 17px;">Góc Chia Sẻ Tài Liệu</h5>
+                        <span class="text-muted small">Hệ thống lưu trữ trực tuyến</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-primary rounded-pill px-3 fw-medium" data-bs-toggle="modal" data-bs-target="#postModal">
+                        <i class="fa-solid fa-plus me-1"></i> Đăng bài mới
+                    </button>
+                    <button class="btn btn-gear" title="Cài đặt" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
             </div>
-            <div id="file-info" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;"></div>
         </div>
 
-        <!-- Danh sách bài viết -->
-        <div id="posts-container">
-            <!-- Render bài viết tự động -->
+        <div class="info-card d-flex justify-content-between align-items-center my-3">
+            <div>
+                <h6 class="fw-bold mb-1 text-dark">Dòng thời gian & Tài liệu</h6>
+                <small class="text-muted">Tự động cập nhật thời gian thực.</small>
+            </div>
+            <span class="status-badge green" id="headerStatusBadge">
+                <span class="dot-status green"></span> Hoạt động mượt mà
+            </span>
+        </div>
+
+        <div id="postsList">
+            <div class="text-center py-5 text-muted" id="loadingIndicator">
+                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải dữ liệu...
+            </div>
         </div>
     </div>
 
-    <!-- Modal Bình luận -->
-    <div id="comment-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Bình luận</h3>
-                <button class="action-btn" onclick="closeCommentModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body" id="modal-comments-list">
-                <!-- Nội dung bình luận hiển thị ở đây -->
-            </div>
-            <div style="padding: 1rem; border-top: 1px solid var(--border-color);">
-                <input type="text" id="comment-author" placeholder="Tên của bạn..." style="width: 100%; padding: 8px; margin-bottom: 8px; background: #0f172a; border: 1px solid var(--border-color); color: white; border-radius: 6px;">
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="comment-input" placeholder="Viết bình luận..." style="flex-grow: 1; padding: 8px; background: #0f172a; border: 1px solid var(--border-color); color: white; border-radius: 6px;">
-                    <button class="btn" onclick="submitComment()">Gửi</button>
+    <!-- Modal Đăng Bài -->
+    <div class="modal fade" id="postModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Đăng bài mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-medium text-muted">Tên người đăng</label>
+                        <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-medium text-muted">Nội dung bài viết</label>
+                        <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc dán link tài liệu..."></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-medium text-muted"><i class="fa-solid fa-paperclip me-1"></i> Tệp đính kèm tài liệu (Tùy chọn)</label>
+                        <input type="file" id="fileInput" class="form-control rounded-3" style="font-size: 13px;">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4" id="btnSubmitPost" onclick="submitPost()">Đăng bài</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Cài Đặt -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Cài đặt hệ thống</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <div class="mb-3 p-3 bg-light rounded-3">
+                        <h6 class="fw-bold mb-2 text-dark small"><i class="fa-solid fa-circle-info me-1 text-primary"></i> Thông tin dự án</h6>
+                        <div class="small text-muted mb-1">Thương hiệu: <strong>TNT MEMEFORGE STUDIO</strong></div>
+                        <div class="small text-muted mb-2">Phiên bản: <strong>v2.5.0 (Build 2026)</strong></div>
+                        <div class="small text-muted d-flex align-items-center gap-2">
+                            Trạng thái Server: 
+                            <span class="status-badge green" id="settingsStatusBadge">
+                                <span class="dot-status green"></span> Hoạt động mượt mà
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-secondary">Ngôn ngữ dịch tự động</label>
+                        <div class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between">
+                            <span class="small text-muted"><i class="fa-solid fa-language me-2"></i>Chọn ngôn ngữ</span>
+                            <div id="google_translate_element"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng Modal Bình Luận (Chuẩn Facebook) -->
+    <div class="modal fade" id="commentsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header border-bottom py-3">
+                    <h6 class="modal-title fw-bold text-center w-100 mb-0">Bài viết của <span id="cmtPostAuthor">...</span></h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" style="max-height: 75vh; overflow-y: auto;">
+                    <!-- Chi tiết bài viết gốc -->
+                    <div class="p-3 border-bottom bg-white" id="modalPostPreview"></div>
+
+                    <!-- Danh sách bình luận -->
+                    <div class="p-3 bg-light" id="commentsListContainer" style="min-height: 150px;">
+                        <div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div> Đang tải bình luận...</div>
+                    </div>
+                </div>
+
+                <!-- Khung gửi bình luận -->
+                <div class="modal-footer p-3 bg-white border-top flex-column align-items-stretch">
+                    <div id="replyingToBar" class="d-none alert alert-secondary py-1 px-3 mb-2 small d-flex justify-content-between align-items-center rounded-pill">
+                        <span>Đang trả lời <strong id="replyingAuthor">...</strong></span>
+                        <button type="button" class="btn-close ms-2" style="font-size: 10px;" onclick="cancelReply()"></button>
+                    </div>
+
+                    <div class="d-flex gap-2 mb-2">
+                        <input type="text" id="cmtAuthorInput" class="form-control form-control-sm rounded-pill" placeholder="Tên bạn..." style="max-width: 160px;">
+                        <input type="text" id="cmtContentInput" class="form-control form-control-sm rounded-pill" placeholder="Viết bình luận..." onkeypress="handleCmtKeyPress(event)">
+                        <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="submitComment()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xóa Bài Viết -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                <div class="modal-body text-center p-4">
+                    <div class="text-danger mb-3" style="font-size: 42px;">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Xóa bài viết này?</h6>
+                    <p class="text-muted small mb-4">Hành động này không thể khôi phục sau khi xóa.</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="button" class="btn btn-danger rounded-pill px-4" onclick="confirmDeletePost()">Xóa ngay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000/api';
-        const MAX_FILE_SIZE = 23 * 1024 * 1024; // 23MB Limit
+        let selectedPostIdToDelete = null;
+        let activePostIdForComments = null;
+        let activeReplyParentId = null;
+        let lastScrollTop = 0;
+        const smartHeader = document.getElementById('smartHeader');
 
-        let authorToken = localStorage.getItem('tnt_author_token');
-        if (!authorToken) {
-            authorToken = 'token_' + Math.random().toString(36).substring(2, 15);
-            localStorage.setItem('tnt_author_token', authorToken);
+        // TÍCH VÀNG HOA THỊ CỰC CHUẨN
+        const goldTickSVG = `
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" title="Xác minh chính chủ VIP" style="vertical-align: sub; margin-left: 3px;">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C12.5641 2 13.1116 2.2323 13.5065 2.63806L14.6543 3.81735C14.9082 4.07823 15.2536 4.22108 15.6112 4.21303L17.2281 4.17658C17.7844 4.16403 18.3216 4.38575 18.7058 4.78651C19.09 5.18728 19.2905 5.73391 19.2573 6.29045L19.161 7.90425C19.1397 8.26127 19.2638 8.61254 19.505 8.87788L20.5959 10.0782C20.971 10.491 21.1687 11.0384 21.1396 11.5839C21.1105 12.1295 20.857 12.6288 20.4428 12.9575L19.2415 13.9109C18.9757 14.1217 18.8028 14.4367 18.7623 14.7836L18.5792 16.3533C18.5162 16.892 18.2324 17.3828 17.7983 17.7028C17.3643 18.0227 16.8143 18.1453 16.2863 18.0396L14.7548 17.7329C14.416 17.6651 14.0628 17.747 13.7885 17.9572L12.5473 18.9082C12.1199 19.2356 11.5746 19.3705 11.047 19.2792C10.5195 19.188 10.0521 18.8781 9.76237 18.4282L8.92211 17.1235C8.73623 16.8349 8.42398 16.6385 8.06733 16.5855L6.45268 16.3458C5.89736 16.2633 5.40578 15.9455 5.1017 15.4722C4.79761 14.9989 4.70588 14.4087 4.84955 13.849L5.26615 12.2223C5.35833 11.8624 5.28189 11.4795 5.05436 11.1714L4.02506 9.77663C3.67137 9.29707 3.58288 8.68114 3.78168 8.1221C3.98048 7.56306 4.44976 7.10842 5.02283 6.87227L6.68536 6.18735C7.05318 6.03583 7.33833 5.73693 7.46827 5.36868L8.05602 3.70119C8.25813 3.12781 8.73516 2.68266 9.31707 2.47805C9.89899 2.27344 10.5376 2.32712 11.0732 2.62024L12 2Z" fill="#F59E0B"/>
+                <path d="M9.5 11.8L11.2 13.5L15 9.7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                smartHeader.classList.add('header-hidden');
+            } else {
+                smartHeader.classList.remove('header-hidden');
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, false);
+
+        function getAuthorToken() {
+            let token = localStorage.getItem('authorToken');
+            if (!token) {
+                token = 'user_' + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('authorToken', token);
+            }
+            return token;
         }
 
-        let postsData = []; // Lưu danh sách bài viết cục bộ để tối ưu Optimistic UI
-        let currentPostComments = []; // Dữ liệu bình luận cho post đang mở
-        let selectedFile = null;
-        let currentPostIdForComment = null;
-        let currentReplyParentId = null;
-
-        window.onload = () => {
-            checkServerStatus();
-            loadPosts();
-            setInterval(loadPosts, 5000); // Đồng bộ bài viết định kỳ
-        };
-
-        async function checkServerStatus() {
+        async function checkServerHealth() {
             try {
-                const res = await fetch(`${API_URL}/health`);
+                const res = await fetch('/api/health');
                 const data = await res.json();
-                document.getElementById('server-status-text').innerText = data.message;
-            } catch (err) {
-                document.getElementById('server-status-text').innerText = 'Mất kết nối Server';
-                document.querySelector('.status-dot').style.backgroundColor = '#ef4444';
-            }
-        }
+                
+                const headerBadge = document.getElementById('headerStatusBadge');
+                const settingsBadge = document.getElementById('settingsStatusBadge');
+                const footerDot = document.getElementById('footerDot');
 
-        // 1. XỬ LÝ FILE UPLOAD (GIỚI HẠN 23MB)
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+                const statusClass = data.status;
+                const htmlContent = `<span class="dot-status ${statusClass}"></span> ${data.message}`;
 
-            if (file.size > MAX_FILE_SIZE) {
-                alert('Tệp quá lớn! Vui lòng đính kèm tệp nhỏ hơn 23MB.');
-                event.target.value = '';
-                document.getElementById('file-info').innerText = '';
-                selectedFile = null;
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedFile = {
-                    fileData: e.target.result,
-                    fileName: file.name,
-                    fileSize: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
-                    fileType: file.type
-                };
-                document.getElementById('file-info').innerText = `Đã đính kèm: ${file.name} (${selectedFile.fileSize})`;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // TẢI BÀI VIẾT TỪ SERVER
-        async function loadPosts() {
-            try {
-                const res = await fetch(`${API_URL}/posts`, {
-                    headers: { 'x-author-token': authorToken }
-                });
-                if (res.ok) {
-                    postsData = await res.json();
-                    renderPostsUI();
+                if (headerBadge) {
+                    headerBadge.className = `status-badge ${statusClass}`;
+                    headerBadge.innerHTML = htmlContent;
                 }
-            } catch (err) {
-                console.error('Lỗi tải bài viết:', err);
-            }
+                if (settingsBadge) {
+                    settingsBadge.className = `status-badge ${statusClass}`;
+                    settingsBadge.innerHTML = htmlContent;
+                }
+                if (footerDot) {
+                    footerDot.className = `dot-status ${statusClass}`;
+                }
+            } catch (err) {}
         }
 
-        function renderPostsUI() {
-            const container = document.getElementById('posts-container');
-            if (postsData.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Chưa có bài viết nào.</p>';
-                return;
-            }
+        function getAvatarColor(name) {
+            const colors = ['#0d6efd', '#6f42c1', '#d63384', '#fd7e14', '#198754', '#20c997', '#0dcaf0'];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            return colors[Math.abs(hash) % colors.length];
+        }
 
-            container.innerHTML = postsData.map(post => `
-                <div class="post-card" id="post-${post._id}">
-                    <div class="post-header">
-                        <div class="author-info">
-                            <div class="avatar ${post.isVip ? 'vip' : ''}">${post.author ? post.author.charAt(0).toUpperCase() : 'A'}</div>
-                            <div>
-                                <div class="author-name">${post.author} ${post.isVip ? '⭐' : ''}</div>
-                                <div class="post-time">${new Date(post.createdAt).toLocaleTimeString()} - ${new Date(post.createdAt).toLocaleDateString()}</div>
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function formatContent(str) {
+            const escaped = escapeHtml(str);
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return escaped.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-underline">${url}</a>`;
+            });
+        }
+
+        async function loadPosts() {
+            const container = document.getElementById('postsList');
+            try {
+                const res = await fetch('/api/posts', {
+                    headers: { 'x-author-token': getAuthorToken() }
+                });
+                if (!res.ok) throw new Error("Server error");
+                const posts = await res.json();
+
+                if (posts.length === 0) {
+                    container.innerHTML = `<div class="text-center py-5 text-muted">Chưa có bài viết nào.</div>`;
+                    return;
+                }
+
+                const postsHtml = posts.map(post => {
+                    const isOwner = Boolean(post.isOwner);
+                    const isVip = Boolean(post.isVip);
+                    const authorName = (post.author || 'Ẩn danh').trim();
+                    const firstChar = authorName.charAt(0).toUpperCase();
+
+                    const avatarClass = isVip ? 'avatar-circle avatar-gold-glossy' : 'avatar-circle';
+                    const avatarBg = isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
+
+                    let fileAttachmentHtml = '';
+                    if (post.fileData && post.fileName) {
+                        fileAttachmentHtml = `
+                            <div class="file-box my-3 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                    <i class="fa-solid fa-file-arrow-down text-primary fs-4"></i>
+                                    <div class="text-truncate">
+                                        <div class="fw-bold text-dark small text-truncate">${escapeHtml(post.fileName)}</div>
+                                        <small class="text-muted" style="font-size: 11px;">${post.fileSize || 'Tệp đính kèm'}</small>
+                                    </div>
+                                </div>
+                                <a href="${post.fileData}" download="${escapeHtml(post.fileName)}" class="btn btn-sm btn-primary rounded-pill px-3 ms-2 text-nowrap">
+                                    <i class="fa-solid fa-download me-1"></i> Tải về
+                                </a>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="post-card ${isVip ? 'vip-card' : ''}">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="${avatarClass}" style="${avatarBg}">
+                                        ${firstChar}
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center">
+                                            <strong class="text-dark me-1" style="font-size: 15px;">${escapeHtml(authorName)}</strong>
+                                            ${isVip ? goldTickSVG : ''}
+                                        </div>
+                                        <small class="text-muted" style="font-size: 11px;">${new Date(post.createdAt || Date.now()).toLocaleString('vi-VN')}</small>
+                                    </div>
+                                </div>
+                                
+                                ${isOwner ? `
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-0 dropdown-toggle" data-bs-toggle="dropdown">
+                                            <i class="fa-solid fa-ellipsis"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 10px;">
+                                            <li><a class="dropdown-item text-danger small" href="#" onclick="openDeleteModal('${post._id}')"><i class="fa-solid fa-trash me-2"></i>Xóa bài viết</a></li>
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="text-secondary post-content mb-2">${formatContent(post.content || '')}</div>
+
+                            ${fileAttachmentHtml}
+
+                            <!-- NÚT TƯƠNG TÁC TỐI ƯU GỌN ĐẸP -->
+                            <div class="d-flex align-items-center gap-2 pt-2 border-top border-light mt-2">
+                                <button class="action-btn-compact ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post._id}')" title="Thích">
+                                    <i class="${post.hasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
+                                    <span>${post.likes || 0}</span>
+                                </button>
+
+                                <button class="action-btn-compact ${post.hasDisliked ? 'disliked' : ''}" onclick="toggleDislike('${post._id}')" title="Phản đối">
+                                    <i class="${post.hasDisliked ? 'fa-solid' : 'fa-regular'} fa-thumbs-down"></i>
+                                    <span>${post.dislikes || 0}</span>
+                                </button>
+
+                                <button class="action-btn-compact" onclick="openCommentsModal('${post._id}')" title="Bình luận">
+                                    <i class="fa-regular fa-comment"></i>
+                                    <span>${post.commentCount || 0}</span>
+                                </button>
                             </div>
                         </div>
-                        ${post.isOwner ? `<button class="action-btn" onclick="deletePost('${post._id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    </div>
-                    <div class="post-content">${post.content}</div>
-                    ${post.fileName ? `
-                        <div class="post-file-preview">
-                            <span><i class="fa-solid fa-file"></i> <strong>${post.fileName}</strong> (${post.fileSize || 'N/A'})</span>
-                            <a href="${post.fileData}" download="${post.fileName}" class="file-download-btn">
-                                <i class="fa-solid fa-download"></i> Tải về
-                            </a>
-                        </div>
-                    ` : ''}
-                    <div class="post-footer">
-                        <button class="action-btn ${post.hasLiked ? 'active' : ''}" onclick="toggleLike('${post._id}')">
-                            <i class="fa-solid fa-thumbs-up"></i> <span class="like-count">${post.likes || 0}</span>
-                        </button>
-                        <button class="action-btn ${post.hasDisliked ? 'active' : ''}" onclick="toggleDislike('${post._id}')">
-                            <i class="fa-solid fa-thumbs-down"></i> <span class="dislike-count">${post.dislikes || 0}</span>
-                        </button>
-                        <button class="action-btn" onclick="openCommentModal('${post._id}')">
-                            <i class="fa-solid fa-comment"></i> <span class="comment-count">${post.commentCount || 0}</span> Bình luận
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('');
+
+                container.innerHTML = postsHtml;
+            } catch (err) {
+                container.innerHTML = `<div class="text-center py-4 bg-white rounded-4 shadow-sm text-danger">Không thể tải dữ liệu.</div>`;
+            }
         }
 
-        // 2. OPTIMISTIC UI: LIKE & DISLIKE PHẢN HỒI LẬP TỨC 0.01s
         async function toggleLike(postId) {
-            const post = postsData.find(p => p._id === postId);
-            if (!post) return;
-
-            // Xử lý tức thì trên giao diện (Optimistic Update)
-            if (post.hasLiked) {
-                post.hasLiked = false;
-                post.likes = Math.max(0, (post.likes || 0) - 1);
-            } else {
-                post.hasLiked = true;
-                post.likes = (post.likes || 0) + 1;
-                if (post.hasDisliked) {
-                    post.hasDisliked = false;
-                    post.dislikes = Math.max(0, (post.dislikes || 0) - 1);
-                }
-            }
-            renderPostsUI(); // Cập nhật DOM tức thì
-
-            // Gửi request ngầm về Server
             try {
-                await fetch(`${API_URL}/posts/${postId}/like`, {
+                await fetch(`/api/posts/${postId}/like`, {
                     method: 'POST',
-                    headers: { 'x-author-token': authorToken }
+                    headers: { 'x-author-token': getAuthorToken() }
                 });
-            } catch (err) {
-                console.error('Lỗi đồng bộ Like với server');
-            }
+                loadPosts();
+                if (activePostIdForComments === postId) fetchAndRenderComments(postId);
+            } catch (err) {}
         }
 
         async function toggleDislike(postId) {
-            const post = postsData.find(p => p._id === postId);
-            if (!post) return;
-
-            // Xử lý tức thì trên giao diện (Optimistic Update)
-            if (post.hasDisliked) {
-                post.hasDisliked = false;
-                post.dislikes = Math.max(0, (post.dislikes || 0) - 1);
-            } else {
-                post.hasDisliked = true;
-                post.dislikes = (post.dislikes || 0) + 1;
-                if (post.hasLiked) {
-                    post.hasLiked = false;
-                    post.likes = Math.max(0, (post.likes || 0) - 1);
-                }
-            }
-            renderPostsUI(); // Cập nhật DOM tức thì
-
-            // Gửi request ngầm về Server
             try {
-                await fetch(`${API_URL}/posts/${postId}/dislike`, {
+                await fetch(`/api/posts/${postId}/dislike`, {
                     method: 'POST',
-                    headers: { 'x-author-token': authorToken }
+                    headers: { 'x-author-token': getAuthorToken() }
                 });
-            } catch (err) {
-                console.error('Lỗi đồng bộ Dislike với server');
-            }
+                loadPosts();
+                if (activePostIdForComments === postId) fetchAndRenderComments(postId);
+            } catch (err) {}
         }
 
-        // ĐĂNG BÀI VIẾT
-        async function submitPost() {
-            const author = document.getElementById('post-author').value.trim() || 'Ẩn danh';
-            const content = document.getElementById('post-content').value.trim();
-
-            if (!content && !selectedFile) {
-                alert('Vui lòng nhập nội dung hoặc đính kèm tệp!');
-                return;
-            }
-
-            const payload = {
-                author,
-                content,
-                authorToken,
-                ...(selectedFile || {})
-            };
-
-            try {
-                const res = await fetch(`${API_URL}/posts`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    document.getElementById('post-content').value = '';
-                    document.getElementById('post-file').value = '';
-                    document.getElementById('file-info').innerText = '';
-                    selectedFile = null;
-                    loadPosts();
-                }
-            } catch (err) {
-                alert('Không thể đăng bài');
-            }
+        /* --- XỬ LÝ BÌNH LUẬN GIỐNG FACEBOOK --- */
+        async function openCommentsModal(postId) {
+            activePostIdForComments = postId;
+            cancelReply();
+            const modal = new bootstrap.Modal(document.getElementById('commentsModal'));
+            modal.show();
+            await fetchAndRenderComments(postId);
         }
 
-        async function deletePost(postId) {
-            if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
-            try {
-                const res = await fetch(`${API_URL}/posts/${postId}`, {
-                    method: 'DELETE',
-                    headers: { 'x-author-token': authorToken }
-                });
-                if (res.ok) loadPosts();
-            } catch (err) {
-                alert('Không thể xóa bài viết');
-            }
-        }
-
-        // 3. FIX TRIỆT ĐỂ LỖI RÒ RỈ BÌNH LUẬN GIỮA BÀI 1 VÀ BÀI 2
-        async function openCommentModal(postId) {
-            // Reset hoàn toàn trạng thái cũ trước khi mở Modal mới
-            currentPostIdForComment = postId;
-            currentReplyParentId = null;
-            currentPostComments = [];
+        async function fetchAndRenderComments(postId) {
+            const container = document.getElementById('commentsListContainer');
+            const previewBox = document.getElementById('modalPostPreview');
             
-            // Dọn sạch DOM danh sách bình luận cũ ngay lập tức
-            const listEl = document.getElementById('modal-comments-list');
-            listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Đang tải bình luận...</p>';
-            
-            document.getElementById('comment-input').value = '';
-            document.getElementById('comment-input').placeholder = 'Viết bình luận...';
-            document.getElementById('comment-modal').style.display = 'flex';
-
-            await loadComments(postId);
-        }
-
-        function closeCommentModal() {
-            document.getElementById('comment-modal').style.display = 'none';
-            currentPostIdForComment = null;
-            currentReplyParentId = null;
-            currentPostComments = [];
-            document.getElementById('modal-comments-list').innerHTML = ''; // Cô lập hoàn toàn
-        }
-
-        async function loadComments(postId) {
             try {
-                const res = await fetch(`${API_URL}/posts/${postId}/comments`, {
-                    headers: { 'x-author-token': authorToken }
+                const res = await fetch(`/api/posts/${postId}/comments`, {
+                    headers: { 'x-author-token': getAuthorToken() }
                 });
-                
-                // Đảm bảo request trả về đúng bài viết hiện tại đang mở
-                if (res.ok && currentPostIdForComment === postId) {
-                    const data = await res.json();
-                    currentPostComments = data.comments || [];
-                    renderCommentsUI();
-                }
-            } catch (err) {
-                console.error('Lỗi tải bình luận:', err);
-            }
-        }
+                const data = await res.json();
+                const post = data.post;
+                const comments = data.comments;
 
-        function renderCommentsUI() {
-            const listEl = document.getElementById('modal-comments-list');
-            if (currentPostComments.length === 0) {
-                listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Chưa có bình luận nào.</p>';
-                return;
-            }
+                document.getElementById('cmtPostAuthor').innerText = post.author || 'Ẩn danh';
 
-            const rootComments = currentPostComments.filter(c => !c.parentId);
-            listEl.innerHTML = rootComments.map(c => renderCommentNode(c)).join('');
-        }
-
-        function renderCommentNode(comment) {
-            const replies = currentPostComments.filter(c => c.parentId === comment._id);
-            return `
-                <div class="comment-item">
-                    <strong>${comment.author}</strong>: ${comment.content}
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-                        <button class="action-btn" style="display:inline;" onclick="setReplyParent('${comment._id}', '${comment.author}')">Trả lời</button>
+                // Render lại bài đăng phía trên modal
+                previewBox.innerHTML = `
+                    <div class="fw-bold text-dark small mb-1">${escapeHtml(post.author)} ${post.isVip ? goldTickSVG : ''}</div>
+                    <div class="small text-secondary mb-2">${formatContent(post.content)}</div>
+                    <div class="d-flex gap-2">
+                        <small class="text-muted"><i class="fa-regular fa-thumbs-up me-1"></i>${post.likes || 0}</small>
+                        <small class="text-muted"><i class="fa-regular fa-thumbs-down me-1"></i>${post.dislikes || 0}</small>
+                        <small class="text-muted"><i class="fa-regular fa-comment me-1"></i>${comments.length}</small>
                     </div>
-                    ${replies.map(r => `
-                        <div class="comment-reply">
-                            <strong>${r.author}</strong>:${r.content}
+                `;
+
+                if (comments.length === 0) {
+                    container.innerHTML = `<div class="text-center py-4 text-muted small">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
+                    return;
+                }
+
+                // Phân loại bình luận gốc & phản hồi
+                const rootComments = comments.filter(c => !c.parentId);
+                const repliesMap = {};
+                comments.forEach(c => {
+                    if (c.parentId) {
+                        if (!repliesMap[c.parentId]) repliesMap[c.parentId] = [];
+                        repliesMap[c.parentId].push(c);
+                    }
+                });
+
+                function buildCmtHtml(cmt, isReply = false) {
+                    const authorName = escapeHtml(cmt.author || 'Ẩn danh');
+                    const firstChar = authorName.charAt(0).toUpperCase();
+                    const avatarClass = cmt.isVip ? 'avatar-circle avatar-circle-sm avatar-gold-glossy' : 'avatar-circle avatar-circle-sm';
+                    const avatarBg = cmt.isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
+
+                    return `
+                        <div class="d-flex gap-2 mb-2 ${isReply ? 'reply-indent' : ''}">
+                            <div class="${avatarClass}" style="${avatarBg}">${firstChar}</div>
+                            <div class="flex-grow-1">
+                                <div class="comment-bubble">
+                                    <strong class="small text-dark d-block">${authorName} ${cmt.isVip ? goldTickSVG : ''}</strong>
+                                    <span class="small text-secondary">${escapeHtml(cmt.content)}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-1 px-1">
+                                    <small class="text-muted" style="font-size: 10px;">${new Date(cmt.createdAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</small>
+                                    
+                                    <button class="action-btn-compact py-0 px-2 ${cmt.hasLiked ? 'liked' : ''}" style="font-size: 11px;" onclick="toggleCmtLike('${cmt._id}')">
+                                        <i class="fa-thumbs-up ${cmt.hasLiked ? 'fa-solid' : 'fa-regular'}"></i> ${cmt.likes || ''}
+                                    </button>
+
+                                    <button class="action-btn-compact py-0 px-2 ${cmt.hasDisliked ? 'disliked' : ''}" style="font-size: 11px;" onclick="toggleCmtDislike('${cmt._id}')">
+                                        <i class="fa-thumbs-down ${cmt.hasDisliked ? 'fa-solid' : 'fa-regular'}"></i> ${cmt.dislikes || ''}
+                                    </button>
+
+                                    <button class="btn-reply" onclick="replyToComment('${cmt._id}', '${authorName}')">Trả lời</button>
+                                </div>
+                                ${(repliesMap[cmt._id] || []).map(r => buildCmtHtml(r, true)).join('')}
+                            </div>
                         </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+                    `;
+                }
 
-        function setReplyParent(parentId, authorName) {
-            currentReplyParentId = parentId;
-            const input = document.getElementById('comment-input');
-            input.placeholder = `Đang trả lời @${authorName}...`;
-            input.focus();
-        }
-
-        // 4. OPTIMISTIC UI: ĐĂNG BÌNH LUẬN HIỂN THỊ NGAY 0.01s
-        async function submitComment() {
-            if (!currentPostIdForComment) return;
-
-            const authorInput = document.getElementById('comment-author');
-            const contentInput = document.getElementById('comment-input');
-            const author = authorInput.value.trim() || 'Ẩn danh';
-            const content = contentInput.value.trim();
-
-            if (!content) return;
-
-            const tempComment = {
-                _id: 'temp_' + Date.now(),
-                postId: currentPostIdForComment,
-                author: author,
-                content: content,
-                parentId: currentReplyParentId,
-                createdAt: new Date().toISOString()
-            };
-
-            // Hiển thị bình luận ngay trên Modal lập tức
-            currentPostComments.push(tempComment);
-            renderCommentsUI();
-
-            // Cập nhật số lượng bình luận trên thẻ bài viết lập tức
-            const post = postsData.find(p => p._id === currentPostIdForComment);
-            if (post) {
-                post.commentCount = (post.commentCount || 0) + 1;
-                renderPostsUI();
+                container.innerHTML = rootComments.map(c => buildCmtHtml(c)).join('');
+            } catch (err) {
+                container.innerHTML = `<div class="text-center py-3 text-danger small">Không thể tải bình luận.</div>`;
             }
+        }
 
-            // Reset ô nhập liệu ngay lập tức
-            contentInput.value = '';
-            contentInput.placeholder = 'Viết bình luận...';
-            const parentIdToSend = currentReplyParentId;
-            currentReplyParentId = null;
+        function replyToComment(cmtId, authorName) {
+            activeReplyParentId = cmtId;
+            document.getElementById('replyingAuthor').innerText = authorName;
+            document.getElementById('replyingToBar').classList.remove('d-none');
+            document.getElementById('cmtContentInput').focus();
+        }
 
-            // Gửi dữ liệu về Server ngầm
+        function cancelReply() {
+            activeReplyParentId = null;
+            document.getElementById('replyingToBar').classList.add('d-none');
+        }
+
+        function handleCmtKeyPress(e) {
+            if (e.key === 'Enter') submitComment();
+        }
+
+        async function submitComment() {
+            const author = document.getElementById('cmtAuthorInput').value.trim();
+            const content = document.getElementById('cmtContentInput').value.trim();
+            if (!content || !activePostIdForComments) return;
+
             try {
-                await fetch(`${API_URL}/posts/${currentPostIdForComment}/comments`, {
+                const res = await fetch(`/api/posts/${activePostIdForComments}/comments`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        author,
+                        author: author || 'Ẩn danh',
                         content,
-                        parentId: parentIdToSend,
-                        authorToken
+                        parentId: activeReplyParentId,
+                        authorToken: getAuthorToken()
                     })
                 });
-                // Đồng bộ lại ID chính thức từ DB
-                loadComments(currentPostIdForComment);
+
+                if (res.ok) {
+                    document.getElementById('cmtContentInput').value = '';
+                    cancelReply();
+                    fetchAndRenderComments(activePostIdForComments);
+                    loadPosts();
+                }
+            } catch (err) {}
+        }
+
+        async function toggleCmtLike(commentId) {
+            try {
+                await fetch(`/api/posts/${activePostIdForComments}/comments/${commentId}/like`, {
+                    method: 'POST',
+                    headers: { 'x-author-token': getAuthorToken() }
+                });
+                fetchAndRenderComments(activePostIdForComments);
+            } catch (err) {}
+        }
+
+        async function toggleCmtDislike(commentId) {
+            try {
+                await fetch(`/api/posts/${activePostIdForComments}/comments/${commentId}/dislike`, {
+                    method: 'POST',
+                    headers: { 'x-author-token': getAuthorToken() }
+                });
+                fetchAndRenderComments(activePostIdForComments);
+            } catch (err) {}
+        }
+
+        async function submitPost() {
+            const author = document.getElementById('authorInput').value.trim();
+            const content = document.getElementById('contentInput').value.trim();
+            const fileInput = document.getElementById('fileInput');
+            const submitBtn = document.getElementById('btnSubmitPost');
+
+            if (!content && fileInput.files.length === 0) {
+                alert("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
+                return;
+            }
+
+            let fileData = '', fileName = '', fileSize = '', fileType = '';
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileName = file.name;
+                fileType = file.type;
+                fileSize = (file.size / 1024 > 1024) 
+                    ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' 
+                    : (file.size / 1024).toFixed(1) + ' KB';
+
+                fileData = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `Đang đăng...`;
+
+            try {
+                const res = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        author: author || 'Ẩn danh',
+                        content,
+                        authorToken: getAuthorToken(),
+                        fileData, fileName, fileSize, fileType
+                    })
+                });
+
+                if (res.ok) {
+                    document.getElementById('contentInput').value = '';
+                    document.getElementById('authorInput').value = '';
+                    fileInput.value = '';
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('postModal'));
+                    if (modal) modal.hide();
+                    loadPosts();
+                }
             } catch (err) {
-                console.error('Lỗi khi gửi bình luận');
+                alert("Lỗi máy chủ!");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Đăng bài`;
             }
         }
+
+        function openDeleteModal(id) {
+            selectedPostIdToDelete = id;
+            new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
+        }
+
+        async function confirmDeletePost() {
+            if (!selectedPostIdToDelete) return;
+            try {
+                const res = await fetch(`/api/posts/${selectedPostIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: { 'x-author-token': getAuthorToken() }
+                });
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                if (modal) modal.hide();
+
+                if (res.ok) loadPosts();
+            } catch (err) {}
+        }
+
+        loadPosts();
+        checkServerHealth();
+        setInterval(loadPosts, 5000);
+        setInterval(checkServerHealth, 10000);
     </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'vi', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
