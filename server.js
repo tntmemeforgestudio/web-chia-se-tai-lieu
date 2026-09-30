@@ -2,24 +2,27 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const os = require('os');
+const { Readable } = require('stream');
+
 const app = express();
 
+// Tăng giới hạn payload để xử lý dữ liệu đính kèm Base64
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ limit: '25mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Kết nối MongoDB Cloud
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sharedb')
-.then(() => console.log("Đã kết nối MongoDB thành công!"))
-.catch(err => console.error("Lỗi kết nối MongoDB:", err));
+  .then(() => console.log("Đã kết nối MongoDB thành công!"))
+  .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 
-// Schema Bình luận (Hỗ trợ phản hồi thụt lề & Like/Dislike)
+// Schema Bình luận
 const commentSchema = new mongoose.Schema({
     author: String,
     content: String,
     authorToken: String,
     isVip: Boolean,
-    parentId: { type: String, default: null }, // Nếu là trả lời bình luận khác
+    parentId: { type: String, default: null },
     likes: { type: Number, default: 0 },
     likedBy: [String],
     dislikes: { type: Number, default: 0 },
@@ -33,7 +36,7 @@ const postSchema = new mongoose.Schema({
     content: String,
     authorToken: String,
     isVip: Boolean,
-    fileData: String,
+    fileData: String, // Lưu dữ liệu Base64
     fileName: String,
     fileSize: String,
     fileType: String,
@@ -47,10 +50,10 @@ const postSchema = new mongoose.Schema({
 
 const Post = mongoose.model('Post', postSchema);
 
-// Tác giả chính chủ có Tích Vàng
+// Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// API Giám sát Server (Xanh / Vàng / Đỏ)
+// API Giám sát Server
 app.get('/api/health', (req, res) => {
     try {
         const isDbConnected = mongoose.connection.readyState === 1;
@@ -78,11 +81,11 @@ app.get('/api/health', (req, res) => {
     }
 });
 
-// API Lấy danh sách bài viết
+// API Lấy danh sách bài viết (Loại bỏ fileData nặng để tối ưu tốc độ tải Feed)
 app.get('/api/posts', async (req, res) => {
     try {
         const clientToken = req.headers['x-author-token'] || '';
-        const posts = await Post.find().sort({ createdAt: -1 }).limit(100).lean();
+        const posts = await Post.find().select('-fileData').sort({ createdAt: -1 }).limit(100).lean();
 
         const safePosts = posts.map(post => {
             const authorLower = (post.author || '').trim().toLowerCase();
@@ -93,7 +96,7 @@ app.get('/api/posts', async (req, res) => {
                 author: post.author,
                 content: post.content,
                 isVip,
-                fileData: post.fileData || null,
+                hasFile: Boolean(post.fileName),
                 fileName: post.fileName || null,
                 fileSize: post.fileSize || null,
                 fileType: post.fileType || null,
@@ -113,7 +116,29 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Đăng bài
+// API Download Tệp đính kèm (Stream trực tiếp từ Base64)
+app.get('/api/posts/:id/download', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id).select('fileData fileName fileType');
+        if (!post || !post.fileData) {
+            return res.status(404).send('Không tìm thấy tệp đính kèm');
+        }
+
+        const base64Data = post.fileData.replace(/^data:.*;base64,/, "");
+        const fileBuffer = Buffer.from(base64Data, 'base64');
+
+        const encodedFileName = encodeURIComponent(post.fileName || 'tai-lieu');
+        res.setHeader('Content-Disposition', `attachment; filename="${encodedFileName}"`);
+        res.setHeader('Content-Type', post.fileType || 'application/octet-stream');
+
+        const readStream = Readable.from(fileBuffer);
+        readStream.pipe(res);
+    } catch (err) {
+        res.status(500).send('Lỗi khi tải file');
+    }
+});
+
+// API Đăng bài mới
 app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, authorToken, fileData, fileName, fileSize, fileType } = req.body;
@@ -137,7 +162,7 @@ app.post('/api/posts', async (req, res) => {
         });
 
         await newPost.save();
-        res.status(201).json({ success: true });
+        res.status(201).json({ success: true, postId: newPost._id });
     } catch (error) {
         res.status(500).json({ error: 'Lỗi máy chủ' });
     }
@@ -215,7 +240,7 @@ app.post('/api/posts/:id/dislike', async (req, res) => {
 app.get('/api/posts/:id/comments', async (req, res) => {
     try {
         const clientToken = req.headers['x-author-token'] || '';
-        const post = await Post.findById(req.params.id).lean();
+        const post = await Post.findById(req.params.id).select('-fileData').lean();
         if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
 
         const comments = (post.comments || []).map(cmt => {
@@ -254,7 +279,7 @@ app.post('/api/posts/:id/comments', async (req, res) => {
         const rawAuthor = (author || 'Ẩn danh').trim();
         const isVip = VIP_AUTHORS.includes(rawAuthor.toLowerCase());
 
-        post.comments.push({
+        const newComment = {
             author: rawAuthor,
             content: content.trim(),
             authorToken: authorToken || '',
@@ -264,10 +289,13 @@ app.post('/api/posts/:id/comments', async (req, res) => {
             dislikes: 0,
             likedBy: [],
             dislikedBy: []
-        });
+        };
 
+        post.comments.push(newComment);
         await post.save();
-        res.status(201).json({ success: true });
+
+        const addedComment = post.comments[post.comments.length - 1];
+        res.status(201).json({ success: true, comment: addedComment });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi gửi bình luận' });
     }
@@ -304,7 +332,7 @@ app.post('/api/posts/:postId/comments/:commentId/like', async (req, res) => {
         }
 
         await post.save();
-        res.json({ success: true });
+        res.json({ success: true, likes: cmt.likes, dislikes: cmt.dislikes });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi xử lý' });
     }
@@ -341,7 +369,7 @@ app.post('/api/posts/:postId/comments/:commentId/dislike', async (req, res) => {
         }
 
         await post.save();
-        res.json({ success: true });
+        res.json({ success: true, likes: cmt.likes, dislikes: cmt.dislikes });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi xử lý' });
     }
