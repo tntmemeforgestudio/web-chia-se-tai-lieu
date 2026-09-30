@@ -191,12 +191,24 @@
             background: #0f172a;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px;
+            padding: 10px 14px;
             margin-bottom: 1rem;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .file-download-btn {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .post-footer {
@@ -216,7 +228,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            transition: color 0.2s;
+            transition: color 0.1s ease;
         }
 
         .action-btn:hover, .action-btn.active {
@@ -262,7 +274,7 @@
 
         .comment-item {
             margin-bottom: 0.75rem;
-            padding: 8px;
+            padding: 10px;
             background: #0f172a;
             border-radius: 8px;
             font-size: 0.9rem;
@@ -272,7 +284,7 @@
             margin-left: 20px;
             border-left: 2px solid var(--border-color);
             padding-left: 10px;
-            margin-top: 5px;
+            margin-top: 6px;
         }
     </style>
 </head>
@@ -293,7 +305,7 @@
             <textarea id="post-content" placeholder="Bạn đang nghĩ gì về game hoặc dự án sắp tới?"></textarea>
             <div class="post-actions">
                 <label class="file-upload-label">
-                    <i class="fa-solid fa-paperclip"></i> Đính kèm tệp
+                    <i class="fa-solid fa-paperclip"></i> Đính kèm tệp (Max 23MB)
                     <input type="file" id="post-file" style="display: none;" onchange="handleFileSelect(event)">
                 </label>
                 <button class="btn" onclick="submitPost()">Đăng bài</button>
@@ -303,7 +315,7 @@
 
         <!-- Danh sách bài viết -->
         <div id="posts-container">
-            <!-- Render bài viết tự động ở đây -->
+            <!-- Render bài viết tự động -->
         </div>
     </div>
 
@@ -311,16 +323,16 @@
     <div id="comment-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Bình luận</h3>
+                <h3 id="modal-title">Bình luận</h3>
                 <button class="action-btn" onclick="closeCommentModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body" id="modal-comments-list">
                 <!-- Nội dung bình luận hiển thị ở đây -->
             </div>
             <div style="padding: 1rem; border-top: 1px solid var(--border-color);">
-                <input type="text" id="comment-author" placeholder="Tên của bạn..." style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid var(--border-color); color: white; border-radius: 6px;">
+                <input type="text" id="comment-author" placeholder="Tên của bạn..." style="width: 100%; padding: 8px; margin-bottom: 8px; background: #0f172a; border: 1px solid var(--border-color); color: white; border-radius: 6px;">
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" id="comment-input" placeholder="Viết bình luận..." style="flex-grow: 1; padding: 6px; background: #0f172a; border: 1px solid var(--border-color); color: white; border-radius: 6px;">
+                    <input type="text" id="comment-input" placeholder="Viết bình luận..." style="flex-grow: 1; padding: 8px; background: #0f172a; border: 1px solid var(--border-color); color: white; border-radius: 6px;">
                     <button class="btn" onclick="submitComment()">Gửi</button>
                 </div>
             </div>
@@ -329,21 +341,24 @@
 
     <script>
         const API_URL = 'http://localhost:3000/api';
+        const MAX_FILE_SIZE = 23 * 1024 * 1024; // 23MB Limit
+
         let authorToken = localStorage.getItem('tnt_author_token');
         if (!authorToken) {
             authorToken = 'token_' + Math.random().toString(36).substring(2, 15);
             localStorage.setItem('tnt_author_token', authorToken);
         }
 
+        let postsData = []; // Lưu danh sách bài viết cục bộ để tối ưu Optimistic UI
+        let currentPostComments = []; // Dữ liệu bình luận cho post đang mở
         let selectedFile = null;
         let currentPostIdForComment = null;
         let currentReplyParentId = null;
 
-        // Khởi động khi tải trang
         window.onload = () => {
             checkServerStatus();
             loadPosts();
-            setInterval(loadPosts, 5000); // Tự động làm mới bài viết mỗi 5 giây
+            setInterval(loadPosts, 5000); // Đồng bộ bài viết định kỳ
         };
 
         async function checkServerStatus() {
@@ -357,73 +372,150 @@
             }
         }
 
+        // 1. XỬ LÝ FILE UPLOAD (GIỚI HẠN 23MB)
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            if (file.size > MAX_FILE_SIZE) {
+                alert('Tệp quá lớn! Vui lòng đính kèm tệp nhỏ hơn 23MB.');
+                event.target.value = '';
+                document.getElementById('file-info').innerText = '';
+                selectedFile = null;
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 selectedFile = {
                     fileData: e.target.result,
                     fileName: file.name,
-                    fileSize: (file.size / 1024).toFixed(1) + ' KB',
+                    fileSize: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
                     fileType: file.type
                 };
-                document.getElementById('file-info').innerText = `Đã đính kèm: ${file.name}`;
+                document.getElementById('file-info').innerText = `Đã đính kèm: ${file.name} (${selectedFile.fileSize})`;
             };
             reader.readAsDataURL(file);
         }
 
+        // TẢI BÀI VIẾT TỪ SERVER
         async function loadPosts() {
             try {
                 const res = await fetch(`${API_URL}/posts`, {
                     headers: { 'x-author-token': authorToken }
                 });
-                const posts = await res.json();
-                const container = document.getElementById('posts-container');
-                
-                if (posts.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Chưa có bài viết nào.</p>';
-                    return;
+                if (res.ok) {
+                    postsData = await res.json();
+                    renderPostsUI();
                 }
-
-                container.innerHTML = posts.map(post => `
-                    <div class="post-card">
-                        <div class="post-header">
-                            <div class="author-info">
-                                <div class="avatar ${post.isVip ? 'vip' : ''}">${post.author.charAt(0).toUpperCase()}</div>
-                                <div>
-                                    <div class="author-name">${post.author} ${post.isVip ? '⭐' : ''}</div>
-                                    <div class="post-time">${new Date(post.createdAt).toLocaleTimeString()} - ${new Date(post.createdAt).toLocaleDateString()}</div>
-                                </div>
-                            </div>
-                            ${post.isOwner ? `<button class="action-btn" onclick="deletePost('${post._id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                        </div>
-                        <div class="post-content">${post.content}</div>
-                        ${post.fileName ? `
-                            <div class="post-file-preview">
-                                <i class="fa-solid fa-file"></i> 
-                                <a href="${post.fileData}" download="${post.fileName}" style="color: var(--primary-color); text-decoration: none;">${post.fileName} (${post.fileSize})</a>
-                            </div>
-                        ` : ''}
-                        <div class="post-footer">
-                            <button class="action-btn ${post.hasLiked ? 'active' : ''}" onclick="toggleLike('${post._id}')">
-                                <i class="fa-solid fa-thumbs-up"></i> ${post.likes || 0}
-                            </button>
-                            <button class="action-btn ${post.hasDisliked ? 'active' : ''}" onclick="toggleDislike('${post._id}')">
-                                <i class="fa-solid fa-thumbs-down"></i> ${post.dislikes || 0}
-                            </button>
-                            <button class="action-btn" onclick="openCommentModal('${post._id}')">
-                                <i class="fa-solid fa-comment"></i> ${post.commentCount || 0} Bình luận
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
             } catch (err) {
                 console.error('Lỗi tải bài viết:', err);
             }
         }
 
+        function renderPostsUI() {
+            const container = document.getElementById('posts-container');
+            if (postsData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Chưa có bài viết nào.</p>';
+                return;
+            }
+
+            container.innerHTML = postsData.map(post => `
+                <div class="post-card" id="post-${post._id}">
+                    <div class="post-header">
+                        <div class="author-info">
+                            <div class="avatar ${post.isVip ? 'vip' : ''}">${post.author ? post.author.charAt(0).toUpperCase() : 'A'}</div>
+                            <div>
+                                <div class="author-name">${post.author} ${post.isVip ? '⭐' : ''}</div>
+                                <div class="post-time">${new Date(post.createdAt).toLocaleTimeString()} - ${new Date(post.createdAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        ${post.isOwner ? `<button class="action-btn" onclick="deletePost('${post._id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.fileName ? `
+                        <div class="post-file-preview">
+                            <span><i class="fa-solid fa-file"></i> <strong>${post.fileName}</strong> (${post.fileSize || 'N/A'})</span>
+                            <a href="${post.fileData}" download="${post.fileName}" class="file-download-btn">
+                                <i class="fa-solid fa-download"></i> Tải về
+                            </a>
+                        </div>
+                    ` : ''}
+                    <div class="post-footer">
+                        <button class="action-btn ${post.hasLiked ? 'active' : ''}" onclick="toggleLike('${post._id}')">
+                            <i class="fa-solid fa-thumbs-up"></i> <span class="like-count">${post.likes || 0}</span>
+                        </button>
+                        <button class="action-btn ${post.hasDisliked ? 'active' : ''}" onclick="toggleDislike('${post._id}')">
+                            <i class="fa-solid fa-thumbs-down"></i> <span class="dislike-count">${post.dislikes || 0}</span>
+                        </button>
+                        <button class="action-btn" onclick="openCommentModal('${post._id}')">
+                            <i class="fa-solid fa-comment"></i> <span class="comment-count">${post.commentCount || 0}</span> Bình luận
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 2. OPTIMISTIC UI: LIKE & DISLIKE PHẢN HỒI LẬP TỨC 0.01s
+        async function toggleLike(postId) {
+            const post = postsData.find(p => p._id === postId);
+            if (!post) return;
+
+            // Xử lý tức thì trên giao diện (Optimistic Update)
+            if (post.hasLiked) {
+                post.hasLiked = false;
+                post.likes = Math.max(0, (post.likes || 0) - 1);
+            } else {
+                post.hasLiked = true;
+                post.likes = (post.likes || 0) + 1;
+                if (post.hasDisliked) {
+                    post.hasDisliked = false;
+                    post.dislikes = Math.max(0, (post.dislikes || 0) - 1);
+                }
+            }
+            renderPostsUI(); // Cập nhật DOM tức thì
+
+            // Gửi request ngầm về Server
+            try {
+                await fetch(`${API_URL}/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 'x-author-token': authorToken }
+                });
+            } catch (err) {
+                console.error('Lỗi đồng bộ Like với server');
+            }
+        }
+
+        async function toggleDislike(postId) {
+            const post = postsData.find(p => p._id === postId);
+            if (!post) return;
+
+            // Xử lý tức thì trên giao diện (Optimistic Update)
+            if (post.hasDisliked) {
+                post.hasDisliked = false;
+                post.dislikes = Math.max(0, (post.dislikes || 0) - 1);
+            } else {
+                post.hasDisliked = true;
+                post.dislikes = (post.dislikes || 0) + 1;
+                if (post.hasLiked) {
+                    post.hasLiked = false;
+                    post.likes = Math.max(0, (post.likes || 0) - 1);
+                }
+            }
+            renderPostsUI(); // Cập nhật DOM tức thì
+
+            // Gửi request ngầm về Server
+            try {
+                await fetch(`${API_URL}/posts/${postId}/dislike`, {
+                    method: 'POST',
+                    headers: { 'x-author-token': authorToken }
+                });
+            } catch (err) {
+                console.error('Lỗi đồng bộ Dislike với server');
+            }
+        }
+
+        // ĐĂNG BÀI VIẾT
         async function submitPost() {
             const author = document.getElementById('post-author').value.trim() || 'Ẩn danh';
             const content = document.getElementById('post-content').value.trim();
@@ -455,13 +547,12 @@
                     loadPosts();
                 }
             } catch (err) {
-                alert('Lỗi khi đăng bài!');
+                alert('Không thể đăng bài');
             }
         }
 
         async function deletePost(postId) {
             if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
-
             try {
                 const res = await fetch(`${API_URL}/posts/${postId}`, {
                     method: 'DELETE',
@@ -473,32 +564,30 @@
             }
         }
 
-        async function toggleLike(postId) {
-            await fetch(`${API_URL}/posts/${postId}/like`, {
-                method: 'POST',
-                headers: { 'x-author-token': authorToken }
-            });
-            loadPosts();
-        }
-
-        async function toggleDislike(postId) {
-            await fetch(`${API_URL}/posts/${postId}/dislike`, {
-                method: 'POST',
-                headers: { 'x-author-token': authorToken }
-            });
-            loadPosts();
-        }
-
+        // 3. FIX TRIỆT ĐỂ LỖI RÒ RỈ BÌNH LUẬN GIỮA BÀI 1 VÀ BÀI 2
         async function openCommentModal(postId) {
+            // Reset hoàn toàn trạng thái cũ trước khi mở Modal mới
             currentPostIdForComment = postId;
+            currentReplyParentId = null;
+            currentPostComments = [];
+            
+            // Dọn sạch DOM danh sách bình luận cũ ngay lập tức
+            const listEl = document.getElementById('modal-comments-list');
+            listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Đang tải bình luận...</p>';
+            
+            document.getElementById('comment-input').value = '';
+            document.getElementById('comment-input').placeholder = 'Viết bình luận...';
             document.getElementById('comment-modal').style.display = 'flex';
-            loadComments(postId);
+
+            await loadComments(postId);
         }
 
         function closeCommentModal() {
             document.getElementById('comment-modal').style.display = 'none';
             currentPostIdForComment = null;
             currentReplyParentId = null;
+            currentPostComments = [];
+            document.getElementById('modal-comments-list').innerHTML = ''; // Cô lập hoàn toàn
         }
 
         async function loadComments(postId) {
@@ -506,23 +595,35 @@
                 const res = await fetch(`${API_URL}/posts/${postId}/comments`, {
                     headers: { 'x-author-token': authorToken }
                 });
-                const data = await res.json();
-                const listEl = document.getElementById('modal-comments-list');
-
-                const rootComments = data.comments.filter(c => !c.parentId);
                 
-                listEl.innerHTML = rootComments.map(c => renderCommentNode(c, data.comments)).join('');
+                // Đảm bảo request trả về đúng bài viết hiện tại đang mở
+                if (res.ok && currentPostIdForComment === postId) {
+                    const data = await res.json();
+                    currentPostComments = data.comments || [];
+                    renderCommentsUI();
+                }
             } catch (err) {
-                console.error('Lỗi tải bình luận');
+                console.error('Lỗi tải bình luận:', err);
             }
         }
 
-        function renderCommentNode(comment, allComments) {
-            const replies = allComments.filter(c => c.parentId === comment._id);
+        function renderCommentsUI() {
+            const listEl = document.getElementById('modal-comments-list');
+            if (currentPostComments.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Chưa có bình luận nào.</p>';
+                return;
+            }
+
+            const rootComments = currentPostComments.filter(c => !c.parentId);
+            listEl.innerHTML = rootComments.map(c => renderCommentNode(c)).join('');
+        }
+
+        function renderCommentNode(comment) {
+            const replies = currentPostComments.filter(c => c.parentId === comment._id);
             return `
                 <div class="comment-item">
                     <strong>${comment.author}</strong>: ${comment.content}
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 3px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
                         <button class="action-btn" style="display:inline;" onclick="setReplyParent('${comment._id}', '${comment.author}')">Trả lời</button>
                     </div>
                     ${replies.map(r => `
@@ -536,17 +637,49 @@
 
         function setReplyParent(parentId, authorName) {
             currentReplyParentId = parentId;
-            document.getElementById('comment-input').placeholder = `Đang trả lời @${authorName}...`;
-            document.getElementById('comment-input').focus();
+            const input = document.getElementById('comment-input');
+            input.placeholder = `Đang trả lời @${authorName}...`;
+            input.focus();
         }
 
+        // 4. OPTIMISTIC UI: ĐĂNG BÌNH LUẬN HIỂN THỊ NGAY 0.01s
         async function submitComment() {
             if (!currentPostIdForComment) return;
-            const author = document.getElementById('comment-author').value.trim() || 'Ẩn danh';
-            const content = document.getElementById('comment-input').value.trim();
+
+            const authorInput = document.getElementById('comment-author');
+            const contentInput = document.getElementById('comment-input');
+            const author = authorInput.value.trim() || 'Ẩn danh';
+            const content = contentInput.value.trim();
 
             if (!content) return;
 
+            const tempComment = {
+                _id: 'temp_' + Date.now(),
+                postId: currentPostIdForComment,
+                author: author,
+                content: content,
+                parentId: currentReplyParentId,
+                createdAt: new Date().toISOString()
+            };
+
+            // Hiển thị bình luận ngay trên Modal lập tức
+            currentPostComments.push(tempComment);
+            renderCommentsUI();
+
+            // Cập nhật số lượng bình luận trên thẻ bài viết lập tức
+            const post = postsData.find(p => p._id === currentPostIdForComment);
+            if (post) {
+                post.commentCount = (post.commentCount || 0) + 1;
+                renderPostsUI();
+            }
+
+            // Reset ô nhập liệu ngay lập tức
+            contentInput.value = '';
+            contentInput.placeholder = 'Viết bình luận...';
+            const parentIdToSend = currentReplyParentId;
+            currentReplyParentId = null;
+
+            // Gửi dữ liệu về Server ngầm
             try {
                 await fetch(`${API_URL}/posts/${currentPostIdForComment}/comments`, {
                     method: 'POST',
@@ -554,18 +687,14 @@
                     body: JSON.stringify({
                         author,
                         content,
-                        parentId: currentReplyParentId,
+                        parentId: parentIdToSend,
                         authorToken
                     })
                 });
-
-                document.getElementById('comment-input').value = '';
-                document.getElementById('comment-input').placeholder = 'Viết bình luận...';
-                currentReplyParentId = null;
+                // Đồng bộ lại ID chính thức từ DB
                 loadComments(currentPostIdForComment);
-                loadPosts(); // Cập nhật lại số lượng bình luận ngoài trang chủ
             } catch (err) {
-                alert('Không thể gửi bình luận');
+                console.error('Lỗi khi gửi bình luận');
             }
         }
     </script>
