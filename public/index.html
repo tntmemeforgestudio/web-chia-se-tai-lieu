@@ -262,7 +262,7 @@
                         <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc dán link tài liệu..."></textarea>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small fw-medium text-muted"><i class="fa-solid fa-paperclip me-1"></i> Tệp đính kèm tài liệu (Tùy chọn)</label>
+                        <label class="form-label small fw-medium text-muted"><i class="fa-solid fa-paperclip me-1"></i> Tệp đính kèm tài liệu (Tối đa 23MB)</label>
                         <input type="file" id="fileInput" class="form-control rounded-3" style="font-size: 13px;">
                     </div>
                 </div>
@@ -465,17 +465,17 @@
                     const avatarBg = isVip ? '' : `background-color: ${getAvatarColor(authorName)};`;
 
                     let fileAttachmentHtml = '';
-                    if (post.fileData && post.fileName) {
+                    if (post.hasFile || post.fileName) {
                         fileAttachmentHtml = `
                             <div class="file-box my-3 d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2 overflow-hidden">
                                     <i class="fa-solid fa-file-arrow-down text-primary fs-4"></i>
                                     <div class="text-truncate">
-                                        <div class="fw-bold text-dark small text-truncate">${escapeHtml(post.fileName)}</div>
+                                        <div class="fw-bold text-dark small text-truncate">${escapeHtml(post.fileName || 'Tài liệu đính kèm')}</div>
                                         <small class="text-muted" style="font-size: 11px;">${post.fileSize || 'Tệp đính kèm'}</small>
                                     </div>
                                 </div>
-                                <a href="${post.fileData}" download="${escapeHtml(post.fileName)}" class="btn btn-sm btn-primary rounded-pill px-3 ms-2 text-nowrap">
+                                <a href="/api/posts/${post._id}/download" download="${escapeHtml(post.fileName || 'tai-lieu')}" class="btn btn-sm btn-primary rounded-pill px-3 ms-2 text-nowrap">
                                     <i class="fa-solid fa-download me-1"></i> Tải về
                                 </a>
                             </div>
@@ -483,7 +483,7 @@
                     }
 
                     return `
-                        <div class="post-card ${isVip ? 'vip-card' : ''}">
+                        <div class="post-card ${isVip ? 'vip-card' : ''}" id="post-card-${post._id}">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="${avatarClass}" style="${avatarBg}">
@@ -516,19 +516,19 @@
 
                             <!-- NÚT TƯƠNG TÁC TỐI ƯU GỌN ĐẸP -->
                             <div class="d-flex align-items-center gap-2 pt-2 border-top border-light mt-2">
-                                <button class="action-btn-compact ${post.hasLiked ? 'liked' : ''}" onclick="toggleLike('${post._id}')" title="Thích">
+                                <button class="action-btn-compact ${post.hasLiked ? 'liked' : ''}" data-like-btn="${post._id}" onclick="toggleLike('${post._id}')" title="Thích">
                                     <i class="${post.hasLiked ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
                                     <span>${post.likes || 0}</span>
                                 </button>
 
-                                <button class="action-btn-compact ${post.hasDisliked ? 'disliked' : ''}" onclick="toggleDislike('${post._id}')" title="Phản đối">
+                                <button class="action-btn-compact ${post.hasDisliked ? 'disliked' : ''}" data-dislike-btn="${post._id}" onclick="toggleDislike('${post._id}')" title="Phản đối">
                                     <i class="${post.hasDisliked ? 'fa-solid' : 'fa-regular'} fa-thumbs-down"></i>
                                     <span>${post.dislikes || 0}</span>
                                 </button>
 
                                 <button class="action-btn-compact" onclick="openCommentsModal('${post._id}')" title="Bình luận">
                                     <i class="fa-regular fa-comment"></i>
-                                    <span>${post.commentCount || 0}</span>
+                                    <span id="cmt-count-${post._id}">${post.commentCount || 0}</span>
                                 </button>
                             </div>
                         </div>
@@ -541,38 +541,77 @@
             }
         }
 
+        /* --- PHẢN HỒI LẬP TỨC (OPTIMISTIC UI) KHI BẤM LIKE/DISLIKE --- */
         async function toggleLike(postId) {
+            const btn = document.querySelector(`[data-like-btn="${postId}"]`);
+            if (btn) {
+                const countSpan = btn.querySelector('span');
+                const isLiked = btn.classList.contains('liked');
+                let count = parseInt(countSpan.innerText) || 0;
+                
+                if (isLiked) {
+                    btn.classList.remove('liked');
+                    btn.querySelector('i').className = 'fa-regular fa-thumbs-up';
+                    countSpan.innerText = Math.max(0, count - 1);
+                } else {
+                    btn.classList.add('liked');
+                    btn.querySelector('i').className = 'fa-solid fa-thumbs-up';
+                    countSpan.innerText = count + 1;
+                }
+            }
+
             try {
                 await fetch(`/api/posts/${postId}/like`, {
                     method: 'POST',
                     headers: { 'x-author-token': getAuthorToken() }
                 });
-                loadPosts();
-                if (activePostIdForComments === postId) fetchAndRenderComments(postId);
             } catch (err) {}
         }
 
         async function toggleDislike(postId) {
+            const btn = document.querySelector(`[data-dislike-btn="${postId}"]`);
+            if (btn) {
+                const countSpan = btn.querySelector('span');
+                const isDisliked = btn.classList.contains('disliked');
+                let count = parseInt(countSpan.innerText) || 0;
+
+                if (isDisliked) {
+                    btn.classList.remove('disliked');
+                    btn.querySelector('i').className = 'fa-regular fa-thumbs-down';
+                    countSpan.innerText = Math.max(0, count - 1);
+                } else {
+                    btn.classList.add('disliked');
+                    btn.querySelector('i').className = 'fa-solid fa-thumbs-down';
+                    countSpan.innerText = count + 1;
+                }
+            }
+
             try {
                 await fetch(`/api/posts/${postId}/dislike`, {
                     method: 'POST',
                     headers: { 'x-author-token': getAuthorToken() }
                 });
-                loadPosts();
-                if (activePostIdForComments === postId) fetchAndRenderComments(postId);
             } catch (err) {}
         }
 
-        /* --- XỬ LÝ BÌNH LUẬN GIỐNG FACEBOOK --- */
+        /* --- XỬ LÝ BÌNH LUẬN CHUẨN MƯỢT (ĐÃ FIX LỖI NHẦM BÀI ĐĂNG CŨ) --- */
         async function openCommentsModal(postId) {
             activePostIdForComments = postId;
             cancelReply();
+
+            // RESET DỮ LIỆU CŨ TỨC THÌ TRÁNH RÒ RỈ BÌNH LUẬN BÀI KHÁC
+            document.getElementById('cmtPostAuthor').innerText = '...';
+            document.getElementById('modalPostPreview').innerHTML = `<div class="text-center py-2 text-muted small"><div class="spinner-border spinner-border-sm me-2"></div>Đang tải bài viết...</div>`;
+            document.getElementById('commentsListContainer').innerHTML = `<div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div> Đang tải bình luận...</div>`;
+
             const modal = new bootstrap.Modal(document.getElementById('commentsModal'));
             modal.show();
             await fetchAndRenderComments(postId);
         }
 
         async function fetchAndRenderComments(postId) {
+            if (activePostIdForComments !== postId) return;
+
             const container = document.getElementById('commentsListContainer');
             const previewBox = document.getElementById('modalPostPreview');
             
@@ -583,6 +622,8 @@
                 const data = await res.json();
                 const post = data.post;
                 const comments = data.comments;
+
+                if (activePostIdForComments !== postId) return;
 
                 document.getElementById('cmtPostAuthor').innerText = post.author || 'Ẩn danh';
 
@@ -672,6 +713,8 @@
             const content = document.getElementById('cmtContentInput').value.trim();
             if (!content || !activePostIdForComments) return;
 
+            document.getElementById('cmtContentInput').value = '';
+
             try {
                 const res = await fetch(`/api/posts/${activePostIdForComments}/comments`, {
                     method: 'POST',
@@ -685,10 +728,8 @@
                 });
 
                 if (res.ok) {
-                    document.getElementById('cmtContentInput').value = '';
                     cancelReply();
                     fetchAndRenderComments(activePostIdForComments);
-                    loadPosts();
                 }
             } catch (err) {}
         }
@@ -713,6 +754,7 @@
             } catch (err) {}
         }
 
+        /* --- ĐĂNG BÀI KÈM KIỂM TRA GIỚI HẠN FILE 23MB --- */
         async function submitPost() {
             const author = document.getElementById('authorInput').value.trim();
             const content = document.getElementById('contentInput').value.trim();
@@ -728,6 +770,14 @@
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
+
+                // CHẶN FILE VƯỢT QUÁ 23MB
+                const maxBytes = 23 * 1024 * 1024;
+                if (file.size > maxBytes) {
+                    alert("⚠️ Cảnh báo: Tệp vượt quá dung lượng tối đa 23MB! Vui lòng chọn tệp nhỏ hơn.");
+                    return;
+                }
+
                 fileName = file.name;
                 fileType = file.type;
                 fileSize = (file.size / 1024 > 1024) 
