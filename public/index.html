@@ -246,35 +246,39 @@
         </div>
     </div>
 
-    <!-- Modal Đăng Bài -->
-    <div class="modal fade" id="postModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold">Đăng bài mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+   <!-- Modal Đăng Bài -->
+<div class="modal fade" id="postModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Đăng bài mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label small fw-medium text-muted">Tên người đăng</label>
+                    <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn...">
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small fw-medium text-muted">Tên người đăng</label>
-                        <input type="text" id="authorInput" class="form-control rounded-3" placeholder="Nhập tên của bạn...">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-medium text-muted">Nội dung bài viết</label>
-                        <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc dán link tài liệu..."></textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small fw-medium text-muted"><i class="fa-solid fa-paperclip me-1"></i> Tệp đính kèm tài liệu (Tối đa 23MB)</label>
-                        <input type="file" id="fileInput" class="form-control rounded-3" style="font-size: 13px;">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-medium text-muted">Nội dung bài viết</label>
+                    <textarea id="contentInput" class="form-control rounded-3" rows="3" placeholder="Chia sẻ suy nghĩ hoặc dán link tài liệu..."></textarea>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary rounded-pill px-4" id="btnSubmitPost" onclick="submitPost()">Đăng bài</button>
+                <div class="mb-2">
+                    <label class="form-label small fw-medium text-muted"><i class="fa-solid fa-paperclip me-1"></i> Tệp đính kèm tài liệu (Tối đa 23MB)</label>
+                    <input type="file" id="fileInput" class="form-control rounded-3" style="font-size: 13px;">
+                    <!-- Thông báo dọn dẹp tệp -->
+                    <small class="text-muted d-block mt-1" style="font-size: 11px;">
+                        * Lưu ý: Tệp đính kèm có thể được dọn dẹp sau 90 ngày để tối ưu máy chủ. Nội dung bài viết vẫn giữ vĩnh viễn.
+                    </small>
                 </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="btnSubmitPost" onclick="submitPost()">Đăng bài</button>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Modal Cài Đặt -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
