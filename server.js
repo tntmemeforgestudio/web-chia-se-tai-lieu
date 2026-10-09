@@ -13,7 +13,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Kết nối MongoDB Cloud
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sharedb')
-  .then(() => console.log("Đã kết nối MongoDB thành công!"))
+  .then(() => {
+      console.log("Đã kết nối MongoDB thành công!");
+      // Chạy dọn dẹp file cũ ngay khi kết nối CSDL thành công
+      cleanupOldFiles();
+  })
   .catch(err => console.error("Lỗi kết nối MongoDB:", err));
 
 // Schema Bình luận
@@ -67,10 +71,10 @@ app.get('/api/health', (req, res) => {
         if (!isDbConnected) {
             status = 'red';
             message = 'Nguy cấp: Mất kết nối CSDL';
-        } else if (usedMemPercent > 85) {
+        } else if (usedMemPercent > 90) {
             status = 'red';
             message = 'Nguy cấp: Bộ nhớ RAM quá tải (' + usedMemPercent + '%)';
-        } else if (usedMemPercent > 70) {
+        } else if (usedMemPercent > 85) {
             status = 'yellow';
             message = 'Cảnh báo: Bộ nhớ RAM cao (' + usedMemPercent + '%)';
         }
@@ -121,7 +125,7 @@ app.get('/api/posts/:id/download', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id).select('fileData fileName fileType');
         if (!post || !post.fileData) {
-            return res.status(404).send('Không tìm thấy tệp đính kèm');
+            return res.status(404).send('Không tìm thấy tệp đính kèm hoặc tệp đã bị dọn dẹp sau 90 ngày');
         }
 
         const base64Data = post.fileData.replace(/^data:.*;base64,/, "");
@@ -362,7 +366,7 @@ app.post('/api/posts/:postId/comments/:commentId/dislike', async (req, res) => {
 
         if (dislikeIdx === -1) {
             cmt.dislikedBy.push(clientToken);
-            cmt.dislikes = (cmt.dislikes || 0) + 1;
+            cmt.dislikes = Math.max(0, (cmt.dislikes || 1) - 1);
         } else {
             cmt.dislikedBy.splice(dislikeIdx, 1);
             cmt.dislikes = Math.max(0, (cmt.dislikes || 1) - 1);
@@ -391,6 +395,37 @@ app.delete('/api/posts/:id', async (req, res) => {
         res.status(500).json({ error: 'Lỗi máy chủ' });
     }
 });
+
+// Tự động dọn dẹp tệp đính kèm cũ hơn 90 ngày (Giữ lại bài viết)
+async function cleanupOldFiles() {
+    try {
+        const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+
+        const result = await Post.updateMany(
+            { 
+                createdAt: { $lt: ninetyDaysAgo },
+                fileData: { $ne: '' } // Chỉ lọc các bài còn dữ liệu tệp đính kèm
+            },
+            { 
+                $set: { 
+                    fileData: '', 
+                    fileName: '[Tệp đã tự động dọn dẹp sau 90 ngày]',
+                    fileSize: '',
+                    fileType: ''
+                } 
+            }
+        );
+
+        if (result.modifiedCount > 0) {
+            console.log(`🧹 Đã dọn dẹp tệp đính kèm của ${result.modifiedCount} bài viết cũ hơn 90 ngày.`);
+        }
+    } catch (err) {
+        console.error("Lỗi khi dọn dẹp tệp cũ:", err);
+    }
+}
+
+// Chạy lặp lại tiến trình dọn dẹp mỗi 24 giờ một lần
+setInterval(cleanupOldFiles, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server chạy tại cổng ${PORT}`));
