@@ -60,18 +60,18 @@ const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 const BANNED_KEYWORDS = [
     // Tiếng Việt tục tĩu, chửi thề & biến thể phổ biến
     "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", "l`", "cc", "c.c",
-    "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc", "đm", "vl",
+    "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc",
     "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "vô học", "bố láo",
-    "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh", "địt mẹ", "bú lồn" , "súc vật", "mẹ kiếp", 
-    "mả cha", "óc cặc", "óc lồn" ,"mày" , "dâm tặc" , "đéo", "cứt" , "ngáo" , "bú" , "cái loại như mày" , "mẹ mày" , "buồi", "đồ ăn hại",
-    "giở" , "bao cao su", "dâm tặc", "đít", "bao quy đầu", "chết", "bắn", "não tật ", "óc bò", "óc chó", "não toàn cứt", "cút mẹ đi",
-    "lắm mồm", "vú", "tao giết mày", "mẹ mày", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex"
+    "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh", "địt mẹ", "bú lồn", 
+    "mả cha", "óc cặc", "óc lồn", "mày", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "cái loại như mày", "mẹ mày", "buồi", "đồ ăn hại",
+    "giở", "bao cao su", "đít", "bao quy đầu", "chết", "bắn", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi",
+    "lắm mồm", "vú", "tao giết mày", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex",
     
     // Tiếng Anh & Quốc tế
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
-    "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga", "stfu", "kys", "wtf", "sex",
+    "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga", "stfu", "kys", "wtf",
     "blowjob", "fuck you", "dumbass", "animal", "damn", "kill time", "kill", "pervert", "condom", "suck dick", "pussy hook", 
-    "high", "
+    "high",
     
     // Spam, Lừa đảo, Mã độc
     "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao", "free robux", "network intrusion", "take down the server"
