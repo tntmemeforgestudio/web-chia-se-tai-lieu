@@ -301,12 +301,21 @@
                         </div>
                     </div>
 
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label class="form-label small fw-bold text-secondary">Ngôn ngữ dịch tự động</label>
                         <div class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between">
                             <span class="small text-muted"><i class="fa-solid fa-language me-2"></i>Chọn ngôn ngữ</span>
                             <div id="google_translate_element"></div>
                         </div>
+                    </div>
+
+                    <!-- MỤC CHÍNH SÁCH & PHÁP LÝ (MỚI THÊM) -->
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-secondary">Chính sách & Quy định</label>
+                        <button type="button" class="btn w-100 bg-light border-0 text-start d-flex align-items-center justify-content-between p-3 rounded-3 small text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#policyModal">
+                            <span><i class="fa-solid fa-scroll me-2 text-primary"></i>Tiêu chuẩn cộng đồng & Điều khoản</span>
+                            <i class="fa-solid fa-chevron-right text-muted" style="font-size: 11px;"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -362,6 +371,37 @@
                         <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy bỏ</button>
                         <button type="button" class="btn btn-danger rounded-pill px-4" onclick="confirmDeletePost()">Xóa ngay</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tiêu chuẩn cộng đồng & Điều khoản dịch vụ (MỚI THÊM) -->
+    <div class="modal fade" id="policyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title fw-bold fs-6"><i class="fa-solid fa-scroll me-2 text-primary"></i>Tiêu chuẩn cộng đồng & Điều khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 small text-secondary" style="line-height: 1.6;">
+                    <h6 class="fw-bold text-dark mb-2">1. Tiêu chuẩn cộng đồng</h6>
+                    <ul class="ps-3 mb-3">
+                        <li class="mb-1"><strong>Tôn trọng lẫn nhau:</strong> Nghiêm cấm ngôn từ thù ghét (hate speech), xúc phạm, đả kích cá nhân hoặc quấy rầy người khác.</li>
+                        <li class="mb-1"><strong>Nội dung lành mạnh:</strong> Không đăng tải nội dung đồi trụy, bạo lực, phản động hoặc vi phạm pháp luật.</li>
+                        <li class="mb-1"><strong>Chống Spam & Lừa đảo:</strong> Không đăng bài spam quảng cáo, link độc hại hoặc giả mạo tổ chức/cá nhân khác.</li>
+                        <li class="mb-1"><strong>An toàn tệp tin:</strong> Không chia sẻ tài liệu chứa virus, mã độc hoặc phần mềm nguy hiểm.</li>
+                    </ul>
+
+                    <h6 class="fw-bold text-dark mb-2">2. Điều khoản dịch vụ & Lưu trữ</h6>
+                    <ul class="ps-3 mb-0">
+                        <li class="mb-1"><strong>Quyền quản trị:</strong> Ban quản trị (TNT MEMEFORGE STUDIO) có quyền xóa bài viết, bình luận hoặc chặn truy cập đối với các trường hợp vi phạm quy định mà không cần báo trước.</li>
+                        <li class="mb-1"><strong>Chính sách lưu trữ tệp:</strong> Tệp đính kèm (tối đa 23MB) sẽ tự động dọn dẹp sau 90 ngày để duy trì hiệu năng hệ thống. Nội dung văn bản bài viết và thảo luận được lưu trữ vĩnh viễn.</li>
+                        <li><strong>Trách nhiệm pháp lý:</strong> Người dùng chịu hoàn toàn trách nhiệm về nội dung và tài liệu do chính mình đăng tải lên nền tảng.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer border-top py-2 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Đã hiểu</button>
                 </div>
             </div>
         </div>
