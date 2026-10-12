@@ -56,36 +56,27 @@ const Post = mongoose.model('Post', postSchema);
 // Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// --- HỆ THỐNG KIỂM DUYỆT KÉP (LOCAL STRICT FILTER + AI MODERATION) ---
+// --- HỆ THỐNG KIỂM DUYỆT (ĐÃ LỌC BỎ TỪ GÂY NHẦM LẪN VỚI GIAO TIẾP & LÀM GAME) ---
 const BANNED_KEYWORDS = [
-    // Tiếng Việt tục tĩu, chửi thề & biến thể phổ biến
+    // Tiếng Việt tục tĩu, chửi thề thực sự
     "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", "l`", "cc", "c.c",
     "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc",
     "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "vô học", "bố láo",
     "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh", "địt mẹ", "bú lồn", 
-    "mả cha", "óc cặc", "óc lồn", "mày", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "mẹ mày", "buồi", "đồ ăn hại",
-    "giở", "bao cao su", "đít", "bao quy đầu", "chết", "bắn", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi",
+    "mả cha", "óc cặc", "óc lồn", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "mẹ mày", "buồi", "đồ ăn hại",
+    "bao cao su", "đít", "bao quy đầu", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi",
     "lắm mồm", "vú", "tao giết mày", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex",
     
-    // Tiếng Anh & Quốc tế
+    // Tiếng Anh & Quốc tế tục tĩu
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
     "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga", "stfu", "kys", "wtf",
-    "blowjob", "fuck you", "dumbass", "animal", "damn", "kill time", "kill", "pervert", "condom", "suck dick", "pussy hook", 
-    "high",
+    "blowjob", "fuck you", "dumbass", "pervert", "condom", "suck dick", "pussy hook", 
     
-    // Spam, Lừa đảo, Mã độc
+    // Spam, Lừa đảo, Mã độc phá hoại
     "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao", "free robux", "network intrusion", "take down the server"
 ];
 
-// Hàm chuẩn hóa văn bản chống lách luật (xóa dấu, khoảng trắng, ký tự đặc biệt)
-function normalizeText(text) {
-    if (!text) return "";
-    return text.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]/g, "");
-}
-
-// Kiểm tra từ khóa cục bộ thông minh (Đã sửa lỗi bắt nhầm từ dính liền như "chào bạn", "học onlai")
+// Hàm kiểm tra từ khóa cục bộ thông minh (Chỉ chặn từ đơn độc lập hoặc cụm từ chính xác)
 function checkLocalKeywords(text) {
     if (!text) return false;
     
@@ -93,7 +84,6 @@ function checkLocalKeywords(text) {
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .replace(/[đĐ]/g, "d");
 
-    // Tách văn bản thành danh sách các từ riêng biệt để tránh quét nhầm từ lót
     const words = cleanText.split(/[^a-z0-9]+/);
 
     for (let keyword of BANNED_KEYWORDS) {
@@ -104,11 +94,11 @@ function checkLocalKeywords(text) {
             .replace(/[đĐ]/g, "d")
             .trim();
 
-        // Nếu từ cấm là cụm từ (có dấu cách ở giữa như "oc cho", "me kiếp")
+        // Nếu từ cấm là cụm từ (có dấu cách)
         if (cleanKeyword.includes(" ")) {
             if (cleanText.includes(cleanKeyword)) return true;
         } 
-        // Nếu từ cấm là từ đơn (như "dm", "deo", "vcl") -> Phải đứng độc lập mới chặn
+        // Nếu từ cấm là từ đơn (phải đứng độc lập mới chặn, không quét dính chữ cái lót)
         else {
             if (words.includes(cleanKeyword)) return true;
         }
@@ -116,7 +106,7 @@ function checkLocalKeywords(text) {
     return false;
 }
 
-// Kiểm tra nâng cao bằng OpenAI AI Moderation (Hiểu ngữ nghĩa đa ngôn ngữ toàn cầu)
+// Kiểm tra nâng cao bằng OpenAI AI Moderation (Nếu có cấu hình Key trên Render)
 async function checkAIModeration(text) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!text || !apiKey) return false; 
@@ -143,7 +133,7 @@ async function checkAIModeration(text) {
     return false;
 }
 
-// Hàm kiểm duyệt tổng hợp chạy cả 2 lớp
+// Hàm kiểm duyệt tổng hợp
 async function isToxicContent(text) {
     if (checkLocalKeywords(text)) return true;
     if (await checkAIModeration(text)) return true;
@@ -236,12 +226,11 @@ app.get('/api/posts/:id/download', async (req, res) => {
     }
 });
 
-// API Đăng bài mới (Đã tích hợp kiểm duyệt nghiêm ngặt)
+// API Đăng bài mới
 app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, authorToken, fileData, fileName, fileSize, fileType } = req.body;
         
-        // 🛡️ Quét nội dung bài viết và tên tác giả
         if (await isToxicContent(author) || await isToxicContent(content)) {
             return res.status(400).json({ 
                 error: "⚠️ Bài viết chứa ngôn từ không lành mạnh hoặc vi phạm Tiêu chuẩn cộng đồng!" 
@@ -373,12 +362,11 @@ app.get('/api/posts/:id/comments', async (req, res) => {
     }
 });
 
-// API Thêm Bình luận / Trả lời (Đã tích hợp kiểm duyệt nghiêm ngặt)
+// API Thêm Bình luận / Trả lời
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
         const { author, content, parentId, authorToken } = req.body;
         
-        // 🛡️ Quét nội dung bình luận
         if (await isToxicContent(author) || await isToxicContent(content)) {
             return res.status(400).json({ 
                 error: "⚠️ Bình luận chứa từ ngữ không phù hợp với Tiêu chuẩn cộng đồng!" 
