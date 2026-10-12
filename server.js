@@ -15,7 +15,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sharedb')
   .then(() => {
       console.log("Đã kết nối MongoDB thành công!");
-      // Chạy dọn dẹp file cũ ngay khi kết nối CSDL thành công
       cleanupOldFiles();
   })
   .catch(err => console.error("Lỗi kết nối MongoDB:", err));
@@ -40,7 +39,7 @@ const postSchema = new mongoose.Schema({
     content: String,
     authorToken: String,
     isVip: Boolean,
-    fileData: String, // Lưu dữ liệu Base64
+    fileData: String, 
     fileName: String,
     fileSize: String,
     fileType: String,
@@ -57,19 +56,20 @@ const Post = mongoose.model('Post', postSchema);
 // Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// --- HỆ THỐNG KIỂM DUYỆT NGÔN TỪ NGHIÊM NGẶT (HYBRID FILTER) ---
+// --- HỆ THỐNG KIỂM DUYỆT KÉP (LOCAL STRICT FILTER + AI MODERATION) ---
 const BANNED_KEYWORDS = [
-    // Tiếng Việt tục tĩu & xúc phạm (cả không dấu, viết tắt, tiếng lóng)
-    "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", 
-    "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml",
-    "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "cho", "vô học",
+    // Tiếng Việt tục tĩu, chửi thề & biến thể phổ biến
+    "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", "l`", "cc", "c.c",
+    "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc", "đm", "vl",
+    "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "cho", "vô học", "bố láo",
+    "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh",
     
-    // Tiếng Anh & Quốc tế (Slurs & Toxicity)
+    // Tiếng Anh & Quốc tế
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
-    "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga",
+    "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga", "stfu", "kys",
     
     // Spam, Lừa đảo, Mã độc
-    "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao"
+    "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao", "free robux"
 ];
 
 // Hàm chuẩn hóa văn bản chống lách luật (xóa dấu, khoảng trắng, ký tự đặc biệt)
@@ -80,7 +80,7 @@ function normalizeText(text) {
         .replace(/[^a-z0-9]/g, "");
 }
 
-// Kiểm tra từ khóa cục bộ với bộ lọc chống lách
+// Kiểm tra từ khóa cục bộ thông minh
 function checkLocalKeywords(text) {
     if (!text) return false;
     const rawLower = text.toLowerCase();
@@ -99,16 +99,17 @@ function checkLocalKeywords(text) {
     return false;
 }
 
-// Kiểm tra nâng cao bằng OpenAI Moderation API (Đa ngôn ngữ & Ngữ nghĩa)
+// Kiểm tra nâng cao bằng OpenAI AI Moderation (Hiểu ngữ nghĩa đa ngôn ngữ toàn cầu)
 async function checkAIModeration(text) {
-    if (!text || !process.env.OPENAI_API_KEY) return false;
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!text || !apiKey) return false; 
     
     try {
         const response = await fetch('https://api.openai.com/v1/moderations', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+                'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({ input: text })
         });
@@ -120,12 +121,12 @@ async function checkAIModeration(text) {
             return true;
         }
     } catch (err) {
-        console.error("Lỗi khi kết nối AI Moderation:", err);
+        console.error("Lỗi AI Moderation:", err);
     }
     return false;
 }
 
-// Hàm tổng hợp kiểm tra an toàn (Chạy cả 2 lớp bảo vệ)
+// Hàm kiểm duyệt tổng hợp chạy cả 2 lớp
 async function isToxicContent(text) {
     if (checkLocalKeywords(text)) return true;
     if (await checkAIModeration(text)) return true;
@@ -161,7 +162,7 @@ app.get('/api/health', (req, res) => {
     }
 });
 
-// API Lấy danh sách bài viết (Loại bỏ fileData nặng để tối ưu tốc độ tải Feed)
+// API Lấy danh sách bài viết
 app.get('/api/posts', async (req, res) => {
     try {
         const clientToken = req.headers['x-author-token'] || '';
@@ -196,7 +197,7 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// API Download Tệp đính kèm (Stream trực tiếp từ Base64)
+// API Download Tệp đính kèm
 app.get('/api/posts/:id/download', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id).select('fileData fileName fileType');
@@ -223,7 +224,7 @@ app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, authorToken, fileData, fileName, fileSize, fileType } = req.body;
         
-        // 🛡️ Kiểm duyệt nội dung & tên tác giả trước khi lưu
+        // 🛡️ Quét nội dung bài viết và tên tác giả
         if (await isToxicContent(author) || await isToxicContent(content)) {
             return res.status(400).json({ 
                 error: "⚠️ Bài viết chứa ngôn từ không lành mạnh hoặc vi phạm Tiêu chuẩn cộng đồng!" 
@@ -324,7 +325,7 @@ app.post('/api/posts/:id/dislike', async (req, res) => {
     }
 });
 
-// API Lấy danh sách bình luận của 1 bài viết
+// API Lấy danh sách bình luận
 app.get('/api/posts/:id/comments', async (req, res) => {
     try {
         const clientToken = req.headers['x-author-token'] || '';
@@ -360,7 +361,7 @@ app.post('/api/posts/:id/comments', async (req, res) => {
     try {
         const { author, content, parentId, authorToken } = req.body;
         
-        // 🛡️ Kiểm duyệt bình luận trước khi lưu
+        // 🛡️ Quét nội dung bình luận
         if (await isToxicContent(author) || await isToxicContent(content)) {
             return res.status(400).json({ 
                 error: "⚠️ Bình luận chứa từ ngữ không phù hợp với Tiêu chuẩn cộng đồng!" 
@@ -488,7 +489,7 @@ app.delete('/api/posts/:id', async (req, res) => {
     }
 });
 
-// Tự động dọn dẹp tệp đính kèm cũ hơn 90 ngày (Giữ lại bài viết)
+// Tự động dọn dẹp tệp đính kèm cũ hơn 90 ngày
 async function cleanupOldFiles() {
     try {
         const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
@@ -496,7 +497,7 @@ async function cleanupOldFiles() {
         const result = await Post.updateMany(
             { 
                 createdAt: { $lt: ninetyDaysAgo },
-                fileData: { $ne: '' } // Chỉ lọc các bài còn dữ liệu tệp đính kèm
+                fileData: { $ne: '' } 
             },
             { 
                 $set: { 
@@ -516,7 +517,6 @@ async function cleanupOldFiles() {
     }
 }
 
-// Chạy lặp lại tiến trình dọn dẹp mỗi 24 giờ một lần
 setInterval(cleanupOldFiles, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
