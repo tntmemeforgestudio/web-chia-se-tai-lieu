@@ -63,7 +63,7 @@ const BANNED_KEYWORDS = [
     "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc",
     "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "vô học", "bố láo",
     "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh", "địt mẹ", "bú lồn", 
-    "mả cha", "óc cặc", "óc lồn", "mày", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "cái loại như mày", "mẹ mày", "buồi", "đồ ăn hại",
+    "mả cha", "óc cặc", "óc lồn", "mày", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "mẹ mày", "buồi", "đồ ăn hại",
     "giở", "bao cao su", "đít", "bao quy đầu", "chết", "bắn", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi",
     "lắm mồm", "vú", "tao giết mày", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex",
     
@@ -85,20 +85,32 @@ function normalizeText(text) {
         .replace(/[^a-z0-9]/g, "");
 }
 
-// Kiểm tra từ khóa cục bộ thông minh
+// Kiểm tra từ khóa cục bộ thông minh (Đã sửa lỗi bắt nhầm từ dính liền như "chào bạn", "học onlai")
 function checkLocalKeywords(text) {
     if (!text) return false;
-    const rawLower = text.toLowerCase();
     
-    for (let keyword of BANNED_KEYWORDS) {
-        if (rawLower.includes(keyword.toLowerCase())) return true;
-    }
+    const cleanText = text.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, "d");
 
-    const normalized = normalizeText(text);
+    // Tách văn bản thành danh sách các từ riêng biệt để tránh quét nhầm từ lót
+    const words = cleanText.split(/[^a-z0-9]+/);
+
     for (let keyword of BANNED_KEYWORDS) {
-        const cleanKeyword = normalizeText(keyword);
-        if (cleanKeyword.length > 1 && normalized.includes(cleanKeyword)) {
-            return true;
+        if (!keyword) continue;
+        
+        const cleanKeyword = keyword.toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[đĐ]/g, "d")
+            .trim();
+
+        // Nếu từ cấm là cụm từ (có dấu cách ở giữa như "oc cho", "me kiếp")
+        if (cleanKeyword.includes(" ")) {
+            if (cleanText.includes(cleanKeyword)) return true;
+        } 
+        // Nếu từ cấm là từ đơn (như "dm", "deo", "vcl") -> Phải đứng độc lập mới chặn
+        else {
+            if (words.includes(cleanKeyword)) return true;
         }
     }
     return false;
