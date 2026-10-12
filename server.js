@@ -56,7 +56,7 @@ const Post = mongoose.model('Post', postSchema);
 // Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// --- HỆ THỐNG KIỂM DUYỆT (CHỈ CHẶN ĐÚNG CÁC TỪ CẤM ĐÃ LIỆT KÊ) ---
+// --- HỆ THỐNG KIỂM DUYỆT (CHỈ CHẶN ĐÚNG CÁC TỪ CẤM NGUYÊN VĂN TRONG DANH SÁCH) ---
 const BANNED_KEYWORDS = [
     // Tiếng Việt tục tĩu, chửi thề
     "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", "l`", "cc", "c.c",
@@ -80,27 +80,21 @@ const BANNED_KEYWORDS = [
 function checkLocalKeywords(text) {
     if (!text) return false;
     
-    const cleanText = text.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[đĐ]/g, "d");
-
-    const words = cleanText.split(/[^a-z0-9]+/);
+    const lowerText = text.toLowerCase();
+    // Tách văn bản thành mảng các từ riêng biệt bằng khoảng trắng và dấu câu
+    const words = lowerText.split(/[\s,.-_!?;:()]+/);
 
     for (let keyword of BANNED_KEYWORDS) {
-        if (!keyword) continue;
-        
-        const cleanKeyword = keyword.toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            .replace(/[đĐ]/g, "d")
-            .trim();
+        const kw = keyword.toLowerCase().trim();
+        if (!kw) continue;
 
-        // Nếu từ cấm là cụm từ (có dấu cách)
-        if (cleanKeyword.includes(" ")) {
-            if (cleanText.includes(cleanKeyword)) return true;
+        // Nếu từ cấm là cụm từ (có chứa khoảng trắng, ví dụ: "oc cho")
+        if (kw.includes(" ")) {
+            if (lowerText.includes(kw)) return true;
         } 
-        // Nếu từ cấm là từ đơn (phải đứng độc lập đúng từ đó mới chặn)
+        // Nếu từ cấm là từ đơn: Phải khớp tuyệt đối với một từ trong câu
         else {
-            if (words.includes(cleanKeyword)) return true;
+            if (words.includes(kw)) return true;
         }
     }
     return false;
