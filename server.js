@@ -57,6 +57,20 @@ const Post = mongoose.model('Post', postSchema);
 // Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
+// --- HỆ THỐNG BỘ LỌC TỪ KHÓA VI PHẠM (MỚI THÊM) ---
+const BANNED_KEYWORDS = [
+    "đồ ngu", "đồ chó", "vô học", "óc chó", "dm", "dcm", "clm", "vcl",
+    "lừa đảo", "scam", "hack", "crack", "pussy", "fuck", "bitch"
+    // Bạn có thể bổ sung thêm các từ ngữ không lành mạnh khác vào đây
+];
+
+function checkBadWords(text) {
+    if (!text) return false;
+    const lowerText = text.toLowerCase();
+    return BANNED_KEYWORDS.some(keyword => lowerText.includes(keyword.toLowerCase()));
+}
+// --------------------------------------------------
+
 // API Giám sát Server
 app.get('/api/health', (req, res) => {
     try {
@@ -142,10 +156,18 @@ app.get('/api/posts/:id/download', async (req, res) => {
     }
 });
 
-// API Đăng bài mới
+// API Đăng bài mới (Đã tích hợp bộ lọc từ cấm)
 app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, authorToken, fileData, fileName, fileSize, fileType } = req.body;
+        
+        // Kiểm tra từ ngữ vi phạm
+        if (checkBadWords(author) || checkBadWords(content)) {
+            return res.status(400).json({ 
+                error: "⚠️ Bài viết chứa ngôn từ không lành mạnh hoặc vi phạm Tiêu chuẩn cộng đồng!" 
+            });
+        }
+
         const rawAuthor = (author || 'Ẩn danh').trim();
         const isVip = VIP_AUTHORS.includes(rawAuthor.toLowerCase());
 
@@ -271,10 +293,18 @@ app.get('/api/posts/:id/comments', async (req, res) => {
     }
 });
 
-// API Thêm Bình luận / Trả lời
+// API Thêm Bình luận / Trả lời (Đã tích hợp bộ lọc từ cấm)
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
         const { author, content, parentId, authorToken } = req.body;
+        
+        // Kiểm tra từ ngữ vi phạm
+        if (checkBadWords(author) || checkBadWords(content)) {
+            return res.status(400).json({ 
+                error: "⚠️ Bình luận chứa từ ngữ không phù hợp với Tiêu chuẩn cộng đồng!" 
+            });
+        }
+
         if (!content || !content.trim()) return res.status(400).json({ error: 'Nội dung rỗng' });
 
         const post = await Post.findById(req.params.id);
@@ -366,7 +396,7 @@ app.post('/api/posts/:postId/comments/:commentId/dislike', async (req, res) => {
 
         if (dislikeIdx === -1) {
             cmt.dislikedBy.push(clientToken);
-            cmt.dislikes = Math.max(0, (cmt.dislikes || 1) - 1);
+            cmt.dislikes = (cmt.dislikes || 0) + 1;
         } else {
             cmt.dislikedBy.splice(dislikeIdx, 1);
             cmt.dislikes = Math.max(0, (cmt.dislikes || 1) - 1);
