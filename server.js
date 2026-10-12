@@ -57,19 +57,81 @@ const Post = mongoose.model('Post', postSchema);
 // Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// --- HỆ THỐNG BỘ LỌC TỪ KHÓA VI PHẠM (MỚI THÊM) ---
+// --- HỆ THỐNG KIỂM DUYỆT NGÔN TỪ NGHIÊM NGẶT (HYBRID FILTER) ---
 const BANNED_KEYWORDS = [
-    "đồ ngu", "đồ chó", "vô học", "óc chó", "dm", "dcm", "clm", "vcl",
-    "lừa đảo", "scam", "hack", "crack", "pussy", "fuck", "bitch"
-    // Bạn có thể bổ sung thêm các từ ngữ không lành mạnh khác vào đây
+    // Tiếng Việt tục tĩu & xúc phạm (cả không dấu, viết tắt, tiếng lóng)
+    "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", 
+    "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml",
+    "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "cho", "vô học",
+    
+    // Tiếng Anh & Quốc tế (Slurs & Toxicity)
+    "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
+    "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga",
+    
+    // Spam, Lừa đảo, Mã độc
+    "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao"
 ];
 
-function checkBadWords(text) {
-    if (!text) return false;
-    const lowerText = text.toLowerCase();
-    return BANNED_KEYWORDS.some(keyword => lowerText.includes(keyword.toLowerCase()));
+// Hàm chuẩn hóa văn bản chống lách luật (xóa dấu, khoảng trắng, ký tự đặc biệt)
+function normalizeText(text) {
+    if (!text) return "";
+    return text.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, "");
 }
-// --------------------------------------------------
+
+// Kiểm tra từ khóa cục bộ với bộ lọc chống lách
+function checkLocalKeywords(text) {
+    if (!text) return false;
+    const rawLower = text.toLowerCase();
+    
+    for (let keyword of BANNED_KEYWORDS) {
+        if (rawLower.includes(keyword.toLowerCase())) return true;
+    }
+
+    const normalized = normalizeText(text);
+    for (let keyword of BANNED_KEYWORDS) {
+        const cleanKeyword = normalizeText(keyword);
+        if (cleanKeyword.length > 1 && normalized.includes(cleanKeyword)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Kiểm tra nâng cao bằng OpenAI Moderation API (Đa ngôn ngữ & Ngữ nghĩa)
+async function checkAIModeration(text) {
+    if (!text || !process.env.OPENAI_API_KEY) return false;
+    
+    try {
+        const response = await fetch('https://api.openai.com/v1/moderations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({ input: text })
+        });
+
+        if (!response.ok) return false;
+        const data = await response.json();
+        
+        if (data.results && data.results[0] && data.results[0].flagged) {
+            return true;
+        }
+    } catch (err) {
+        console.error("Lỗi khi kết nối AI Moderation:", err);
+    }
+    return false;
+}
+
+// Hàm tổng hợp kiểm tra an toàn (Chạy cả 2 lớp bảo vệ)
+async function isToxicContent(text) {
+    if (checkLocalKeywords(text)) return true;
+    if (await checkAIModeration(text)) return true;
+    return false;
+}
+// ------------------------------------------------------------------
 
 // API Giám sát Server
 app.get('/api/health', (req, res) => {
@@ -156,13 +218,13 @@ app.get('/api/posts/:id/download', async (req, res) => {
     }
 });
 
-// API Đăng bài mới (Đã tích hợp bộ lọc từ cấm)
+// API Đăng bài mới (Đã tích hợp kiểm duyệt nghiêm ngặt)
 app.post('/api/posts', async (req, res) => {
     try {
         const { author, content, authorToken, fileData, fileName, fileSize, fileType } = req.body;
         
-        // Kiểm tra từ ngữ vi phạm
-        if (checkBadWords(author) || checkBadWords(content)) {
+        // 🛡️ Kiểm duyệt nội dung & tên tác giả trước khi lưu
+        if (await isToxicContent(author) || await isToxicContent(content)) {
             return res.status(400).json({ 
                 error: "⚠️ Bài viết chứa ngôn từ không lành mạnh hoặc vi phạm Tiêu chuẩn cộng đồng!" 
             });
@@ -293,13 +355,13 @@ app.get('/api/posts/:id/comments', async (req, res) => {
     }
 });
 
-// API Thêm Bình luận / Trả lời (Đã tích hợp bộ lọc từ cấm)
+// API Thêm Bình luận / Trả lời (Đã tích hợp kiểm duyệt nghiêm ngặt)
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
         const { author, content, parentId, authorToken } = req.body;
         
-        // Kiểm tra từ ngữ vi phạm
-        if (checkBadWords(author) || checkBadWords(content)) {
+        // 🛡️ Kiểm duyệt bình luận trước khi lưu
+        if (await isToxicContent(author) || await isToxicContent(content)) {
             return res.status(400).json({ 
                 error: "⚠️ Bình luận chứa từ ngữ không phù hợp với Tiêu chuẩn cộng đồng!" 
             });
