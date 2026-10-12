@@ -56,9 +56,9 @@ const Post = mongoose.model('Post', postSchema);
 // Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
-// --- HỆ THỐNG KIỂM DUYỆT (ĐÃ LỌC BỎ TỪ GÂY NHẦM LẪN VỚI GIAO TIẾP & LÀM GAME) ---
+// --- HỆ THỐNG KIỂM DUYỆT (CHỈ CHẶN ĐÚNG CÁC TỪ CẤM ĐÃ LIỆT KÊ) ---
 const BANNED_KEYWORDS = [
-    // Tiếng Việt tục tĩu, chửi thề thực sự
+    // Tiếng Việt tục tĩu, chửi thề
     "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", "l`", "cc", "c.c",
     "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc",
     "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "vô học", "bố láo",
@@ -67,16 +67,16 @@ const BANNED_KEYWORDS = [
     "bao cao su", "đít", "bao quy đầu", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi",
     "lắm mồm", "vú", "tao giết mày", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex",
     
-    // Tiếng Anh & Quốc tế tục tĩu
+    // Tiếng Anh tục tĩu
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
     "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga", "stfu", "kys", "wtf",
     "blowjob", "fuck you", "dumbass", "pervert", "condom", "suck dick", "pussy hook", 
     
-    // Spam, Lừa đảo, Mã độc phá hoại
+    // Spam, Lừa đảo, Phá hoại mã độc
     "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao", "free robux", "network intrusion", "take down the server"
 ];
 
-// Hàm kiểm tra từ khóa cục bộ thông minh (Chỉ chặn từ đơn độc lập hoặc cụm từ chính xác)
+// Hàm kiểm tra từ khóa cục bộ (Chỉ quét đúng từ cấm độc lập hoặc cụm từ chính xác)
 function checkLocalKeywords(text) {
     if (!text) return false;
     
@@ -98,7 +98,7 @@ function checkLocalKeywords(text) {
         if (cleanKeyword.includes(" ")) {
             if (cleanText.includes(cleanKeyword)) return true;
         } 
-        // Nếu từ cấm là từ đơn (phải đứng độc lập mới chặn, không quét dính chữ cái lót)
+        // Nếu từ cấm là từ đơn (phải đứng độc lập đúng từ đó mới chặn)
         else {
             if (words.includes(cleanKeyword)) return true;
         }
@@ -106,7 +106,7 @@ function checkLocalKeywords(text) {
     return false;
 }
 
-// Kiểm tra nâng cao bằng OpenAI AI Moderation (Nếu có cấu hình Key trên Render)
+// Kiểm tra nâng cao bằng OpenAI AI Moderation (Tùy chọn nếu cấu hình trên Render)
 async function checkAIModeration(text) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!text || !apiKey) return false; 
