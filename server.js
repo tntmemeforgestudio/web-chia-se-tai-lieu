@@ -65,7 +65,7 @@ const BANNED_KEYWORDS = [
     "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh", "địt mẹ", "bú lồn", 
     "mả cha", "óc cặc", "óc lồn", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "mẹ mày", "buồi", "đồ ăn hại",
     "bao cao su", "đít", "bao quy đầu", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi", "cút", "địt", 
-    "lắm mồm", "vú", "tao", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex", "giết", "mày", "chết"
+    "lắm mồm", "vú", "tao", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex", "giết", "mày", "chết",
     
     // Tiếng Anh tục tĩu
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
