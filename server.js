@@ -64,8 +64,8 @@ const BANNED_KEYWORDS = [
     "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "vô học", "bố láo",
     "mả mẹ", "mẹ kiếp", "đồ khốn", "thằng chó", "con đĩ", "chết tiệt", "đầu bò", "thần kinh", "địt mẹ", "bú lồn", 
     "mả cha", "óc cặc", "óc lồn", "dâm tặc", "đéo", "cứt", "ngáo", "bú", "mẹ mày", "buồi", "đồ ăn hại",
-    "bao cao su", "đít", "bao quy đầu", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi",
-    "lắm mồm", "vú", "tao giết mày", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex",
+    "bao cao su", "đít", "bao quy đầu", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi", "cút", "địt", 
+    "lắm mồm", "vú", "tao", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex", "giết", "mày", "chết"
     
     // Tiếng Anh tục tĩu
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
