@@ -53,12 +53,12 @@ const postSchema = new mongoose.Schema({
 
 const Post = mongoose.model('Post', postSchema);
 
-// Tác giả có Tích Vàng ( bạn có thể sử dụng nó ở bất cứ bài đăng nào nếu bạn tôn trọng đúng lời nói của mình và chừng mực )
+// Tác giả có Tích Vàng
 const VIP_AUTHORS = ['nhà phát triển', 'tnt memeforge studio'];
 
 // --- HỆ THỐNG KIỂM DUYỆT (CHỈ CHẶN ĐÚNG CÁC TỪ CẤM NGUYÊN VĂN TRONG DANH SÁCH) ---
 const BANNED_KEYWORDS = [
-    // Không hỗ trợ đối với tiếng việt có ngôn từ không lành mạnh ( đây là ngôn ngữ được ưu tiên, nên bạn cần đọc trước khi lấy toàn bộ hoặc thay đổi )
+    // Tiếng Việt tục tĩu, chửi thề
     "cặc", "cac", "cu", "đụ", "du", "đĩ", "di", "lồn", "lon", "loz", "l`", "cc", "c.c",
     "dcm", "dm", "đcm", "đm", "vcl", "vl", "clm", "cl", "cml", "vcc",
     "ngu", "óc chó", "oc cho", "súc vật", "suc vat", "chó", "vô học", "bố láo",
@@ -67,12 +67,12 @@ const BANNED_KEYWORDS = [
     "bao cao su", "đít", "bao quy đầu", "não tật", "óc bò", "não toàn cứt", "cút mẹ đi", "cút", "địt", 
     "lắm mồm", "vú", "tao", "ngáo buồi", "óc", "wed đen", "xem phim sex", "sex", "giết", "mày", "chết",
     
-    // Từ tiếng anh không lành mạnh ( Có hộ trợ AI kiểu duyệt ngôn từ nên bạn có thể thay đổi hoặc bỏ qua ở phần này )
+    // Từ tiếng anh không lành mạnh
     "fuck", "fuk", "shit", "sh1t", "bitch", "cunt", "ass", "asshole", 
     "bastard", "dick", "pussy", "whore", "slut", "nigger", "nigga", "stfu", "kys", "wtf",
     "blowjob", "fuck you", "dumbass", "pervert", "condom", "suck dick", "pussy hook", 
     
-    // Spam, Lừa đảo, Phá hoại mã độc ( Đây là nhóm ngôn từ thuộc dạng bổ sung không nhất thiết phải thêm vào nếu bạn có sửa mã nguồn hoặc xoá mã nguồn )
+    // Spam, Lừa đảo, Phá hoại mã độc
     "scam", "hack", "crack", "phishing", "malware", "virus", "lừa đảo", "lua dao", "free robux", "network intrusion", "take down the server"
 ];
 
@@ -100,7 +100,7 @@ function checkLocalKeywords(text) {
     return false;
 }
 
-// Kiểm tra nâng cao bằng OpenAI AI Moderation (Tùy chọn nếu cấu hình trên Render, lưu ý khỉ sử dụng AI)
+// Kiểm tra nâng cao bằng OpenAI AI Moderation (Tùy chọn)
 async function checkAIModeration(text) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!text || !apiKey) return false; 
